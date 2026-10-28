@@ -1,0 +1,54 @@
+let lang='ar';try{lang=localStorage.getItem('najmati-lang')||'ar'}catch(e){}
+const L=(k,...a)=>{const v=T[lang][k];return typeof v==='function'?v(...a):v};
+const tr=x=>x&&typeof x==='object'?(x[lang]||x.ar):x;
+
+/* ---------- data ---------- */
+const COLS={blue:'var(--blue)',gold:'var(--gold)',orange:'#FF8A2B',green:'var(--green)',coral:'var(--coral)',violet:'#8A63FF',teal:'#16A9C9',pink:'#F0569F'};
+const ICPICK=['book','math','sparkle','toys','bed','plate','heart','ball','drop','palette','tree','game','star'];
+const PRESETS=[['quran','القرآن','Quran','sparkle','violet'],['sport','الرياضة','Sports','ball','teal'],['manners','الأخلاق والسلوك','Manners','heart','pink'],['health','الصحة والنظافة','Health & hygiene','drop','coral'],['hobby','الهوايات','Hobbies','palette','gold']];
+const BUILTIN=['prayer','study'];
+const PRAYER_CAT={id:'prayer',name:{ar:'الصلاة',en:'Prayer'},ic:'mosque',col:'blue'};
+const allCats=()=>[PRAYER_CAT,...S.cats];
+const catById=id=>allCats().find(c=>c.id===id)||{id,name:id,ic:'tag',col:'blue'};
+const catCls=id=>BUILTIN.includes(id)?id:'cc';
+const catSty=id=>`--cc:${COLS[catById(id).col]||COLS.blue}`;
+let newIc='heart',newCol='violet';
+const ALL=[0,1,2,3,4,5,6];
+const FIXED=[['fajr','صلاة الفجر','Fajr prayer','sunrise',2],['dhuhr','صلاة الظهر','Dhuhr prayer','sun',1],['asr','صلاة العصر','Asr prayer','cloudsun',1],['maghrib','صلاة المغرب','Maghrib prayer','sunset',1],['isha','صلاة العشاء','Isha prayer','moon',1]];
+const DEF_CATS=[{id:'study',name:{ar:'المذاكرة',en:'Study'},ic:'book',col:'gold'},{id:'home',name:{ar:'ترتيب البيت',en:'Home chores'},ic:'toys',col:'orange'}];
+
+function newFamily(uid,email){
+  const t=(id,ar,en,cat,ic,points,time,days=ALL,kids=['k1','k2','k3'])=>({id,title:{ar,en},cat,ic,points,time,days,kids});
+  return {parents:[uid],email,created:serverTimestamp(),city:'dubai',
+    kids:[{id:'k1',name:{ar:'فارس',en:'Fares'},look:'boy'},{id:'k2',name:{ar:'سلطان',en:'Sultan'},look:'boy2'},{id:'k3',name:{ar:'إيلاف',en:'Elaf'},look:'girl',g:'f'}],
+    points:{k1:0,k2:0,k3:0},cats:DEF_CATS,
+    tasks:[t('s1','حل الواجبات المدرسية','Do the homework','study','math',3,'16:00',[0,1,2,3,4]),t('s2','قراءة ١٥ دقيقة','Read for 15 minutes','study','book',2,'18:30'),
+      t('h1','ترتيب السرير','Make the bed','home','bed',1,'07:00'),t('h2','ترتيب الألعاب','Tidy up toys','home','toys',1,'20:00')],
+    rewards:[{id:'r1',title:{ar:'ساعة لعب إضافية',en:'Extra hour of play'},ic:'game',cost:30},{id:'r2',title:{ar:'نزهة في الحديقة',en:'Trip to the park'},ic:'tree',cost:50},{id:'r3',title:{ar:'آيسكريم',en:'Ice cream'},ic:'ice',cost:20},{id:'r4',title:{ar:'اختيار عشاء الجمعة',en:'Pick Friday dinner'},ic:'pizza',cost:40}],
+    adhan:{on:true,pr:{fajr:true,dhuhr:true,asr:true,maghrib:true,isha:true},snd:'chime'}};
+}
+
+/* live state: F is the family document, LT/LP are today's and pending logs; S is the view model built from them */
+let me=null,M=null,F=null,fid=null,LT=[],LP=[],DEV=[],subs=[],logDay='',gate={screen:'welcome',busy:false};
+const V={role:'kid',kid:'k1',tab:'today',ptab:'requests'};
+let S={kids:[],tasks:[],cats:[],rewards:[],logs:[],city:'dubai',adhan:{on:false,pr:{}},view:V,sim:null};
+function rebuild(){
+  const kids=(F.kids||[]).map(k=>({...k,points:(F.points||{})[k.id]||0}));
+  const pr=FIXED.map((f,i)=>({id:'p'+(i+1),title:{ar:f[1],en:f[2]},cat:'prayer',ic:f[3],points:f[4],time:'00:00',pr:f[0],fixed:true,days:ALL,kids:kids.map(k=>k.id)}));
+  const lm=new Map();for(const l of [...LT,...LP])lm.set(l.id,l);
+  S={kids,tasks:[...pr,...(F.tasks||[])],cats:F.cats||DEF_CATS,rewards:F.rewards||[],logs:[...lm.values()],city:F.city||'dubai',adhan:F.adhan||{on:false,pr:{}},view:V,sim:null};
+  if(M.role==='kid'){V.role='kid';V.kid=M.kid}
+  else if(!kids.find(k=>k.id===V.kid)&&kids[0])V.kid=kids[0].id;
+}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const kid=id=>S.kids.find(k=>k.id===id);
+const task=id=>S.tasks.find(t=>t.id===id);
+const log=(t,k)=>S.logs.find(l=>l.task===t&&l.kid===k&&l.date===today());
+const fmt=t=>{let[h,m]=t.split(':').map(Number);const p=h<12?L('am'):L('pm');h=h%12||12;return `${h}:${String(m).padStart(2,'0')} ${p}`};
+const todays=k=>S.tasks.filter(t=>t.fixed||(t.kids.includes(k)&&t.days.includes(localDow()))).sort((a,b)=>tm(a).localeCompare(tm(b)));
+const kn=k=>esc(tr(k.name));
+const famRef=()=>doc(db,'families',fid);
+const logsCol=()=>collection(db,'families',fid,'logs');
+const fail=e=>{console.error(e);toast(navigator.onLine?L('err'):L('offline'))};
+const famUpdate=o=>updateDoc(famRef(),o).catch(fail);

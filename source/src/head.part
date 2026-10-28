@@ -1,0 +1,16 @@
+/* Nujoomi: installable family app. Parents sign in with email; each child's device is linked once with a code from the parent. */
+import {initializeApp} from 'firebase/app';
+import {getAuth,connectAuthEmulator,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signInAnonymously,signOut,setPersistence,indexedDBLocalPersistence} from 'firebase/auth';
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,connectFirestoreEmulator,doc,getDoc,setDoc,updateDoc,deleteDoc,onSnapshot,collection,query,where,writeBatch,increment,serverTimestamp,Timestamp,addDoc,deleteField} from 'firebase/firestore';
+
+const EMU=new URLSearchParams(location.search).has('emu');
+const CFG=EMU?{apiKey:'demo-key',authDomain:'localhost',projectId:'demo-najmati',appId:'demo'}:window.FIREBASE_CONFIG;
+let fbApp=null,auth=null,db=null;
+if(CFG){
+  fbApp=initializeApp(CFG);
+  auth=getAuth(fbApp);
+  db=initializeFirestore(fbApp,EMU?{ignoreUndefinedProperties:true}:{ignoreUndefinedProperties:true,localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+  if(EMU){connectAuthEmulator(auth,'http://127.0.0.1:9099',{disableWarnings:true});connectFirestoreEmulator(db,'127.0.0.1',8080)}
+}
+
+/* ---------- icons ---------- */

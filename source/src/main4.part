@@ -1,0 +1,178 @@
+/* ---------- writes ---------- */
+function approve(ls){
+  const b=writeBatch(db);
+  for(const l of ls){
+    const pts=l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
+    b.update(famRef(),{['points.'+l.kid]:increment(pts)});
+    b.update(doc(logsCol(),l.id),{status:'approved',by:me.uid});
+  }
+  return b.commit().catch(fail);
+}
+const setKids=kids=>famUpdate({kids});
+async function makeCode(kidId){
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(const x of crypto.getRandomValues(new Uint8Array(6)))c+=A[x%A.length];
+  const k=kid(kidId);
+  try{await setDoc(doc(db,'links',c),{fid,kid:kidId,exp:Timestamp.fromMillis(Date.now()+30*60000),by:me.uid})}catch(e){fail(e);return}
+  const sh=sheet(`${av(k,'lg')}<h2>${L('codeFor',kn(k))}</h2><div class="codeShow" dir="ltr">${c}</div><p style="margin:0;color:var(--muted)">${L('codeSteps')}</p><div class="row"><button class="btn go" id="cClose">${I('check')}${L('close')}</button></div>`);
+  sh.querySelector('#cClose').onclick=()=>sh.remove();
+}
+const devName=()=>{const u=navigator.userAgent;return /iPad/.test(u)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'iPad':/iPhone/.test(u)?'iPhone':/Android/.test(u)?'Android':'Web'};
+let linking=false;
+async function linkDevice(code){
+  linking=true;gate.busy=true;render();
+  try{
+    if(!auth.currentUser)await signInAnonymously(auth);
+    const ls=await getDoc(doc(db,'links',code));
+    if(!ls.exists()||ls.data().exp.toMillis()<Date.now())throw {code:'bad'};
+    const l=ls.data();
+    await setDoc(doc(db,'members',auth.currentUser.uid),{fid:l.fid,role:'kid',kid:l.kid,code,dev:devName(),at:serverTimestamp()});
+    linking=false;gate.busy=false;await onUser(auth.currentUser);
+  }catch(e){linking=false;gate.busy=false;console.error(e);toast(e.code==='bad'||e.code==='permission-denied'?L('badCode'):L('err'));render()}
+}
+const authErr=e=>({'auth/invalid-credential':'errAuth','auth/wrong-password':'errAuth','auth/user-not-found':'errAuth','auth/email-already-in-use':'errInUse','auth/weak-password':'errWeak','auth/invalid-email':'errEmail'}[e.code]||'err');
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  const d=b.dataset;
+  if(b.id==='roleKid'){V.role='kid';render()}
+  else if(b.id==='roleParent'){V.role='parent';render()}
+  else if(b.id==='mode'){theme=isDark()?'light':'dark';try{localStorage.setItem('najmati-theme',theme)}catch(e){}applyTheme()}
+  else if(b.id==='lang'){lang=lang==='ar'?'en':'ar';try{localStorage.setItem('najmati-lang',lang)}catch(e){}applyLang();render()}
+  else if(b.id==='palBtn'){palOpen($('#palMenu').hidden)}
+  else if(d.pal){pal=d.pal;try{localStorage.setItem('najmati-pal',pal)}catch(e){}applyPal();palOpen(false);build()}
+  else if(b.id==='goParent'||b.id==='tLogin'){gate.screen='login';render()}
+  else if(b.id==='tSignup'){gate.screen='signup';render()}
+  else if(b.id==='goKid'){gate.screen='kid';render();$('#aCode')?.focus()}
+  else if(b.id==='gateBack'){gate.screen='welcome';render()}
+  else if(b.id==='forgot'){const em=$('#aEmail').value.trim();if(!em){toast(L('enterEmail'));return}sendPasswordResetEmail(auth,em).then(()=>toast(L('resetSent'))).catch(e=>toast(L(authErr(e))))}
+  else if(b.id==='doInstall'){deferredInstall?.prompt();deferredInstall=null;installHint()}
+  else if(d.pin!==undefined){if(d.pin==='⌫')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<4)pinBuf+=d.pin;
+    if(pinBuf.length===4){if(pinBuf===kid(M.kid).pin){pinOk=true;try{sessionStorage.setItem('najmati-unlocked',M.kid)}catch(e){}pinBuf='';render();return}pinBuf='';toast(L('wrongPin'))}render()}
+  else if(b.id==='logout'){signOut(auth)}
+  else if(d.photo){pickPhoto(d.photo)}
+  else if(d.unphoto){setKids(F.kids.map(k=>{if(k.id!==d.unphoto)return k;const {photo,...rest}=k;return rest}))}
+  else if(d.linkdev){makeCode(d.linkdev)}
+  else if(d.unlink){deleteDoc(doc(db,'members',d.unlink)).then(()=>toast(L('unlinked'))).catch(fail)}
+  else if(d.delkid){const k=kid(d.delkid);const sh=sheet(`${av(k,'lg')}<h2>${L('delKidQ',kn(k))}</h2><div class="row"><button class="btn no" id="dkNo">${L('notYet')}</button><button class="btn go" id="dkYes" style="background:linear-gradient(180deg,var(--coral2),var(--coral))">${I('trash')}${L('delKidOk')}</button></div>`);
+    sh.querySelector('#dkNo').onclick=()=>sh.remove();
+    sh.querySelector('#dkYes').onclick=()=>{sh.remove();const id=k.id;
+      famUpdate({kids:F.kids.filter(x=>x.id!==id),tasks:(F.tasks||[]).map(t=>({...t,kids:t.kids.filter(x=>x!==id)})).filter(t=>t.kids.length),['points.'+id]:deleteField()}).then(()=>toast(L('kidDeleted')));
+      DEV.filter(x=>x.kid===id).forEach(x=>deleteDoc(doc(db,'members',x.id)).catch(()=>{}))}}
+  else if(d.kid){V.kid=d.kid;render()}
+  else if(d.tab){V.tab=d.tab;render()}
+  else if(d.ptab){V.ptab=d.ptab;render()}
+  else if(d.task){
+    const t=task(d.task),k=kid(V.kid),l=log(t.id,k.id);
+    if(t.pr&&(!l||l.status==='rejected')){const ps=prayerState(t);if(ps.s==='locked'){toast(L('notYetTime',dur(ps.left)));return}if(ps.s==='missed'){toast(L('missedT'));return}}
+    if(l&&l.status!=='rejected'){toast(l.status==='pending'?L('withParent'):L('alreadyOk'));return}
+    const sh=sheet(`<span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span><h2>${L('ask',esc(tr(t.title)))}</h2><p style="margin:0;color:var(--muted)">${L('askP',t.points)}</p>
+      <div class="row"><button class="btn go" id="yes">${I('check')}${L('yes')}</button><button class="btn no" id="notyet">${L('notYet')}</button></div>`);
+    sh.querySelector('#notyet').onclick=()=>sh.remove();
+    sh.querySelector('#yes').onclick=ev=>{burst(ev.clientX,ev.clientY);sh.remove();
+      setDoc(doc(logsCol(),`${today()}_${k.id}_${t.id}`),{task:t.id,kid:k.id,date:today(),status:'pending',at:now(),ts:serverTimestamp()}).catch(fail);toast(L('sent'))};
+  }
+  else if(d.reward){
+    const r=S.rewards.find(x=>x.id===d.reward),k=kid(V.kid);
+    if(k.points<r.cost){toast(L('need',r.cost-k.points));return}
+    if(S.logs.some(l=>l.reward===r.id&&l.kid===k.id&&l.status==='pending')){toast(L('withParent'));return}
+    addDoc(logsCol(),{reward:r.id,kid:k.id,date:today(),status:'pending',at:now(),ts:serverTimestamp()}).catch(fail);burst(e.clientX,e.clientY);toast(L('rewardSent'));
+  }
+  else if(d.okall){const k=kid(d.okall);approve(S.logs.filter(l=>l.kid===k.id&&l.status==='pending'));burst(e.clientX,e.clientY);toast(L('okFor',tr(k.name)))}
+  else if(d.ok){const l=S.logs.find(x=>x.id===d.ok);if(!l)return;approve([l]);burst(e.clientX,e.clientY);toast(L('okFor',tr(kid(l.kid).name)))}
+  else if(d.rej){updateDoc(doc(logsCol(),d.rej),{status:'rejected',by:me.uid}).catch(fail);toast(L('rejected_t'))}
+  else if(d.del){famUpdate({tasks:F.tasks.filter(t=>t.id!==d.del)});toast(L('deleted'))}
+  else if(d.icpick){newIc=d.icpick;document.querySelectorAll('[data-icpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+  else if(d.colpick){newCol=d.colpick;document.querySelectorAll('[data-colpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+  else if(d.preset){const p=PRESETS.find(x=>x[0]===d.preset);famUpdate({cats:[...S.cats,{id:p[0],name:{ar:p[1],en:p[2]},ic:p[3],col:p[4]}]});toast(L('typeAdded'))}
+  else if(d.delcat){const n=S.tasks.filter(t=>t.cat===d.delcat).length;if(n){toast(L('typeInUse',n));return}famUpdate({cats:S.cats.filter(c=>c.id!==d.delcat)});toast(L('typeDeleted'))}
+  else if(b.id==='adOn'){famUpdate({'adhan.on':!S.adhan.on})}
+  else if(d.adpr){const v=!S.adhan.pr?.[d.adpr];b.setAttribute('aria-pressed',v);famUpdate({['adhan.pr.'+d.adpr]:v})}
+  else if(b.id==='adTest'){playAdhan();toast(L('playing'))}
+  else if(b.id==='fAll'){const on=b.getAttribute('aria-pressed')!=='true';document.querySelectorAll('#fKids [data-k]').forEach(x=>x.setAttribute('aria-pressed',on));b.setAttribute('aria-pressed',on);syncKidsPick()}
+  else if(d.day!==undefined||d.k){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');if(d.k)syncKidsPick()}
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='fCountry'){famUpdate({city:PLACES.find(c=>c.id===e.target.value).cities[0][0]})}
+  else if(e.target.id==='fCity'){famUpdate({city:e.target.value})}
+});
+document.addEventListener('input',e=>{if(e.target.id==='aCode'){const v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(v!==e.target.value)e.target.value=v}});
+document.addEventListener('submit',async e=>{
+  const f=e.target;
+  if(f.id==='authForm'){e.preventDefault();const em=$('#aEmail').value.trim(),pw=$('#aPass').value;gate.email=em;gate.busy=true;render();
+    try{if(gate.screen==='signup')await createUserWithEmailAndPassword(auth,em,pw);else await signInWithEmailAndPassword(auth,em,pw)}
+    catch(err){toast(L(authErr(err)))}gate.busy=false;if(!F)render();return}
+  if(f.id==='codeForm'){e.preventDefault();const c=$('#aCode').value.trim().toUpperCase();if(c.length===6)linkDevice(c);else toast(L('badCode'));return}
+  if(f.dataset.kidform){e.preventDefault();const fd=new FormData(f),id=f.dataset.kidform,pin=String(fd.get('pin')||'').trim();
+    if(pin&&!/^\d{4}$/.test(pin)){toast(L('pinPh'));return}
+    const look=fd.get('look');
+    setKids(F.kids.map(k=>{if(k.id!==id)return k;const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||fd.get('ar').trim()},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
+    document.activeElement?.blur();return}
+  if(f.id==='newKid'){e.preventDefault();const fd=new FormData(f),nm=fd.get('ar').trim(),look=fd.get('look');if(!nm)return;
+    const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:nm},look};if(look==='girl')k.g='f';
+    famUpdate({kids:[...F.kids,k],['points.'+k.id]:0}).then(()=>toast(L('kidAdded')));document.activeElement?.blur();return}
+  if(f.id==='catForm'){e.preventDefault();const nm=$('#fcName').value.trim();if(!nm)return;famUpdate({cats:[...S.cats,{id:'c'+Date.now(),name:nm,ic:newIc,col:newCol}]});document.activeElement?.blur();toast(L('typeAdded'));return}
+  if(f.id!=='addForm')return;
+  e.preventDefault();
+  const days=[...document.querySelectorAll('#fDays [aria-pressed="true"]')].map(b=>+b.dataset.day);
+  const kids=[...document.querySelectorAll('#fKids [data-k][aria-pressed="true"]')].map(b=>b.dataset.k);
+  if(!days.length||!kids.length){toast(L('pickOne'));return}
+  const cat=$('#fCat').value;
+  famUpdate({tasks:[...(F.tasks||[]),{id:'t'+Date.now(),title:$('#fTitle').value.trim(),cat,ic:catById(cat).ic,points:Math.max(1,+$('#fPts').value||1),time:$('#fTime').value||'17:00',days,kids}]});
+  document.activeElement?.blur();toast(L('added'));
+});
+function syncKidsPick(){const ks=[...document.querySelectorAll('#fKids [data-k]')],on=ks.filter(x=>x.getAttribute('aria-pressed')==='true');$('#fAll').setAttribute('aria-pressed',on.length===ks.length);
+  $('#fHint').textContent=on.length===ks.length?L('forAll'):on.length?L('forSome',on.map(x=>x.textContent.trim()).join(L('sep'))):L('pickOne')}
+
+/* ---------- adhan alert (one shared audio context, unlocked by the first tap so it can play later) ---------- */
+let adCtx=null,adOut=null;
+function actx(){if(!adCtx)adCtx=new (window.AudioContext||window.webkitAudioContext)();if(adCtx.state==='suspended')adCtx.resume();return adCtx}
+document.addEventListener('pointerdown',()=>{try{actx()}catch(e){}},{once:true});
+function stopAdhan(){if(adOut){try{adOut.disconnect()}catch(e){}adOut=null}}
+function chime(){try{const c=actx();stopAdhan();adOut=c.createGain();adOut.connect(c.destination);const out=adOut,notes=[523.25,659.25,783.99,1046.5,783.99,1046.5];let t=c.currentTime+.05;
+  for(let r=0;r<2;r++){notes.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),o2=c.createOscillator();o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*2;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+1.4);o.connect(g);o2.connect(g);g.connect(out);o.start(t);o2.start(t);o.stop(t+1.5);o2.stop(t+1.5);t+=i===notes.length-1?.9:.32})}}catch(e){}}
+const playAdhan=chime;
+function showAdhan(k){const sh=sheet(`<span class="chip prayer adhanChip">${I('mosque')}</span><h2>${L('adhanNow',L('pn_'+k))}</h2><p style="margin:0;color:var(--muted);font-size:20px;font-family:var(--display)">${L('adhanSub')}</p>
+  <div class="row"><button class="btn go" id="adOk">${I('check')}${L('adhanOk')}</button><button class="btn no" id="adStop">${I('speaker')}${L('stopSnd')}</button></div>`);
+  sh.classList.add('adhanSheet');sh.querySelector('#adStop').onclick=stopAdhan;sh.querySelector('#adOk').onclick=()=>{stopAdhan();sh.remove()}}
+function adhanCheck(){if(!F||!M||M.role!=='kid'||!S.adhan?.on||document.querySelector('.adhanSheet'))return;const p=prayerTimes(),n=nowMin(),day=today();
+  let done='';try{done=localStorage.getItem('najmati-alerted')||''}catch(e){}
+  for(const k of PRAYERS){if(!S.adhan.pr?.[k])continue;const st=p[k];if(n>=st&&n<st+15){const key=day+k;if(done===key)continue;try{localStorage.setItem('najmati-alerted',key)}catch(e){}playAdhan();showAdhan(k);break}}}
+
+/* ---------- sync ---------- */
+let logSubs=[];
+function subLogs(){
+  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];
+  const map=s=>s.docs.map(x=>({id:x.id,...x.data()}));
+  const upd=()=>{if(F){rebuild();softRender()}};
+  const lerr=err=>{if(err.code!=='permission-denied')fail(err)};
+  if(M.role==='kid'){logSubs.push(onSnapshot(query(logsCol(),where('kid','==',M.kid),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr))}
+  else{
+    logSubs.push(onSnapshot(query(logsCol(),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr));
+    logSubs.push(onSnapshot(query(logsCol(),where('status','==','pending')),s=>{LP=map(s);upd()},lerr));
+  }
+}
+function unsubAll(){[...subs,...logSubs].forEach(u=>{try{u()}catch(e){}});subs=[];logSubs=[]}
+async function createFamily(u){
+  const ref=doc(collection(db,'families'));const b=writeBatch(db);
+  b.set(ref,newFamily(u.uid,u.email));
+  b.set(doc(db,'members',u.uid),{fid:ref.id,role:'parent',email:u.email,at:serverTimestamp()});
+  await b.commit();return {fid:ref.id,role:'parent'};
+}
+async function onUser(u){
+  unsubAll();me=u;M=null;F=null;fid=null;LT=[];LP=[];DEV=[];logDay='';
+  if(!u){if(gate.screen==='loading')gate.screen='welcome';render();return}
+  if(u.isAnonymous&&linking)return;
+  gate.screen='loading';render();
+  try{
+    const ms=await getDoc(doc(db,'members',u.uid));
+    let m=ms.exists()?ms.data():null;
+    if(!m){if(u.isAnonymous){gate.screen='kid';await signOut(auth);return}m=await createFamily(u)}
+    M=m;fid=m.fid;V.ptab='requests';V.tab='today';V.role=m.role==='kid'?'kid':'parent';if(m.role==='kid')V.kid=m.kid;
+    subs.push(onSnapshot(doc(db,'members',u.uid),s=>{if(!s.exists()&&!s.metadata.fromCache){try{sessionStorage.removeItem('najmati-unlocked')}catch(e){}gate.screen='welcome';signOut(auth)}},()=>{}));
+    subs.push(onSnapshot(famRef(),s=>{if(!s.exists())return;F=s.data();_pt=null;rebuild();if(logDay!==today())subLogs();softRender()},err=>{console.error(err);if(err.code==='permission-denied'){gate.screen='welcome';signOut(auth)}else fail(err)}));
+    if(m.role==='parent')subs.push(onSnapshot(query(collection(db,'members'),where('fid','==',fid),where('role','==','kid')),s=>{DEV=s.docs.map(x=>({id:x.id,...x.data()}));if(F)softRender()},()=>{}));
+  }catch(e){console.error(e);toast(L('err'));gate.screen='welcome';try{await signOut(auth)}catch(x){}render()}
+}
+function tick(){if(!F)return;if(logDay!==today())subLogs();if(!document.querySelector('.sheet'))softRender()}

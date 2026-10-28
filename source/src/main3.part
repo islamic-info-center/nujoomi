@@ -1,0 +1,216 @@
+const PRAYERS=['fajr','dhuhr','asr','maghrib','isha'];
+function place(){for(const c of PLACES)for(const x of c.cities)if(x[0]===S.city)return{country:c,id:x[0],ar:x[1],en:x[2],lat:x[3],lng:x[4]};const c=PLACES[0],x=c.cities[0];return{country:c,id:x[0],ar:x[1],en:x[2],lat:x[3],lng:x[4]}}
+function tzParts(z,d){const p=new Intl.DateTimeFormat('en-US',{timeZone:z,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',weekday:'short'}).formatToParts(d);const g=t=>+p.find(x=>x.type===t).value;return{y:g('year'),mo:g('month'),d:g('day'),h:g('hour')%24,mi:g('minute'),wd:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.find(x=>x.type==='weekday').value)}}
+function tzOff(z,d){const q=tzParts(z,d);return Math.round((Date.UTC(q.y,q.mo-1,q.d,q.h,q.mi)-d.getTime())/9e5)/4}
+/* the family's city decides "today", so every device in the family agrees on the date */
+const today=()=>{const q=tzParts(place().country.z,new Date());return `${q.y}-${String(q.mo).padStart(2,'0')}-${String(q.d).padStart(2,'0')}`};
+const localDow=()=>tzParts(place().country.z,new Date()).wd;
+const now=()=>{const q=tzParts(place().country.z,new Date());return `${String(q.h).padStart(2,'0')}:${String(q.mi).padStart(2,'0')}`};
+let _pt=null,_ptKey='';
+function prayerTimes(){
+  const c=place(),now=new Date(),lp=tzParts(c.country.z,now),key=c.id+lp.y+lp.mo+lp.d;if(_pt&&_ptKey===key)return _pt;
+  const tz=tzOff(c.country.z,now),m=METHODS[c.country.m],R=Math.PI/180;
+  const sin=x=>Math.sin(x*R),cos=x=>Math.cos(x*R),tan=x=>Math.tan(x*R),fix=(a,b)=>((a%b)+b)%b;
+  const D=Date.UTC(lp.y,lp.mo-1,lp.d,12)/864e5+2440587.5-tz/24-2451545;
+  const g=fix(357.529+0.98560028*D,360),q=fix(280.459+0.98564736*D,360),L=fix(q+1.915*sin(g)+0.020*sin(2*g),360),e=23.439-0.00000036*D;
+  const RA=fix(Math.atan2(cos(e)*sin(L),cos(L))/R/15,24),decl=Math.asin(sin(e)*sin(L))/R;let eqt=q/15-RA;if(eqt>12)eqt-=24;if(eqt<-12)eqt+=24;
+  const dh=12+tz-c.lng/15-eqt;
+  const T=a=>Math.acos((-sin(a)-sin(decl)*sin(c.lat))/(cos(decl)*cos(c.lat)))/R/15;
+  const asrAlt=Math.atan(1/(1+tan(Math.abs(c.lat-decl))))/R;
+  const h={fajr:dh-T(m.f),sunrise:dh-T(.833),dhuhr:dh+2/60,asr:dh+T(-asrAlt),maghrib:dh+T(.833)};
+  h.isha=m.im?h.maghrib+m.im/60:dh+T(m.i);
+  h.midnight=Math.min(24-1/60,h.maghrib+(h.fajr+24-h.maghrib)/2);
+  _pt={};for(const k in h)_pt[k]=Math.ceil(h[k]*60);_ptKey=key;return _pt;
+}
+const WIN={fajr:'sunrise',dhuhr:'asr',asr:'maghrib',maghrib:'isha',isha:'midnight'};
+const hhmm=n=>`${String(Math.floor(n/60)%24).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`;
+const tm=t=>t.pr?hhmm(prayerTimes()[t.pr]):t.time;
+function nowMin(){const q=tzParts(place().country.z,new Date());return q.h*60+q.mi}
+function prayerState(t){const p=prayerTimes(),n=nowMin(),st=p[t.pr],en=p[WIN[t.pr]];return n<st?{s:'locked',left:st-n}:n<en?{s:'now',left:en-n,end:en}:{s:'missed',end:en}}
+const dur=m=>{const h=Math.floor(m/60),mm=m%60;return lang==='ar'?(h?`${h} س `:'')+`${mm} د`:(h?`${h}h `:'')+`${mm}m`};
+
+/* ---------- theme, palette, language ---------- */
+let theme=null;try{theme=localStorage.getItem('najmati-theme')}catch(e){}
+const mq=matchMedia('(prefers-color-scheme: dark)');
+const isDark=()=>{const a=document.documentElement.dataset.theme;return a?a==='dark':mq.matches};
+function applyTheme(){if(theme)document.documentElement.dataset.theme=theme;$('#mode').innerHTML=isDark()?I('sun'):I('moon');const tl=isDark()?L('dayMode'):L('nightMode');$('#mode').title=tl;$('#mode').setAttribute('aria-label',tl);
+  const mc=document.querySelector('meta[name=theme-color]');if(mc)mc.content=isDark()?'#0B1640':'#7CC8F5'}
+
+let pal='royal';try{pal=localStorage.getItem('najmati-pal')||'royal'}catch(e){}
+if(!['royal','web','sea','speed','blocks'].includes(pal))pal='royal';
+function applyPal(){document.documentElement.dataset.palette=pal;let cur;document.querySelectorAll('#palMenu button').forEach(b=>{const on=b.dataset.pal===pal;b.setAttribute('aria-selected',on);if(on)cur=b});
+  if(cur){$('#palName').textContent=L('p_'+pal);$('#palSw').style.cssText=cur.getAttribute('style')}}
+function palOpen(o){$('#palMenu').hidden=!o;$('#palBtn').setAttribute('aria-expanded',o)}
+document.addEventListener('click',e=>{if(!e.target.closest('#pal'))palOpen(false)},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')palOpen(false)});
+
+function applyLang(){
+  const app=$('#app');app.dir=lang==='ar'?'rtl':'ltr';app.lang=lang;document.documentElement.lang=lang;document.title=L('brand');
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=L(el.dataset.i18n));
+  $('#lang').innerHTML=`${I('globe')}<span>${L('langBtn')}</span>`;$('#lang').title=L('langTitle');$('#lang').setAttribute('aria-label',L('langTitle'));
+  $('#palBtn').setAttribute('aria-label',L('colors'));
+  applyPal();applyTheme();
+}
+
+/* ---------- views ---------- */
+function render(){
+  const ready=!!(F&&M);
+  $('#roles').hidden=!(ready&&M.role==='parent');
+  if(!ready){$('#view').innerHTML=gateView();installHint();return}
+  if(M.role==='kid'&&kid(M.kid)?.pin&&!unlocked()){document.querySelectorAll('.sheet').forEach(x=>x.remove());$('#view').innerHTML=pinView();return}
+  $('#roleKid').setAttribute('aria-pressed',V.role==='kid');
+  $('#roleParent').setAttribute('aria-pressed',V.role==='parent');
+  $('#view').innerHTML=V.role==='kid'?kidView():parentView();
+  installHint();
+}
+/* data from another device re-renders, but never while someone is typing in a form */
+let renderLater=false;
+function softRender(){if(document.activeElement?.matches?.('#view input,#view select')){renderLater=true;return}render()}
+document.addEventListener('focusout',()=>setTimeout(()=>{if(renderLater&&!document.activeElement?.matches?.('#view input,#view select')){renderLater=false;render()}},0));
+function installHint(){const n=$('#install');if(!n)return;const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(standalone){n.hidden=true;return}
+  if(deferredInstall){n.hidden=false;n.innerHTML=`<button class="btn sun sm" id="doInstall">${I('upload')}${L('installBtn')}</button>`}
+  else if(ios){n.hidden=false;n.innerHTML=`${I('share')} ${L('installIos')}`}else n.hidden=true}
+let deferredInstall=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;installHint()});
+
+function gateView(){
+  const g=gate.screen;
+  if(!CFG)return `<section class="gate panel glass"><span class="logoBig">${I('star')}</span><h2>${L('setupTitle')}</h2><p>${L('setupP')}</p></section>`;
+  if(g==='loading')return `<section class="gate panel glass"><span class="logoBig spin">${I('star')}</span><p>${L('loading')}</p></section>`;
+  if(g==='welcome')return `<section class="gate panel glass"><span class="logoBig">${I('star')}</span><h2>${L('welcome')}</h2><p>${L('welcomeP')}</p>
+    <div class="choose"><button class="choice glass" id="goParent"><span class="chip prayer">${I('users')}</span><b>${L('iAmParent')}</b><small>${L('iAmParentP')}</small></button>
+    <button class="choice glass" id="goKid"><span class="chip study">${I('tablet')}</span><b>${L('iAmKid')}</b><small>${L('iAmKidP')}</small></button></div></section>`;
+  if(g==='login'||g==='signup')return `<section class="gate panel glass"><button class="btn no sm backBtn" id="gateBack">${I('back')}${L('back')}</button>
+    <span class="logoBig">${I('users')}</span><h2>${L(g)}</h2>
+    <div class="tabs"><button class="glass" id="tLogin" aria-pressed="${g==='login'}">${L('login')}</button><button class="glass" id="tSignup" aria-pressed="${g==='signup'}">${L('signup')}</button></div>
+    <form id="authForm" class="gateForm">
+      <label for="aEmail">${L('email')}<input id="aEmail" type="email" autocomplete="email" required dir="ltr" value="${esc(gate.email||'')}"></label>
+      <label for="aPass">${L('password')}<input id="aPass" type="password" autocomplete="${g==='login'?'current-password':'new-password'}" required minlength="6" dir="ltr" placeholder="${L('pwHint')}"></label>
+      <button class="btn go" type="submit" ${gate.busy?'disabled':''}>${I('check')}${L(g)}</button>
+      ${g==='login'?`<button type="button" class="linkBtn" id="forgot">${L('forgot')}</button>`:''}
+    </form></section>`;
+  if(g==='kid')return `<section class="gate panel glass"><button class="btn no sm backBtn" id="gateBack">${I('back')}${L('back')}</button>
+    <span class="logoBig">${I('link')}</span><h2>${L('linkTitle')}</h2><p>${L('linkP')}</p>
+    <form id="codeForm" class="gateForm"><label for="aCode">${L('codeLbl')}<input id="aCode" class="codeIn" required maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" dir="ltr" placeholder="••••••"></label>
+    <button class="btn go" type="submit" ${gate.busy?'disabled':''}>${I('link')}${L('linkBtn')}</button></form></section>`;
+  return '';
+}
+let pinBuf='';
+const unlocked=()=>{try{return sessionStorage.getItem('najmati-unlocked')===M.kid}catch(e){return pinOk}};let pinOk=false;
+function pinView(){const k=kid(M.kid);return `<section class="gate panel glass pinBox">${av(k,'lg')}<h2>${L('pinTitle',kn(k))}</h2>
+  <div class="pinDots">${[0,1,2,3].map(i=>`<i class="${i<pinBuf.length?'on':''}"></i>`).join('')}</div>
+  <div class="pinPad" dir="ltr">${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(n=>n===''?'<span></span>':`<button class="glass" data-pin="${n}">${n}</button>`).join('')}</div></section>`}
+
+function kidPicker(){return M.role==='parent'?`<div class="kids">${S.kids.map(k=>`<button class="kid glass" data-kid="${k.id}" aria-pressed="${V.kid===k.id}">${av(k)}${kn(k)}</button>`).join('')}</div>`:''}
+
+function kidView(){
+  const k=kid(V.kid);if(!k)return '';const list=todays(k.id);
+  const done=list.filter(t=>log(t.id,k.id)?.status==='approved').length;
+  const pct=list.length?Math.round(done/list.length*100):0;
+  const tab=V.tab;
+  let body='';
+  if(tab==='today'){
+    body=allCats().map(cc=>{const c=cc.id;
+      const ts=list.filter(t=>t.cat===c); if(!ts.length)return '';
+      return `<section class="group ${catCls(c)}" style="${catSty(c)}"><h3><span class="chip">${I(cc.ic)}</span>${esc(tr(cc.name))}${c==='prayer'?`<small class="loc">${I('pin')} ${esc(tr(place()))}</small>`:''}<small>${ts.filter(t=>log(t.id,k.id)?.status==='approved').length}/${ts.length}</small></h3><div class="grid">${ts.map(t=>{
+        let st=log(t.id,k.id)?.status, extra='';
+        if(t.pr&&(!st||st==='rejected')){const ps=prayerState(t);if(ps.s!=='now'||!st){st=ps.s;extra=ps.s==='locked'?L('startsIn',dur(ps.left)):ps.s==='now'?L('leftNow',dur(ps.left)):''}}
+        const label={pending:I('hourglass')+L('pending'),approved:I('check')+L('approved'),rejected:I('retry')+L('rejected'),locked:I('lock')+L('locked'),now:I('bell')+L('nowLbl'),missed:I('x')+L('missed')}[st]||'';
+        return `<button class="task glass ${catCls(c)} ${st?'s-'+st:''}" style="${catSty(c)}" data-task="${t.id}">
+          ${st==='approved'?`<span class="seal">${I('check')}</span>`:label?`<span class="state">${label}</span>`:''}
+          <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
+          ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">+${t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
+  }else{
+    body=`<section class="group reward"><h3><span class="chip">${I('gift')}</span>${L('swap')}</h3><div class="grid">${S.rewards.map(r=>{
+      const can=k.points>=r.cost;
+      return `<button class="task glass reward" data-reward="${r.id}" ${can?'':'aria-disabled="true"'}>
+        <span class="chip">${I(r.ic)}</span><span class="t">${esc(tr(r.title))}</span>
+        <span class="meta"><span>${can?L('canNow'):L('left',r.cost-k.points)}</span><span class="pts">${I('star')} ${r.cost}</span></span></button>`}).join('')}</div></section>`;
+  }
+  return `${kidPicker()}
+  <section class="hero glass">
+    <div class="heroMe">${av(k,'lg')}<div><h2>${L('hi',kn(k))}</h2><p>${L('heroP')}</p></div></div>
+    <div class="jar" id="jar"><b>${I('star')}${k.points}</b><span>${L('stars')}</span></div>
+    <div class="progress"><div class="track"><i style="width:${pct}%"></i></div><small>${L('doneOf',done,list.length)}</small></div>
+  </section>
+  <div class="tabs"><button class="glass" data-tab="today" aria-pressed="${tab==='today'}">${I('list')}${L('todayTasks')}</button><button class="glass" data-tab="rewards" aria-pressed="${tab==='rewards'}">${I('gift')}${L('rewards')}</button></div>
+  ${body}`;
+}
+
+function familyView(){
+  return `<section class="panel glass"><h3><span class="chip prayer">${I('users')}</span>${L('family')}</h3>
+  <div class="famList">${S.kids.map(k=>{const devs=DEV.filter(d=>d.kid===k.id);
+    return `<div class="famKid"><div class="avBox">${av(k,'lg')}<div class="avTools"><button class="ico" data-photo="${k.id}" title="${L('changePhoto')}" aria-label="${L('changePhoto')}">${I('camera')}</button><button class="ico del" data-unphoto="${k.id}" title="${L('removePhoto')}" aria-label="${L('removePhoto')}" ${k.photo?'':'disabled'}>${I('trash')}</button></div></div>
+    <form class="kidForm" data-kidform="${k.id}">
+      <label>${L('kidName')}<input name="ar" required value="${esc(k.name.ar)}"></label>
+      <label>${L('kidNameEn')}<input name="en" dir="ltr" value="${esc(k.name.en||'')}"></label>
+      <label>${L('look')}<select name="look">${['boy','boy2','girl'].map(x=>`<option value="${x}" ${x===(k.look||'boy')?'selected':''}>${L('lk_'+x)}</option>`).join('')}</select></label>
+      <label>${L('pin')}<input name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" dir="ltr" placeholder="${L('pinPh')}" value="${esc(k.pin||'')}"></label>
+      <div class="full row" style="justify-content:flex-start"><button class="btn go sm" type="submit">${I('save')}${L('saveBtn')}</button><button class="btn sun sm" type="button" data-linkdev="${k.id}">${I('link')}${L('linkDev')}</button><button class="btn no sm" type="button" data-delkid="${k.id}">${I('trash')}${L('delKid')}</button></div>
+    </form>
+    <div class="devs"><b>${I('tablet')} ${L('devices')}</b>${devs.length?devs.map(d=>`<span class="devPill">${esc(d.dev||'iPad')}<button class="ico del" data-unlink="${d.id}" title="${L('unlink')}" aria-label="${L('unlink')}">${I('x')}</button></span>`).join(''):`<small>${L('noDevices')}</small>`}</div></div>`}).join('')}</div>
+  <form id="newKid" class="kidForm newKid"><label>${L('kidName')}<input name="ar" required></label><label>${L('look')}<select name="look">${['boy','boy2','girl'].map(x=>`<option value="${x}">${L('lk_'+x)}</option>`).join('')}</select></label><div><button class="btn sun" type="submit">${I('plus')}${L('addKid')}</button></div></form></section>
+  <section class="panel glass"><h3><span class="chip study">${I('user')}</span>${L('account')}</h3><p style="margin:0">${L('loggedAs',`<bdi>${esc(me?.email||'')}</bdi>`)}</p><small style="color:var(--muted)">${L('sharedLogin')}</small>
+  <div><button class="btn no" id="logout">${I('logout')}${L('logout')}</button></div></section>`;
+}
+
+function parentView(){
+  const pt=V.ptab;
+  const pend=S.logs.filter(l=>l.status==='pending');
+  let body='';
+  if(pt==='family')body=familyView();
+  else if(pt==='requests'){
+    body=`<section class="stats">${S.kids.map(k=>{const l=todays(k.id),d=l.filter(t=>log(t.id,k.id)?.status==='approved').length;
+      return `<div class="panel glass stat"><div class="avBox">${av(k,'lg')}</div><div><div style="font-weight:700">${kn(k)}</div><b>${k.points}</b> ${L('stars')}<br><small style="color:var(--muted)">${L('todayOf',d,l.length)}</small>${(()=>{const n=l.filter(t=>t.pr&&!log(t.id,k.id)&&prayerState(t).s==='missed').length;return n?`<div class="missedTag">${I('x')} ${L('missedCount',n,k.g==='f')}</div>`:''})()}</div></div>`}).join('')}</section>
+    <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,var(--coral2),var(--coral))">${I('bell')}</span>${L('waiting',pend.length)}</h3>
+    ${pend.length?`<div class="reqCols">${S.kids.map(k=>{const mine=pend.filter(l=>l.kid===k.id);
+      return `<div class="reqKid ${mine.length?'':'clear'}"><div class="reqHead">${av(k)}<b>${kn(k)}</b><span class="cnt">${mine.length}</span>${mine.length>1?`<button class="btn go sm" data-okall="${k.id}">${I('check')}${L('approveAll')}</button>`:''}</div>
+      ${mine.length?mine.map(l=>{const isR=l.reward;const t=isR?S.rewards.find(r=>r.id===l.reward):task(l.task);if(!t)return '';
+        return `<div class="req2"><span class="chip ${isR?'':catCls(t.cat)}" ${isR?'style="background:linear-gradient(135deg,var(--coral2),var(--coral))"':`style="${catSty(t.cat)}"`}>${I(t.ic)}</span><div class="who"><b>${esc(tr(t.title))}</b><small>${isR?L('rewardReq',t.cost):L('saysDone',fmt(l.at),t.points,k.g==='f')}</small></div>
+        <div class="acts"><button class="ico ok" data-ok="${l.id}" title="${L('approve')}" aria-label="${L('approve')}">${I('check')}</button><button class="ico del" data-rej="${l.id}" title="${L('reject')}" aria-label="${L('reject')}">${I('x')}</button></div></div>`}).join('')
+        :`<p class="empty sm">${I('check')} ${L('noReqKid')}</p>`}</div>`}).join('')}</div>`
+      :`<p class="empty">${L('noReq')}</p>`}</section>`;
+  }else{
+    const DAYS=L('days');
+    const pl=place(),pt2=prayerTimes();
+    body=`<section class="panel glass"><h3><span class="chip prayer">${I('pin')}</span>${L('location')}</h3>
+    <form id="locForm" onsubmit="return false">
+      <label for="fCountry">${L('country')}<select id="fCountry">${PLACES.map(c=>`<option value="${c.id}" ${c.id===pl.country.id?'selected':''}>${tr(c)}</option>`).join('')}</select></label>
+      <label for="fCity">${L('city')}<select id="fCity">${pl.country.cities.map(x=>`<option value="${x[0]}" ${x[0]===pl.id?'selected':''}>${lang==='ar'?x[1]:x[2]}</option>`).join('')}</select></label>
+    </form>
+    <div class="autoNote">${I('lock')} ${L('fixedNote')}</div><div class="ptimes">${PRAYERS.map(k=>`<div class="pt"><span>${L('pn_'+k)}</span><b>${fmt(hhmm(pt2[k]))}</b></div>`).join('')}</div>
+    <small style="color:var(--muted)">${L('methodNote')}</small>
+    <div class="adhanBox ${S.adhan.on?'':'off'}">
+      <div class="adhanHead"><span class="chip" style="background:linear-gradient(135deg,var(--gold2),var(--gold))">${I('speaker')}</span><b>${L('adhanTitle')}</b><button class="switch" id="adOn" aria-pressed="${!!S.adhan.on}" aria-label="${L('adhanTitle')}"></button></div>
+      <div class="lbl">${L('adhanFor')}<div class="days">${PRAYERS.map(k=>`<button type="button" data-adpr="${k}" aria-pressed="${!!S.adhan.pr?.[k]}">${I('bell')} ${L('pn_'+k)}</button>`).join('')}</div></div>
+      <div class="row" style="justify-content:flex-start"><button class="btn sun sm" id="adTest">${I('play')}${L('testSnd')}</button></div>
+      <small style="color:var(--muted)">${L('adhanNote')}</small>
+    </div></section>
+    <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('tag')}</span>${L('types')}</h3>
+      <div class="catList"><span class="catPill fixed"><span class="chip prayer">${I('mosque')}</span>${L('prayer')}<small>${I('lock')}</small></span>${S.cats.map(c=>{const n=S.tasks.filter(t=>t.cat===c.id).length;
+        return `<span class="catPill"><span class="chip ${catCls(c.id)}" style="${catSty(c.id)}">${I(c.ic)}</span>${esc(tr(c.name))}<small>${L('taskCount',n)}</small><button class="ico del" data-delcat="${c.id}" aria-label="${L('del')}">${I('x')}</button></span>`}).join('')}</div>
+      ${PRESETS.some(p=>!S.cats.find(c=>c.id===p[0]))?`<div class="lbl">${L('presets')}<div class="days">${PRESETS.filter(p=>!S.cats.find(c=>c.id===p[0])).map(p=>`<button type="button" class="preset" data-preset="${p[0]}" style="--cc:${COLS[p[4]]}">${I('plus')}${I(p[3])} ${lang==='ar'?p[1]:p[2]}</button>`).join('')}</div></div>`:''}
+      <form id="catForm" class="catForm">
+        <label for="fcName">${L('newType')}<input id="fcName" required placeholder="${L('typePh')}"></label>
+        <div class="lbl">${L('icon')}<div class="days icPick">${ICPICK.map(k=>`<button type="button" data-icpick="${k}" aria-pressed="${k===newIc}" aria-label="${k}">${I(k)}</button>`).join('')}</div></div>
+        <div class="lbl">${L('color')}<div class="days colPick">${Object.keys(COLS).map(k=>`<button type="button" data-colpick="${k}" aria-pressed="${k===newCol}" style="--cc:${COLS[k]}" aria-label="${k}"></button>`).join('')}</div></div>
+        <div><button class="btn sun" type="submit">${I('plus')}${L('addType')}</button></div>
+      </form>
+      <small style="color:var(--muted)">${L('typesNote')}</small></section>
+    <section class="panel glass"><h3><span class="chip study">${I('plus')}</span>${L('addTask')}</h3>
+    <form id="addForm">
+      <label for="fTitle">${L('fTitle')}<input id="fTitle" required placeholder="${L('fPh')}"></label>
+      <label for="fCat">${L('fCat')}<select id="fCat">${S.cats.map(c=>`<option value="${c.id}">${esc(tr(c.name))}</option>`).join('')}</select></label>
+      <label for="fTime">${L('fTime')}<input id="fTime" type="time" value="17:00"></label>
+      <label for="fPts">${L('fPts')}<input id="fPts" type="number" min="1" max="10" value="1"></label>
+      <div class="full lbl">${L('fDays')}<div class="days" id="fDays">${DAYS.map((d,i)=>`<button type="button" data-day="${i}" aria-pressed="true">${d}</button>`).join('')}</div></div>
+      <div class="full lbl">${L('fKids')}<div class="days kidsPick" id="fKids"><button type="button" id="fAll" aria-pressed="true">${I('check')} ${L('allKids')}</button>${S.kids.map(k=>`<button type="button" data-k="${k.id}" aria-pressed="true">${av(k)}${kn(k)}</button>`).join('')}</div><small class="pickHint" id="fHint">${L('forAll')}</small></div>
+      <div class="full"><button class="btn sun" type="submit">${I('plus')}${L('addBtn')}</button></div>
+    </form></section>
+    <section class="panel glass"><h3><span class="chip study">${I('clock')}</span>${L('schedule')}</h3><div class="tw"><table><thead><tr><th>${L('thTask')}</th><th>${L('thTime')}</th><th>${L('thDays')}</th><th>${L('thWho')}</th><th>${L('thPts')}</th><th></th></tr></thead><tbody>
+    ${S.tasks.filter(t=>!t.fixed).sort((a,b)=>tm(a).localeCompare(tm(b))).map(t=>`<tr><td><span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span>${esc(tr(t.title))}</td><td>${fmt(tm(t))}</td><td>${t.days.length===7?L('daily'):t.days.map(d=>DAYS[d]).join(L('sep'))}</td><td>${t.kids.map(k=>kid(k)).filter(Boolean).map(kn).join(L('sep'))}</td><td>${t.points}</td><td><button class="btn no sm" data-del="${t.id}" aria-label="${L('del')}">${I('trash')}</button></td></tr>`).join('')}
+    </tbody></table></div></section>`;
+  }
+  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
+}

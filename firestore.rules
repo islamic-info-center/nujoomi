@@ -1,0 +1,51 @@
+rules_version = '2';
+// Nujoomi: a parent sees and edits the whole family; a linked child's device reads the family
+// settings and only its own child's logs, and can only send "done" requests for that child.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isEmailUser() { return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
+    function me() { return get(/databases/$(database)/documents/members/$(request.auth.uid)).data; }
+    function isMember() { return signedIn() && exists(/databases/$(database)/documents/members/$(request.auth.uid)); }
+    function isParentOf(fid) { return isMember() && me().role == 'parent' && me().fid == fid; }
+    function isKidOf(fid) { return isMember() && me().role == 'kid' && me().fid == fid; }
+
+    match /members/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isParentOf(resource.data.fid));
+      allow list: if isParentOf(resource.data.fid);
+      allow create: if signedIn() && request.auth.uid == uid && (
+        (request.resource.data.role == 'parent' && isEmailUser()
+          && request.auth.uid in getAfter(/databases/$(database)/documents/families/$(request.resource.data.fid)).data.parents)
+        || (request.resource.data.role == 'kid'
+          && get(/databases/$(database)/documents/links/$(request.resource.data.code)).data.fid == request.resource.data.fid
+          && get(/databases/$(database)/documents/links/$(request.resource.data.code)).data.kid == request.resource.data.kid
+          && get(/databases/$(database)/documents/links/$(request.resource.data.code)).data.exp > request.time));
+      allow update: if false;
+      allow delete: if signedIn() && (request.auth.uid == uid || isParentOf(resource.data.fid));
+    }
+
+    match /links/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if isParentOf(request.resource.data.fid);
+      allow delete: if isParentOf(resource.data.fid);
+    }
+
+    match /families/{fid} {
+      allow read: if isParentOf(fid) || isKidOf(fid);
+      allow create: if isEmailUser() && request.resource.data.parents == [request.auth.uid];
+      allow update: if isParentOf(fid);
+      allow delete: if false;
+
+      match /logs/{id} {
+        allow read: if isParentOf(fid) || (isKidOf(fid) && resource.data.kid == me().kid);
+        allow create: if isParentOf(fid)
+          || (isKidOf(fid) && request.resource.data.kid == me().kid && request.resource.data.status == 'pending');
+        allow update: if isParentOf(fid)
+          || (isKidOf(fid) && resource.data.kid == me().kid && resource.data.status == 'rejected'
+              && request.resource.data.kid == me().kid && request.resource.data.status == 'pending');
+        allow delete: if isParentOf(fid);
+      }
+    }
+  }
+}

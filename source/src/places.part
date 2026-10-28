@@ -1,0 +1,11 @@
+const METHODS={uae:{f:18.2,i:18.2},umm:{f:18.5,im:90},kw:{f:18,i:17.5},qa:{f:18,im:90},mwl:{f:18,i:17},eg:{f:19.5,i:17.5},jo:{f:18,i:18}};
+const PLACES=[
+ {id:'ae',ar:'الإمارات',en:'UAE',m:'uae',z:'Asia/Dubai',cities:[['dubai','دبي','Dubai',25.2048,55.2708],['abudhabi','أبوظبي','Abu Dhabi',24.4539,54.3773],['sharjah','الشارقة','Sharjah',25.3463,55.4209],['ajman','عجمان','Ajman',25.4052,55.5136],['uaq','أم القيوين','Umm Al Quwain',25.5647,55.5552],['rak','رأس الخيمة','Ras Al Khaimah',25.8007,55.9762],['fujairah','الفجيرة','Fujairah',25.1288,56.3265],['alain','العين','Al Ain',24.2075,55.7447]]},
+ {id:'sa',ar:'السعودية',en:'Saudi Arabia',m:'umm',z:'Asia/Riyadh',cities:[['riyadh','الرياض','Riyadh',24.7136,46.6753],['jeddah','جدة','Jeddah',21.4858,39.1925],['makkah','مكة المكرمة','Makkah',21.3891,39.8579],['madinah','المدينة المنورة','Madinah',24.5247,39.5692],['dammam','الدمام','Dammam',26.4207,50.0888]]},
+ {id:'kw',ar:'الكويت',en:'Kuwait',m:'kw',z:'Asia/Kuwait',cities:[['kuwait','مدينة الكويت','Kuwait City',29.3759,47.9774]]},
+ {id:'qa',ar:'قطر',en:'Qatar',m:'qa',z:'Asia/Qatar',cities:[['doha','الدوحة','Doha',25.2854,51.531]]},
+ {id:'bh',ar:'البحرين',en:'Bahrain',m:'umm',z:'Asia/Bahrain',cities:[['manama','المنامة','Manama',26.2285,50.586]]},
+ {id:'om',ar:'عُمان',en:'Oman',m:'mwl',z:'Asia/Muscat',cities:[['muscat','مسقط','Muscat',23.588,58.3829],['salalah','صلالة','Salalah',17.0151,54.0924]]},
+ {id:'eg',ar:'مصر',en:'Egypt',m:'eg',z:'Africa/Cairo',cities:[['cairo','القاهرة','Cairo',30.0444,31.2357],['alex','الإسكندرية','Alexandria',31.2001,29.9187]]},
+ {id:'jo',ar:'الأردن',en:'Jordan',m:'jo',z:'Asia/Amman',cities:[['amman','عمّان','Amman',31.9454,35.9284]]}
+];
