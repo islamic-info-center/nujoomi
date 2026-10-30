@@ -2,7 +2,8 @@
 /* ---------- play: an adventure map of short quiz journeys ----------
    To add questions: add a journey to QZ (or a question to a journey). In each question the
    first answer is the correct one; answers are shuffled on screen. */
-const QUIZ_PTS=5;
+/* one star per question; a journey pays out once, the first time it is finished */
+const jPts=j=>QZ[j]?.q.length||5;
 const QZ=[
  {t:{ar:'ربّي الله',en:'My Lord is Allah'},ic:'star',c:['#FFC94A','#FF8A3D'],q:[
   {q:{ar:'من ربّك؟',en:'Who is your Lord?'},a:[{ar:'الله',en:'Allah'},{ar:'الشمس',en:'The sun'},{ar:'القمر',en:'The moon'}]},
@@ -43,12 +44,12 @@ const QZ=[
 ];
 Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advP:'أكمل الرحلات واجمع النجوم',
   journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:f=>f?'لا بأس، حاولي مرة أخرى!':'لا بأس، حاول مرة أخرى!',qGo:f=>f?'اختاري الإجابة الصحيحة!':'اختر الإجابة الصحيحة!',qNext:'السؤال التالي، هيّا!',jLocked:'أكمل الرحلة التي قبلها أولاً',
-  jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم لجرّتك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
+  jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم أُضيفت لرصيدك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
   nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل الرحلات! رحلات جديدة قريبًا',onWay:'في الطريق',
   praise:['أحسنت! بارك الله فيك','ممتاز! ما شاء الله','أحسنت يا بطل!','بارك الله فيك!','إجابة صحيحة، أحسنت!','ما شاء الله عليك!'],praiseF:['أحسنتِ! بارك الله فيكِ','ممتازة! ما شاء الله','أحسنتِ يا بطلة!','بارك الله فيكِ!','إجابة صحيحة، أحسنتِ!','ما شاء الله عليكِ!']});
 Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advP:'Finish journeys and collect stars',
   journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:"That's okay, try again!",qGo:()=>'Pick the right answer!',qNext:'Next question, let\'s go!',jLocked:'Finish the journey before it first',
-  jWin:'Journey complete!',jStars:n=>`+${n} stars for your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
+  jWin:'Journey complete!',jStars:n=>`+${n} stars added to your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
   nextJ:'Next journey',toMap:'Map',allDone:'You finished every journey! New ones are coming soon',onWay:'On the way',
   praise:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!'],praiseF:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!']});
 
@@ -84,7 +85,7 @@ function drawQ(){
   const ans=shuffle(Q.a.map((a,x)=>({a,x})));
   const w=WW[pal]||WW.royal;el.className='quizScr w-'+pal;el.style.setProperty('--s1',w.sky[0]);el.style.setProperty('--s2',w.sky[1]);el.style.setProperty('--acc',w.acc);
   el.innerHTML=`<div class="qTop"><button class="ico qClose" data-qclose="1" aria-label="${L('toMap')}">${I('x')}</button>
-    <div class="qDots">${J.q.map((_,x)=>`<i class="${x<QS.i?'on':x===QS.i?'cur':''}"></i>`).join('')}</div><span class="qMe">${k?av(k):''}</span></div>
+    <div class="qDots">${J.q.map((_,x)=>`<i class="${x<QS.i?'on':x===QS.i?'cur':''}"></i>`).join('')}</div><span class="qStarN" id="qStarN">${I('star')}<bdi dir="ltr">${QS.i}/${J.q.length}</bdi></span><span class="qMe">${k?av(k):''}</span></div>
     <div class="qStage"><span class="wBd idle">${wBuddy('idle')}</span><div class="qPraise" aria-live="polite">${QS.i?L('qNext'):L('qGo',k?.g==='f')}</div></div>
     <div class="qCard"><span class="qBadge">${I(J.ic)} ${L('journey',QS.j+1)} · ${L('qOf',QS.i+1,J.q.length)}</span><h2>${esc(tr(Q.q))}</h2></div>
     <div class="qAns">${ans.map((o,n)=>`<button class="qA" data-qa="${o.x}"><span class="qL">${(lang==='ar'?'أبج':'ABC')[n]}</span><span>${esc(tr(o.a))}</span></button>`).join('')}</div>`;
@@ -92,7 +93,7 @@ function drawQ(){
 function answerQ(btn,e){
   if(!QS||QS.lock)return;const k=kid(QS.k),J=QZ[QS.j],pr=document.querySelector('.qPraise');
   if(btn.dataset.qa==='0'){
-    QS.lock=true;btn.classList.add('right');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);
+    QS.lock=true;btn.classList.add('right');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);flyStar(r);
     const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');cheer('ok',p);
     setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<J.q.length)drawQ();else finishJ()},1300);
   }else{
@@ -106,13 +107,16 @@ function finishJ(){
   try{if(stars>qBest(kidId,j))localStorage.setItem(`najmati-q-${kidId}-${j}`,stars)}catch(e){}
   const first=!qLog(kidId,j),id=`quiz_${kidId}_${j}`,rec={quiz:j,kid:kidId,date:'quiz',day:today(),at:now(),miss,ts:serverTimestamp()};
   if(first){
-    if(M.role==='parent'){const b=writeBatch(db);b.set(doc(logsCol(),id),{...rec,status:'approved',by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(QUIZ_PTS)});b.commit().catch(fail)}
-    else setDoc(doc(logsCol(),id),{...rec,status:'pending'}).catch(fail);
+    const n=jPts(j),b=writeBatch(db);
+    b.update(famRef(),{['points.'+kidId]:increment(n),[`qz.${kidId}_${j}`]:true});
+    b.set(doc(logsCol(),id),{...rec,pts:n,status:'approved',...(M.role==='parent'?{by:me.uid}:{})});
+    /* older family rules only let a child send a request; then the parent's app pays the stars */
+    b.commit().catch(e=>{if(M.role==='kid'&&e.code==='permission-denied'){setDoc(doc(logsCol(),id),{...rec,status:'pending'}).catch(fail);const w=document.querySelector('.qWait');if(w)w.hidden=false}else fail(e)});
   }
   const more=j+1<QZ.length;
   el.className='quizScr w-'+pal;el.innerHTML=`<div class="qWin"><div class="qWinStars">${[1,2,3].map(s=>`<i class="${s<=stars?'on':''}" style="--d:${s*.18}s">${I('star')}</i>`).join('')}</div>
     <span class="wBd happy big">${wBuddy('happy')}</span><h2>${L('jWin')}</h2><p class="qJ">${esc(tr(J.t))}</p>
-    ${first?`<p class="qGain">${I('star')} ${L('jStars',QUIZ_PTS)}</p>${M.role==='kid'?`<small>${L('jWait')}</small>`:''}`:`<p>${L('jReplay')}</p>`}
+    ${first?`<p class="qGain">${I('star')} ${L('jStars',jPts(j))}</p><small class="qWait" hidden>${L('jWait')}</small>`:`<p>${L('jReplay')}</p>`}
     <div class="row">${more?`<button class="btn go" data-journey="${j+1}">${L('nextJ')}</button>`:`<p>${L('allDone')}</p>`}<button class="btn" data-qclose="1">${L('toMap')}</button></div></div>`;
   sndWin();cheer('win',L('jWin'),600);
   for(let n=0;n<4;n++)setTimeout(()=>burst(innerWidth*(.2+.6*Math.random()),innerHeight*(.25+.3*Math.random())),n*250);
@@ -126,3 +130,8 @@ function autoQuiz(){
   const ls=LQ.filter(l=>l.status==='pending'&&l.id===`quiz_${l.kid}_${l.quiz}`&&kid(l.kid)&&!qAuto.has(l.id));
   if(!ls.length)return;ls.forEach(l=>qAuto.add(l.id));approve(ls);
 }
+
+function flyStar(r){const t=document.getElementById('qStarN');if(!t)return;const e=document.createElement('span');e.className='flyStar';e.innerHTML=I('star');
+  const tr=t.getBoundingClientRect();e.style.left=(r.left+r.width/2-22)+'px';e.style.top=(r.top+r.height/2-22)+'px';document.body.appendChild(e);
+  requestAnimationFrame(()=>{e.style.transform=`translate(${tr.left+tr.width/2-(r.left+r.width/2)}px,${tr.top+tr.height/2-(r.top+r.height/2)}px) scale(.5)`;e.style.opacity='.9'});
+  setTimeout(()=>{e.remove();if(QS){t.querySelector('bdi').textContent=`${QS.i+1}/${QZ[QS.j].q.length}`;t.classList.remove('bump');void t.offsetWidth;t.classList.add('bump')}},650)}

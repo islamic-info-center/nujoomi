@@ -10,6 +10,20 @@ service cloud.firestore {
     function isParentOf(fid) { return isMember() && me().role == 'parent' && me().fid == fid; }
     function isKidOf(fid) { return isMember() && me().role == 'kid' && me().fid == fid; }
 
+    // A child's device may add its own quiz stars: one new journey key (kid_N) and at most 10 stars, once per journey.
+    function kidQuizPay(fid) {
+      let k = me().kid;
+      let d = request.resource.data;
+      let o = resource.data;
+      let q = d.get('qz', {}).diff(o.get('qz', {}));
+      return isKidOf(fid)
+        && d.diff(o).affectedKeys().hasOnly(['points', 'qz'])
+        && d.points.diff(o.points).affectedKeys().hasOnly([k])
+        && d.points[k] > o.points.get(k, 0) && d.points[k] <= o.points.get(k, 0) + 10
+        && q.addedKeys().size() == 1 && q.changedKeys().size() == 0 && q.removedKeys().size() == 0
+        && q.addedKeys().hasOnly([k + '_0', k + '_1', k + '_2', k + '_3', k + '_4', k + '_5', k + '_6', k + '_7', k + '_8', k + '_9', k + '_10', k + '_11', k + '_12', k + '_13', k + '_14', k + '_15', k + '_16', k + '_17', k + '_18', k + '_19']);
+    }
+
     match /members/{uid} {
       allow get: if signedIn() && (request.auth.uid == uid || isParentOf(resource.data.fid));
       allow list: if isParentOf(resource.data.fid);
@@ -34,13 +48,16 @@ service cloud.firestore {
     match /families/{fid} {
       allow read: if isParentOf(fid) || isKidOf(fid);
       allow create: if isEmailUser() && request.resource.data.parents == [request.auth.uid];
-      allow update: if isParentOf(fid);
+      allow update: if isParentOf(fid) || kidQuizPay(fid);
       allow delete: if false;
 
       match /logs/{id} {
         allow read: if isParentOf(fid) || (isKidOf(fid) && resource.data.kid == me().kid);
         allow create: if isParentOf(fid)
-          || (isKidOf(fid) && request.resource.data.kid == me().kid && request.resource.data.status == 'pending');
+          || (isKidOf(fid) && request.resource.data.kid == me().kid && request.resource.data.status == 'pending')
+          || (isKidOf(fid) && request.resource.data.kid == me().kid && request.resource.data.status == 'approved'
+              && id == 'quiz_' + me().kid + '_' + string(request.resource.data.quiz)
+              && getAfter(/databases/$(database)/documents/families/$(fid)).data.qz[me().kid + '_' + string(request.resource.data.quiz)] == true);
         allow update: if isParentOf(fid)
           || (isKidOf(fid) && resource.data.kid == me().kid && resource.data.status == 'rejected'
               && request.resource.data.kid == me().kid && request.resource.data.status == 'pending');

@@ -2,7 +2,7 @@
 function approve(ls){
   const b=writeBatch(db);
   for(const l of ls){
-    const pts=('quiz' in l)?QUIZ_PTS:l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
+    const pts=('quiz' in l)?jPts(l.quiz):l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
     b.update(famRef(),{['points.'+l.kid]:increment(pts)});
     b.update(doc(logsCol(),l.id),{status:'approved',by:me.uid});
   }
