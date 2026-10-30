@@ -7,7 +7,15 @@ Object.assign(P,{
   key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14.5 8.5l2 2"/>',
   share:'<path d="M12 15V3M8 7l4-4 4 4M5 11v9h14v-9"/>',
   save:'<path d="M5 3h11l3 3v15H5zM8 3v6h7V3M8 21v-7h8v7"/>',
-  back:'<path d="M15 5l-7 7 7 7"/>'
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5v1.5A3.5 3.5 0 0 0 8 11M16 6h3.5v1.5A3.5 3.5 0 0 1 16 11M12 13v4M8.5 21h7M9.5 17h5v4h-5z"/>',
+  clipboard:'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V3h6v1M9 11l2 2 4-4M9 17h6"/>',
+  warn:'<path d="M12 3.5L2.5 20h19zM12 10v4.5M12 17.5h.01"/>',
+  minus:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+  tv:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 21h8M9 2.5l3 3.5 3-3.5"/>',
+  bike:'<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h5l3 7M10 9L8.5 6H6.5M15 9l-3 7"/>',
+  cake:'<path d="M4 21V13h16v8M3 21h18M4 16c2 1.5 4 1.5 5.3 0 1.4 1.5 3.6 1.5 5.4 0 1.3 1.5 3.3 1.5 5.3 0M12 13V9M12 4.5c1 1 1 2 0 3-1-1-1-2 0-3"/>',
+  cash:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/>'
 });
 Object.assign(T.ar,{brand:'نجومي',note:'',
   welcome:'أهلاً بكم في نجومي',welcomeP:'تطبيق الأسرة لمتابعة الصلاة والمذاكرة ومهام البيت، وكسب النجوم.',
@@ -27,7 +35,11 @@ Object.assign(T.ar,{brand:'نجومي',note:'',
   loading:'جارٍ التحميل…',setupTitle:'التطبيق قيد الإعداد',setupP:'لم يُربط التطبيق بخادم البيانات بعد.',
   installIos:'لتثبيت التطبيق: اضغط زر المشاركة في سفاري ثم «إضافة إلى الشاشة الرئيسية».',installBtn:'تثبيت التطبيق',
   offline:'لا يوجد اتصال، سيتم حفظ التغييرات وإرسالها عند عودة الإنترنت',
-  adhanNote:'يعمل التنبيه بصوته والتطبيق مفتوح على الجهاز. إشعارات الأذان والجهاز مقفل ستأتي في تحديث قادم.'
+  gender:'الجنس',boyLbl:'ولد',girlLbl:'بنت',doneShort:(d,n)=>`أنجزت ${d} من ${n}`,canCount:n=>n?`تقدر تطلب ${n}`:'اجمع النجوم',
+  penalties:'العقوبات',penNew:'خصم نجوم (عقوبة)',penP:'اختر الطفل، واكتب السبب، وحدد عدد النجوم. يظهر الخصم وسببه للطفل في يومه.',penWho:'على من؟',penReason:'سبب العقوبة',penPh:'مثال: الشجار مع الإخوة',penQuick:'أسباب شائعة (اضغط للاختيار)',penPts:'عدد النجوم المخصومة',penBtn:'خصم النجوم',penHist:'سجل العقوبات',penNone:'لا توجد عقوبات. ما شاء الله!',penUndo:'تراجع وإرجاع النجوم',penDone:n=>`خُصمت النجوم من ${n}`,penUndone:'أُلغيت العقوبة وأُرجعت النجوم',penPick:'اختر طفلاً واحداً على الأقل',penKid:n=>`خُصم منك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'}`,
+  rewardsMgr:'إدارة المكافآت',rewardsP:'ضع المكافآت التي تناسبكم وسعر كل واحدة بالنجوم. تظهر للأبناء كما وضعتها بالضبط.',rewName:'اسم المكافأة',rewPh:'مثال: ساعة ألعاب إلكترونية',rewCost:'السعر بالنجوم',addReward:'إضافة المكافأة',rewAdded:'أُضيفت المكافأة',rewDeleted:'حُذفت المكافأة',noRewardsP:'لا توجد مكافآت بعد. أضف أول مكافأة من الأسفل.',noRewards:'لم يضع الوالدان مكافآت بعد.',
+  sndBig:'الملف كبير، اختر مقطعاً أقصر (أقل من 700 كيلوبايت تقريباً، أي نصف دقيقة)',sndSaving:'جارٍ رفع الصوت إلى أجهزة الأبناء…',sndSaved:'حُفظ الصوت وسيصل لأجهزة الأبناء',
+  adhanNote:'يعمل التنبيه بصوته والتطبيق مفتوح على جهاز الطفل. الصوت المخصص يصل لأجهزة الأبناء تلقائياً. إشعارات الأذان والجهاز مقفل ستأتي في تحديث قادم.'
 });
 Object.assign(T.en,{brand:'Nujoomi',note:'',
   welcome:'Welcome to Nujoomi',welcomeP:'The family app for prayer, study and home chores, with stars to earn.',
@@ -47,5 +59,9 @@ Object.assign(T.en,{brand:'Nujoomi',note:'',
   loading:'Loading…',setupTitle:'App is being set up',setupP:'The app is not connected to its data server yet.',
   installIos:'To install: tap the Share button in Safari, then “Add to Home Screen”.',installBtn:'Install app',
   offline:'No connection. Changes are saved and sent when the internet is back',
-  adhanNote:'The alert plays while the app is open on the device. Adhan notifications on a locked device come in a later update.'
+  gender:'Gender',boyLbl:'Boy',girlLbl:'Girl',doneShort:(d,n)=>`${d} of ${n} done`,canCount:n=>n?`${n} you can get`:'Collect stars',
+  penalties:'Penalties',penNew:'Deduct stars (penalty)',penP:'Pick the child, write the reason and the number of stars. The child sees the deduction and the reason on their day.',penWho:'For whom?',penReason:'Reason',penPh:'e.g. Fighting with siblings',penQuick:'Common reasons (tap to pick)',penPts:'Stars to deduct',penBtn:'Deduct stars',penHist:'Penalty history',penNone:'No penalties. Well done!',penUndo:'Undo and return stars',penDone:n=>`Stars deducted from ${n}`,penUndone:'Penalty undone, stars returned',penPick:'Pick at least one child',penKid:n=>`${n} star${n>1?'s':''} deducted`,
+  rewardsMgr:'Manage rewards',rewardsP:'Add the rewards that suit your family and a star price for each. Children see exactly what you add.',rewName:'Reward name',rewPh:'e.g. One hour of video games',rewCost:'Price in stars',addReward:'Add reward',rewAdded:'Reward added',rewDeleted:'Reward deleted',noRewardsP:'No rewards yet. Add the first one below.',noRewards:'No rewards yet.',
+  sndBig:'The file is too large; pick a shorter clip (under about 700 KB, around 30 seconds)',sndSaving:'Uploading the sound to the children\'s devices…',sndSaved:'Sound saved; it will reach the children\'s devices',
+  adhanNote:'The alert plays while the app is open on the child\'s device. A custom sound reaches the children\'s devices automatically. Adhan notifications on a locked device come in a later update.'
 });

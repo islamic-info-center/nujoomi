@@ -82,6 +82,13 @@ document.addEventListener('click',e=>{
   else if(d.ok){const l=S.logs.find(x=>x.id===d.ok);if(!l)return;approve([l]);burst(e.clientX,e.clientY);toast(L('okFor',tr(kid(l.kid).name)))}
   else if(d.rej){updateDoc(doc(logsCol(),d.rej),{status:'rejected',by:me.uid}).catch(fail);toast(L('rejected_t'))}
   else if(d.del){famUpdate({tasks:F.tasks.filter(t=>t.id!==d.del)});toast(L('deleted'))}
+  else if(d.rewic){newRewIc=d.rewic;document.querySelectorAll('[data-rewic]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+  else if(d.delrew){famUpdate({rewards:(F.rewards||[]).filter(r=>r.id!==d.delrew)}).then(()=>toast(L('rewDeleted')))}
+  else if(d.penk){penKids=penKids.includes(d.penk)?penKids.filter(x=>x!==d.penk):[...penKids,d.penk];b.setAttribute('aria-pressed',penKids.includes(d.penk))}
+  else if(d.penpre){const r=$('#penReason');if(r)r.value=d.penpre}
+  else if(d.unpen){const l=LPen.find(x=>x.id===d.unpen);if(!l)return;const b2=writeBatch(db);b2.delete(doc(logsCol(),l.id));b2.update(famRef(),{['points.'+l.kid]:increment(l.pts)});b2.commit().then(()=>toast(L('penUndone'))).catch(fail)}
+  else if(d.snd){if(d.snd==='custom'&&!S.adhan.sndVer){pickSound();return}famUpdate({'adhan.snd':d.snd})}
+  else if(b.id==='adUp'){pickSound()}
   else if(d.icpick){newIc=d.icpick;document.querySelectorAll('[data-icpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
   else if(d.colpick){newCol=d.colpick;document.querySelectorAll('[data-colpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
   else if(d.preset){const p=PRESETS.find(x=>x[0]===d.preset);famUpdate({cats:[...S.cats,{id:p[0],name:{ar:p[1],en:p[2]},ic:p[3],col:p[4]}]});toast(L('typeAdded'))}
@@ -105,12 +112,19 @@ document.addEventListener('submit',async e=>{
   if(f.id==='codeForm'){e.preventDefault();const c=$('#aCode').value.trim().toUpperCase();if(c.length===6)linkDevice(c);else toast(L('badCode'));return}
   if(f.dataset.kidform){e.preventDefault();const fd=new FormData(f),id=f.dataset.kidform,pin=String(fd.get('pin')||'').trim();
     if(pin&&!/^\d{4}$/.test(pin)){toast(L('pinPh'));return}
-    const look=fd.get('look');
-    setKids(F.kids.map(k=>{if(k.id!==id)return k;const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||fd.get('ar').trim()},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
+    const girl=fd.get('gender')==='g';
+    setKids(F.kids.map(k=>{if(k.id!==id)return k;const look=girl?'girl':(k.look==='girl'?'boy':k.look||'boy');const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||fd.get('ar').trim()},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
     document.activeElement?.blur();return}
-  if(f.id==='newKid'){e.preventDefault();const fd=new FormData(f),nm=fd.get('ar').trim(),look=fd.get('look');if(!nm)return;
+  if(f.id==='newKid'){e.preventDefault();const fd=new FormData(f),nm=fd.get('ar').trim(),look=fd.get('gender')==='g'?'girl':(F.kids.filter(x=>x.look!=='girl').length%2?'boy2':'boy');if(!nm)return;
     const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:nm},look};if(look==='girl')k.g='f';
     famUpdate({kids:[...F.kids,k],['points.'+k.id]:0}).then(()=>toast(L('kidAdded')));document.activeElement?.blur();return}
+  if(f.id==='rewForm'){e.preventDefault();const nm=$('#rwName').value.trim(),cost=Math.max(1,Math.round(+$('#rwCost').value||1));if(!nm)return;
+    famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost}]}).then(()=>toast(L('rewAdded')));document.activeElement?.blur();return}
+  if(f.id==='penForm'){e.preventDefault();const reason=$('#penReason').value.trim(),pts=Math.max(1,Math.round(+$('#penPts').value||1));
+    if(!penKids.length){toast(L('penPick'));return}if(!reason)return;
+    const b=writeBatch(db),names=[];
+    for(const kidId of penKids){b.set(doc(logsCol()),{pen:true,kid:kidId,reason,pts,date:today(),at:now(),status:'approved',ts:serverTimestamp(),by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(-pts)});names.push(tr(kid(kidId).name))}
+    b.commit().catch(fail);penKids=[];toast(L('penDone',names.join(L('sep'))));document.activeElement?.blur();render();return}
   if(f.id==='catForm'){e.preventDefault();const nm=$('#fcName').value.trim();if(!nm)return;famUpdate({cats:[...S.cats,{id:'c'+Date.now(),name:nm,ic:newIc,col:newCol}]});document.activeElement?.blur();toast(L('typeAdded'));return}
   if(f.id!=='addForm')return;
   e.preventDefault();
@@ -132,7 +146,25 @@ function stopAdhan(){if(adOut){try{adOut.disconnect()}catch(e){}adOut=null}}
 function chime(){try{const c=actx();stopAdhan();adOut=c.createGain();adOut.connect(c.destination);const out=adOut,notes=[523.25,659.25,783.99,1046.5,783.99,1046.5];let t=c.currentTime+.05;
   for(let r=0;r<2;r++){notes.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),o2=c.createOscillator();o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*2;
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+1.4);o.connect(g);o2.connect(g);g.connect(out);o.start(t);o2.start(t);o.stop(t+1.5);o2.stop(t+1.5);t+=i===notes.length-1?.9:.32})}}catch(e){}}
-const playAdhan=chime;
+/* a custom sound is stored once per child (in that child's own readable log space) and cached on each device */
+let sndBuf=null,sndBufV=null;
+async function customBuf(){
+  const v=S.adhan?.sndVer;if(!v)return null;if(sndBuf&&sndBufV===v)return sndBuf;
+  let data=null;try{const c=JSON.parse(localStorage.getItem('najmati-snd')||'null');if(c&&c.v===v)data=c.d}catch(e){}
+  if(!data){const kidId=M.role==='kid'?M.kid:S.kids[0]?.id;if(!kidId)return null;const s=await getDoc(doc(logsCol(),'snd_'+kidId));data=s.data()?.snd;if(!data)return null;try{localStorage.setItem('najmati-snd',JSON.stringify({v,d:data}))}catch(e){}}
+  const ab=await (await fetch(data)).arrayBuffer();sndBuf=await actx().decodeAudioData(ab);sndBufV=v;return sndBuf;
+}
+async function playAdhan(){
+  stopAdhan();
+  if(S.adhan?.snd==='custom'&&S.adhan.sndVer){try{const buf=await customBuf();if(buf){const c=actx();stopAdhan();adOut=c.createGain();adOut.connect(c.destination);const src=c.createBufferSource();src.buffer=buf;src.connect(adOut);src.start();return}}catch(e){console.error(e)}}
+  chime();
+}
+function pickSound(){const inp=document.createElement('input');inp.type='file';inp.accept='audio/*';inp.onchange=()=>{const f=inp.files[0];if(!f)return;
+  if(f.size>700*1024){toast(L('sndBig'));return}
+  const r=new FileReader();r.onload=async()=>{toast(L('sndSaving'));const v=Date.now(),b=writeBatch(db);
+    for(const k of F.kids)b.set(doc(logsCol(),'snd_'+k.id),{kid:k.id,snd:r.result,name:f.name,date:'snd',status:'approved',v});
+    b.update(famRef(),{'adhan.snd':'custom','adhan.sndName':f.name,'adhan.sndVer':v});
+    try{await b.commit();try{localStorage.setItem('najmati-snd',JSON.stringify({v,d:r.result}))}catch(e){}toast(L('sndSaved'))}catch(e){fail(e)}};r.readAsDataURL(f)};inp.click()}
 function showAdhan(k){const sh=sheet(`<span class="chip prayer adhanChip">${I('mosque')}</span><h2>${L('adhanNow',L('pn_'+k))}</h2><p style="margin:0;color:var(--muted);font-size:20px;font-family:var(--display)">${L('adhanSub')}</p>
   <div class="row"><button class="btn go" id="adOk">${I('check')}${L('adhanOk')}</button><button class="btn no" id="adStop">${I('speaker')}${L('stopSnd')}</button></div>`);
   sh.classList.add('adhanSheet');sh.querySelector('#adStop').onclick=stopAdhan;sh.querySelector('#adOk').onclick=()=>{stopAdhan();sh.remove()}}
@@ -143,7 +175,7 @@ function adhanCheck(){if(!F||!M||M.role!=='kid'||!S.adhan?.on||document.querySel
 /* ---------- sync ---------- */
 let logSubs=[];
 function subLogs(){
-  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];
+  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];LPen=[];
   const map=s=>s.docs.map(x=>({id:x.id,...x.data()}));
   const upd=()=>{if(F){rebuild();softRender()}};
   const lerr=err=>{if(err.code!=='permission-denied')fail(err)};
@@ -151,6 +183,7 @@ function subLogs(){
   else{
     logSubs.push(onSnapshot(query(logsCol(),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr));
     logSubs.push(onSnapshot(query(logsCol(),where('status','==','pending')),s=>{LP=map(s);upd()},lerr));
+    logSubs.push(onSnapshot(query(logsCol(),where('pen','==',true)),s=>{LPen=map(s);upd()},lerr));
   }
 }
 function unsubAll(){[...subs,...logSubs].forEach(u=>{try{u()}catch(e){}});subs=[];logSubs=[]}
@@ -171,7 +204,7 @@ async function onUser(u){
     if(!m){if(u.isAnonymous){gate.screen='kid';await signOut(auth);return}m=await createFamily(u)}
     M=m;fid=m.fid;V.ptab='requests';V.tab='today';V.role=m.role==='kid'?'kid':'parent';if(m.role==='kid')V.kid=m.kid;
     subs.push(onSnapshot(doc(db,'members',u.uid),s=>{if(!s.exists()&&!s.metadata.fromCache){try{sessionStorage.removeItem('najmati-unlocked')}catch(e){}gate.screen='welcome';signOut(auth)}},()=>{}));
-    subs.push(onSnapshot(famRef(),s=>{if(!s.exists())return;F=s.data();_pt=null;rebuild();if(logDay!==today())subLogs();softRender()},err=>{console.error(err);if(err.code==='permission-denied'){gate.screen='welcome';signOut(auth)}else fail(err)}));
+    subs.push(onSnapshot(famRef(),s=>{if(!s.exists())return;F=s.data();_pt=null;rebuild();if(logDay!==today())subLogs();softRender();if(M.role==='kid'&&S.adhan?.snd==='custom')customBuf().catch(()=>{})},err=>{console.error(err);if(err.code==='permission-denied'){gate.screen='welcome';signOut(auth)}else fail(err)}));
     if(m.role==='parent')subs.push(onSnapshot(query(collection(db,'members'),where('fid','==',fid),where('role','==','kid')),s=>{DEV=s.docs.map(x=>({id:x.id,...x.data()}));if(F)softRender()},()=>{}));
   }catch(e){console.error(e);toast(L('err'));gate.screen='welcome';try{await signOut(auth)}catch(x){}render()}
 }

@@ -109,6 +109,7 @@ function kidView(){
   const done=list.filter(t=>log(t.id,k.id)?.status==='approved').length;
   const pct=list.length?Math.round(done/list.length*100):0;
   const tab=V.tab;
+  const pens=S.logs.filter(l=>l.pen&&l.kid===k.id&&l.date===today());
   let body='';
   if(tab==='today'){
     body=allCats().map(cc=>{const c=cc.id;
@@ -122,7 +123,7 @@ function kidView(){
           <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
           ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">+${t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
   }else{
-    body=`<section class="group reward"><h3><span class="chip">${I('gift')}</span>${L('swap')}</h3><div class="grid">${S.rewards.map(r=>{
+    body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
       const can=k.points>=r.cost;
       return `<button class="task glass reward" data-reward="${r.id}" ${can?'':'aria-disabled="true"'}>
         <span class="chip">${I(r.ic)}</span><span class="t">${esc(tr(r.title))}</span>
@@ -131,10 +132,11 @@ function kidView(){
   return `${kidPicker()}
   <section class="hero glass">
     <div class="heroMe">${av(k,'lg')}<div><h2>${L('hi',kn(k))}</h2><p>${L('heroP')}</p></div></div>
-    <div class="jar" id="jar"><b>${I('star')}${k.points}</b><span>${L('stars')}</span></div>
+    <div class="jar" id="jar"><b>${I('star')}<bdi dir="ltr">${k.points}</bdi></b><span>${L('stars')}</span></div>
     <div class="progress"><div class="track"><i style="width:${pct}%"></i></div><small>${L('doneOf',done,list.length)}</small></div>
   </section>
-  <div class="tabs"><button class="glass" data-tab="today" aria-pressed="${tab==='today'}">${I('list')}${L('todayTasks')}</button><button class="glass" data-tab="rewards" aria-pressed="${tab==='rewards'}">${I('gift')}${L('rewards')}</button></div>
+  <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button></div>
+  ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem"><span class="chip">${I('warn')}</span><div><b>${esc(l.reason)}</b><small>${L('penKid',l.pts)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
   ${body}`;
 }
 
@@ -145,14 +147,44 @@ function familyView(){
     <form class="kidForm" data-kidform="${k.id}">
       <label>${L('kidName')}<input name="ar" required value="${esc(k.name.ar)}"></label>
       <label>${L('kidNameEn')}<input name="en" dir="ltr" value="${esc(k.name.en||'')}"></label>
-      <label>${L('look')}<select name="look">${['boy','boy2','girl'].map(x=>`<option value="${x}" ${x===(k.look||'boy')?'selected':''}>${L('lk_'+x)}</option>`).join('')}</select></label>
+      <label>${L('gender')}<select name="gender"><option value="b" ${k.look!=='girl'?'selected':''}>${L('boyLbl')}</option><option value="g" ${k.look==='girl'?'selected':''}>${L('girlLbl')}</option></select></label>
       <label>${L('pin')}<input name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" dir="ltr" placeholder="${L('pinPh')}" value="${esc(k.pin||'')}"></label>
       <div class="full row" style="justify-content:flex-start"><button class="btn go sm" type="submit">${I('save')}${L('saveBtn')}</button><button class="btn sun sm" type="button" data-linkdev="${k.id}">${I('link')}${L('linkDev')}</button><button class="btn no sm" type="button" data-delkid="${k.id}">${I('trash')}${L('delKid')}</button></div>
     </form>
     <div class="devs"><b>${I('tablet')} ${L('devices')}</b>${devs.length?devs.map(d=>`<span class="devPill">${esc(d.dev||'iPad')}<button class="ico del" data-unlink="${d.id}" title="${L('unlink')}" aria-label="${L('unlink')}">${I('x')}</button></span>`).join(''):`<small>${L('noDevices')}</small>`}</div></div>`}).join('')}</div>
-  <form id="newKid" class="kidForm newKid"><label>${L('kidName')}<input name="ar" required></label><label>${L('look')}<select name="look">${['boy','boy2','girl'].map(x=>`<option value="${x}">${L('lk_'+x)}</option>`).join('')}</select></label><div><button class="btn sun" type="submit">${I('plus')}${L('addKid')}</button></div></form></section>
+  <form id="newKid" class="kidForm newKid"><label>${L('kidName')}<input name="ar" required></label><label>${L('gender')}<select name="gender"><option value="b">${L('boyLbl')}</option><option value="g">${L('girlLbl')}</option></select></label><div><button class="btn sun" type="submit">${I('plus')}${L('addKid')}</button></div></form></section>
   <section class="panel glass"><h3><span class="chip study">${I('user')}</span>${L('account')}</h3><p style="margin:0">${L('loggedAs',`<bdi>${esc(me?.email||'')}</bdi>`)}</p><small style="color:var(--muted)">${L('sharedLogin')}</small>
   <div><button class="btn no" id="logout">${I('logout')}${L('logout')}</button></div></section>`;
+}
+
+const REWIC=['gift','game','tree','ice','pizza','tv','bike','cake','cash','ball','book','palette','toys','heart','star'];
+let newRewIc='gift';
+function rewardsView(){
+  return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#FFB547,#F0569F)">${I('trophy')}</span>${L('rewardsMgr')}</h3>
+  <p style="margin:0;color:var(--muted)">${L('rewardsP')}</p>
+  ${S.rewards.length?`<div class="rewList">${S.rewards.map(r=>`<div class="rewItem"><span class="chip">${I(r.ic)}</span><b>${esc(tr(r.title))}</b><span class="pts">${I('star')} ${r.cost}</span><button class="ico del" data-delrew="${r.id}" title="${L('del')}" aria-label="${L('del')}">${I('trash')}</button></div>`).join('')}</div>`:`<p class="empty">${L('noRewardsP')}</p>`}
+  <form id="rewForm" class="catForm">
+    <label for="rwName">${L('rewName')}<input id="rwName" required placeholder="${L('rewPh')}"></label>
+    <label for="rwCost">${L('rewCost')}<input id="rwCost" type="number" min="1" max="1000" value="20" required></label>
+    <div class="lbl">${L('icon')}<div class="days icPick">${REWIC.map(k=>`<button type="button" data-rewic="${k}" aria-pressed="${k===newRewIc}" aria-label="${k}">${I(k)}</button>`).join('')}</div></div>
+    <div><button class="btn sun" type="submit">${I('plus')}${L('addReward')}</button></div>
+  </form></section>`;
+}
+const PEN_PRESETS={ar:['الشجار مع الإخوة','عدم احترام الكبار','الكذب','ألفاظ غير لائقة','إهمال الواجبات','عدم ترتيب الغرفة'],en:['Fighting with siblings','Disrespect to elders','Lying','Bad language','Skipping homework','Messy room']};
+let penKids=[];
+function penView(){
+  const hist=LPen.slice().sort((a,b)=>(b.date+b.at).localeCompare(a.date+a.at)).slice(0,40);
+  return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,var(--coral2),#E5383B)">${I('warn')}</span>${L('penNew')}</h3>
+  <p style="margin:0;color:var(--muted)">${L('penP')}</p>
+  <form id="penForm" class="penForm">
+    <div class="full lbl">${L('penWho')}<div class="days kidsPick" id="penKids">${S.kids.map(k=>`<button type="button" data-penk="${k.id}" aria-pressed="${penKids.includes(k.id)}">${av(k)}${kn(k)}</button>`).join('')}</div></div>
+    <label class="full" for="penReason">${L('penReason')}<input id="penReason" required placeholder="${L('penPh')}"></label>
+    <div class="full lbl">${L('penQuick')}<div class="days">${PEN_PRESETS[lang].map(x=>`<button type="button" class="preset" data-penpre="${esc(x)}" style="--cc:#E5383B">${esc(x)}</button>`).join('')}</div></div>
+    <label for="penPts">${L('penPts')}<input id="penPts" type="number" min="1" max="100" value="2" required></label>
+    <div><button class="btn penBtn" type="submit">${I('minus')}${L('penBtn')}</button></div>
+  </form></section>
+  <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('list')}</span>${L('penHist')}</h3>
+  ${hist.length?`<div class="penHist">${hist.map(l=>{const k=kid(l.kid);return `<div class="req2"><span class="av">${k?av(k):''}</span><div class="who"><b>${esc(l.reason)}</b><small>${k?kn(k):''} · ${esc(l.date)} · ${fmt(l.at)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span><div class="acts"><button class="ico" data-unpen="${l.id}" title="${L('penUndo')}" aria-label="${L('penUndo')}">${I('retry')}</button></div></div>`}).join('')}</div>`:`<p class="empty">${L('penNone')}</p>`}</section>`;
 }
 
 function parentView(){
@@ -160,9 +192,11 @@ function parentView(){
   const pend=S.logs.filter(l=>l.status==='pending');
   let body='';
   if(pt==='family')body=familyView();
+  else if(pt==='rewards')body=rewardsView();
+  else if(pt==='pen')body=penView();
   else if(pt==='requests'){
     body=`<section class="stats">${S.kids.map(k=>{const l=todays(k.id),d=l.filter(t=>log(t.id,k.id)?.status==='approved').length;
-      return `<div class="panel glass stat"><div class="avBox">${av(k,'lg')}</div><div><div style="font-weight:700">${kn(k)}</div><b>${k.points}</b> ${L('stars')}<br><small style="color:var(--muted)">${L('todayOf',d,l.length)}</small>${(()=>{const n=l.filter(t=>t.pr&&!log(t.id,k.id)&&prayerState(t).s==='missed').length;return n?`<div class="missedTag">${I('x')} ${L('missedCount',n,k.g==='f')}</div>`:''})()}</div></div>`}).join('')}</section>
+      return `<div class="panel glass stat"><div class="avBox">${av(k,'lg')}</div><div><div style="font-weight:700">${kn(k)}</div><b><bdi dir="ltr">${k.points}</bdi></b> ${L('stars')}<br><small style="color:var(--muted)">${L('todayOf',d,l.length)}</small>${(()=>{const n=l.filter(t=>t.pr&&!log(t.id,k.id)&&prayerState(t).s==='missed').length;return n?`<div class="missedTag">${I('x')} ${L('missedCount',n,k.g==='f')}</div>`:''})()}</div></div>`}).join('')}</section>
     <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,var(--coral2),var(--coral))">${I('bell')}</span>${L('waiting',pend.length)}</h3>
     ${pend.length?`<div class="reqCols">${S.kids.map(k=>{const mine=pend.filter(l=>l.kid===k.id);
       return `<div class="reqKid ${mine.length?'':'clear'}"><div class="reqHead">${av(k)}<b>${kn(k)}</b><span class="cnt">${mine.length}</span>${mine.length>1?`<button class="btn go sm" data-okall="${k.id}">${I('check')}${L('approveAll')}</button>`:''}</div>
@@ -184,7 +218,8 @@ function parentView(){
     <div class="adhanBox ${S.adhan.on?'':'off'}">
       <div class="adhanHead"><span class="chip" style="background:linear-gradient(135deg,var(--gold2),var(--gold))">${I('speaker')}</span><b>${L('adhanTitle')}</b><button class="switch" id="adOn" aria-pressed="${!!S.adhan.on}" aria-label="${L('adhanTitle')}"></button></div>
       <div class="lbl">${L('adhanFor')}<div class="days">${PRAYERS.map(k=>`<button type="button" data-adpr="${k}" aria-pressed="${!!S.adhan.pr?.[k]}">${I('bell')} ${L('pn_'+k)}</button>`).join('')}</div></div>
-      <div class="row" style="justify-content:flex-start"><button class="btn sun sm" id="adTest">${I('play')}${L('testSnd')}</button></div>
+      <div class="lbl">${L('soundLbl')}<div class="days"><button type="button" data-snd="chime" aria-pressed="${S.adhan.snd!=='custom'}">${I('sparkle')} ${L('chime')}</button><button type="button" data-snd="custom" aria-pressed="${S.adhan.snd==='custom'}">${I('mosque')} ${L('customSnd')}${S.adhan.sndName?` · ${esc(S.adhan.sndName)}`:''}</button></div></div>
+      <div class="row" style="justify-content:flex-start"><button class="btn sun sm" id="adTest">${I('play')}${L('testSnd')}</button><button class="btn no sm" id="adUp">${I('upload')}${L('uploadSnd')}</button></div>
       <small style="color:var(--muted)">${L('adhanNote')}</small>
     </div></section>
     <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('tag')}</span>${L('types')}</h3>
@@ -212,5 +247,5 @@ function parentView(){
     ${S.tasks.filter(t=>!t.fixed).sort((a,b)=>tm(a).localeCompare(tm(b))).map(t=>`<tr><td><span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span>${esc(tr(t.title))}</td><td>${fmt(tm(t))}</td><td>${t.days.length===7?L('daily'):t.days.map(d=>DAYS[d]).join(L('sep'))}</td><td>${t.kids.map(k=>kid(k)).filter(Boolean).map(kn).join(L('sep'))}</td><td>${t.points}</td><td><button class="btn no sm" data-del="${t.id}" aria-label="${L('del')}">${I('trash')}</button></td></tr>`).join('')}
     </tbody></table></div></section>`;
   }
-  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
+  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="rewards" aria-pressed="${pt==='rewards'}">${I('trophy')}${L('rewards')}</button><button class="glass" data-ptab="pen" aria-pressed="${pt==='pen'}">${I('warn')}${L('penalties')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
 }

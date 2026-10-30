@@ -29,7 +29,7 @@ function newFamily(uid,email){
 }
 
 /* live state: F is the family document, LT/LP are today's and pending logs; S is the view model built from them */
-let me=null,M=null,F=null,fid=null,LT=[],LP=[],DEV=[],subs=[],logDay='',gate={screen:'welcome',busy:false};
+let me=null,M=null,F=null,fid=null,LT=[],LP=[],LPen=[],DEV=[],subs=[],logDay='',gate={screen:'welcome',busy:false};
 const V={role:'kid',kid:'k1',tab:'today',ptab:'requests'};
 let S={kids:[],tasks:[],cats:[],rewards:[],logs:[],city:'dubai',adhan:{on:false,pr:{}},view:V,sim:null};
 function rebuild(){

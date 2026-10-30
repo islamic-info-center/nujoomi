@@ -105,7 +105,15 @@ Object.assign(P,{
   key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14.5 8.5l2 2"/>',
   share:'<path d="M12 15V3M8 7l4-4 4 4M5 11v9h14v-9"/>',
   save:'<path d="M5 3h11l3 3v15H5zM8 3v6h7V3M8 21v-7h8v7"/>',
-  back:'<path d="M15 5l-7 7 7 7"/>'
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5v1.5A3.5 3.5 0 0 0 8 11M16 6h3.5v1.5A3.5 3.5 0 0 1 16 11M12 13v4M8.5 21h7M9.5 17h5v4h-5z"/>',
+  clipboard:'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V3h6v1M9 11l2 2 4-4M9 17h6"/>',
+  warn:'<path d="M12 3.5L2.5 20h19zM12 10v4.5M12 17.5h.01"/>',
+  minus:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+  tv:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 21h8M9 2.5l3 3.5 3-3.5"/>',
+  bike:'<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-7h5l3 7M10 9L8.5 6H6.5M15 9l-3 7"/>',
+  cake:'<path d="M4 21V13h16v8M3 21h18M4 16c2 1.5 4 1.5 5.3 0 1.4 1.5 3.6 1.5 5.4 0 1.3 1.5 3.3 1.5 5.3 0M12 13V9M12 4.5c1 1 1 2 0 3-1-1-1-2 0-3"/>',
+  cash:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/>'
 });
 Object.assign(T.ar,{brand:'نجومي',note:'',
   welcome:'أهلاً بكم في نجومي',welcomeP:'تطبيق الأسرة لمتابعة الصلاة والمذاكرة ومهام البيت، وكسب النجوم.',
@@ -125,7 +133,11 @@ Object.assign(T.ar,{brand:'نجومي',note:'',
   loading:'جارٍ التحميل…',setupTitle:'التطبيق قيد الإعداد',setupP:'لم يُربط التطبيق بخادم البيانات بعد.',
   installIos:'لتثبيت التطبيق: اضغط زر المشاركة في سفاري ثم «إضافة إلى الشاشة الرئيسية».',installBtn:'تثبيت التطبيق',
   offline:'لا يوجد اتصال، سيتم حفظ التغييرات وإرسالها عند عودة الإنترنت',
-  adhanNote:'يعمل التنبيه بصوته والتطبيق مفتوح على الجهاز. إشعارات الأذان والجهاز مقفل ستأتي في تحديث قادم.'
+  gender:'الجنس',boyLbl:'ولد',girlLbl:'بنت',doneShort:(d,n)=>`أنجزت ${d} من ${n}`,canCount:n=>n?`تقدر تطلب ${n}`:'اجمع النجوم',
+  penalties:'العقوبات',penNew:'خصم نجوم (عقوبة)',penP:'اختر الطفل، واكتب السبب، وحدد عدد النجوم. يظهر الخصم وسببه للطفل في يومه.',penWho:'على من؟',penReason:'سبب العقوبة',penPh:'مثال: الشجار مع الإخوة',penQuick:'أسباب شائعة (اضغط للاختيار)',penPts:'عدد النجوم المخصومة',penBtn:'خصم النجوم',penHist:'سجل العقوبات',penNone:'لا توجد عقوبات. ما شاء الله!',penUndo:'تراجع وإرجاع النجوم',penDone:n=>`خُصمت النجوم من ${n}`,penUndone:'أُلغيت العقوبة وأُرجعت النجوم',penPick:'اختر طفلاً واحداً على الأقل',penKid:n=>`خُصم منك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'}`,
+  rewardsMgr:'إدارة المكافآت',rewardsP:'ضع المكافآت التي تناسبكم وسعر كل واحدة بالنجوم. تظهر للأبناء كما وضعتها بالضبط.',rewName:'اسم المكافأة',rewPh:'مثال: ساعة ألعاب إلكترونية',rewCost:'السعر بالنجوم',addReward:'إضافة المكافأة',rewAdded:'أُضيفت المكافأة',rewDeleted:'حُذفت المكافأة',noRewardsP:'لا توجد مكافآت بعد. أضف أول مكافأة من الأسفل.',noRewards:'لم يضع الوالدان مكافآت بعد.',
+  sndBig:'الملف كبير، اختر مقطعاً أقصر (أقل من 700 كيلوبايت تقريباً، أي نصف دقيقة)',sndSaving:'جارٍ رفع الصوت إلى أجهزة الأبناء…',sndSaved:'حُفظ الصوت وسيصل لأجهزة الأبناء',
+  adhanNote:'يعمل التنبيه بصوته والتطبيق مفتوح على جهاز الطفل. الصوت المخصص يصل لأجهزة الأبناء تلقائياً. إشعارات الأذان والجهاز مقفل ستأتي في تحديث قادم.'
 });
 Object.assign(T.en,{brand:'Nujoomi',note:'',
   welcome:'Welcome to Nujoomi',welcomeP:'The family app for prayer, study and home chores, with stars to earn.',
@@ -145,7 +157,11 @@ Object.assign(T.en,{brand:'Nujoomi',note:'',
   loading:'Loading…',setupTitle:'App is being set up',setupP:'The app is not connected to its data server yet.',
   installIos:'To install: tap the Share button in Safari, then “Add to Home Screen”.',installBtn:'Install app',
   offline:'No connection. Changes are saved and sent when the internet is back',
-  adhanNote:'The alert plays while the app is open on the device. Adhan notifications on a locked device come in a later update.'
+  gender:'Gender',boyLbl:'Boy',girlLbl:'Girl',doneShort:(d,n)=>`${d} of ${n} done`,canCount:n=>n?`${n} you can get`:'Collect stars',
+  penalties:'Penalties',penNew:'Deduct stars (penalty)',penP:'Pick the child, write the reason and the number of stars. The child sees the deduction and the reason on their day.',penWho:'For whom?',penReason:'Reason',penPh:'e.g. Fighting with siblings',penQuick:'Common reasons (tap to pick)',penPts:'Stars to deduct',penBtn:'Deduct stars',penHist:'Penalty history',penNone:'No penalties. Well done!',penUndo:'Undo and return stars',penDone:n=>`Stars deducted from ${n}`,penUndone:'Penalty undone, stars returned',penPick:'Pick at least one child',penKid:n=>`${n} star${n>1?'s':''} deducted`,
+  rewardsMgr:'Manage rewards',rewardsP:'Add the rewards that suit your family and a star price for each. Children see exactly what you add.',rewName:'Reward name',rewPh:'e.g. One hour of video games',rewCost:'Price in stars',addReward:'Add reward',rewAdded:'Reward added',rewDeleted:'Reward deleted',noRewardsP:'No rewards yet. Add the first one below.',noRewards:'No rewards yet.',
+  sndBig:'The file is too large; pick a shorter clip (under about 700 KB, around 30 seconds)',sndSaving:'Uploading the sound to the children\'s devices…',sndSaved:'Sound saved; it will reach the children\'s devices',
+  adhanNote:'The alert plays while the app is open on the child\'s device. A custom sound reaches the children\'s devices automatically. Adhan notifications on a locked device come in a later update.'
 });
 let lang='ar';try{lang=localStorage.getItem('najmati-lang')||'ar'}catch(e){}
 const L=(k,...a)=>{const v=T[lang][k];return typeof v==='function'?v(...a):v};
@@ -178,7 +194,7 @@ function newFamily(uid,email){
 }
 
 /* live state: F is the family document, LT/LP are today's and pending logs; S is the view model built from them */
-let me=null,M=null,F=null,fid=null,LT=[],LP=[],DEV=[],subs=[],logDay='',gate={screen:'welcome',busy:false};
+let me=null,M=null,F=null,fid=null,LT=[],LP=[],LPen=[],DEV=[],subs=[],logDay='',gate={screen:'welcome',busy:false};
 const V={role:'kid',kid:'k1',tab:'today',ptab:'requests'};
 let S={kids:[],tasks:[],cats:[],rewards:[],logs:[],city:'dubai',adhan:{on:false,pr:{}},view:V,sim:null};
 function rebuild(){
@@ -343,6 +359,7 @@ function kidView(){
   const done=list.filter(t=>log(t.id,k.id)?.status==='approved').length;
   const pct=list.length?Math.round(done/list.length*100):0;
   const tab=V.tab;
+  const pens=S.logs.filter(l=>l.pen&&l.kid===k.id&&l.date===today());
   let body='';
   if(tab==='today'){
     body=allCats().map(cc=>{const c=cc.id;
@@ -356,7 +373,7 @@ function kidView(){
           <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
           ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">+${t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
   }else{
-    body=`<section class="group reward"><h3><span class="chip">${I('gift')}</span>${L('swap')}</h3><div class="grid">${S.rewards.map(r=>{
+    body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
       const can=k.points>=r.cost;
       return `<button class="task glass reward" data-reward="${r.id}" ${can?'':'aria-disabled="true"'}>
         <span class="chip">${I(r.ic)}</span><span class="t">${esc(tr(r.title))}</span>
@@ -365,10 +382,11 @@ function kidView(){
   return `${kidPicker()}
   <section class="hero glass">
     <div class="heroMe">${av(k,'lg')}<div><h2>${L('hi',kn(k))}</h2><p>${L('heroP')}</p></div></div>
-    <div class="jar" id="jar"><b>${I('star')}${k.points}</b><span>${L('stars')}</span></div>
+    <div class="jar" id="jar"><b>${I('star')}<bdi dir="ltr">${k.points}</bdi></b><span>${L('stars')}</span></div>
     <div class="progress"><div class="track"><i style="width:${pct}%"></i></div><small>${L('doneOf',done,list.length)}</small></div>
   </section>
-  <div class="tabs"><button class="glass" data-tab="today" aria-pressed="${tab==='today'}">${I('list')}${L('todayTasks')}</button><button class="glass" data-tab="rewards" aria-pressed="${tab==='rewards'}">${I('gift')}${L('rewards')}</button></div>
+  <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button></div>
+  ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem"><span class="chip">${I('warn')}</span><div><b>${esc(l.reason)}</b><small>${L('penKid',l.pts)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
   ${body}`;
 }
 
@@ -379,14 +397,44 @@ function familyView(){
     <form class="kidForm" data-kidform="${k.id}">
       <label>${L('kidName')}<input name="ar" required value="${esc(k.name.ar)}"></label>
       <label>${L('kidNameEn')}<input name="en" dir="ltr" value="${esc(k.name.en||'')}"></label>
-      <label>${L('look')}<select name="look">${['boy','boy2','girl'].map(x=>`<option value="${x}" ${x===(k.look||'boy')?'selected':''}>${L('lk_'+x)}</option>`).join('')}</select></label>
+      <label>${L('gender')}<select name="gender"><option value="b" ${k.look!=='girl'?'selected':''}>${L('boyLbl')}</option><option value="g" ${k.look==='girl'?'selected':''}>${L('girlLbl')}</option></select></label>
       <label>${L('pin')}<input name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" dir="ltr" placeholder="${L('pinPh')}" value="${esc(k.pin||'')}"></label>
       <div class="full row" style="justify-content:flex-start"><button class="btn go sm" type="submit">${I('save')}${L('saveBtn')}</button><button class="btn sun sm" type="button" data-linkdev="${k.id}">${I('link')}${L('linkDev')}</button><button class="btn no sm" type="button" data-delkid="${k.id}">${I('trash')}${L('delKid')}</button></div>
     </form>
     <div class="devs"><b>${I('tablet')} ${L('devices')}</b>${devs.length?devs.map(d=>`<span class="devPill">${esc(d.dev||'iPad')}<button class="ico del" data-unlink="${d.id}" title="${L('unlink')}" aria-label="${L('unlink')}">${I('x')}</button></span>`).join(''):`<small>${L('noDevices')}</small>`}</div></div>`}).join('')}</div>
-  <form id="newKid" class="kidForm newKid"><label>${L('kidName')}<input name="ar" required></label><label>${L('look')}<select name="look">${['boy','boy2','girl'].map(x=>`<option value="${x}">${L('lk_'+x)}</option>`).join('')}</select></label><div><button class="btn sun" type="submit">${I('plus')}${L('addKid')}</button></div></form></section>
+  <form id="newKid" class="kidForm newKid"><label>${L('kidName')}<input name="ar" required></label><label>${L('gender')}<select name="gender"><option value="b">${L('boyLbl')}</option><option value="g">${L('girlLbl')}</option></select></label><div><button class="btn sun" type="submit">${I('plus')}${L('addKid')}</button></div></form></section>
   <section class="panel glass"><h3><span class="chip study">${I('user')}</span>${L('account')}</h3><p style="margin:0">${L('loggedAs',`<bdi>${esc(me?.email||'')}</bdi>`)}</p><small style="color:var(--muted)">${L('sharedLogin')}</small>
   <div><button class="btn no" id="logout">${I('logout')}${L('logout')}</button></div></section>`;
+}
+
+const REWIC=['gift','game','tree','ice','pizza','tv','bike','cake','cash','ball','book','palette','toys','heart','star'];
+let newRewIc='gift';
+function rewardsView(){
+  return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#FFB547,#F0569F)">${I('trophy')}</span>${L('rewardsMgr')}</h3>
+  <p style="margin:0;color:var(--muted)">${L('rewardsP')}</p>
+  ${S.rewards.length?`<div class="rewList">${S.rewards.map(r=>`<div class="rewItem"><span class="chip">${I(r.ic)}</span><b>${esc(tr(r.title))}</b><span class="pts">${I('star')} ${r.cost}</span><button class="ico del" data-delrew="${r.id}" title="${L('del')}" aria-label="${L('del')}">${I('trash')}</button></div>`).join('')}</div>`:`<p class="empty">${L('noRewardsP')}</p>`}
+  <form id="rewForm" class="catForm">
+    <label for="rwName">${L('rewName')}<input id="rwName" required placeholder="${L('rewPh')}"></label>
+    <label for="rwCost">${L('rewCost')}<input id="rwCost" type="number" min="1" max="1000" value="20" required></label>
+    <div class="lbl">${L('icon')}<div class="days icPick">${REWIC.map(k=>`<button type="button" data-rewic="${k}" aria-pressed="${k===newRewIc}" aria-label="${k}">${I(k)}</button>`).join('')}</div></div>
+    <div><button class="btn sun" type="submit">${I('plus')}${L('addReward')}</button></div>
+  </form></section>`;
+}
+const PEN_PRESETS={ar:['الشجار مع الإخوة','عدم احترام الكبار','الكذب','ألفاظ غير لائقة','إهمال الواجبات','عدم ترتيب الغرفة'],en:['Fighting with siblings','Disrespect to elders','Lying','Bad language','Skipping homework','Messy room']};
+let penKids=[];
+function penView(){
+  const hist=LPen.slice().sort((a,b)=>(b.date+b.at).localeCompare(a.date+a.at)).slice(0,40);
+  return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,var(--coral2),#E5383B)">${I('warn')}</span>${L('penNew')}</h3>
+  <p style="margin:0;color:var(--muted)">${L('penP')}</p>
+  <form id="penForm" class="penForm">
+    <div class="full lbl">${L('penWho')}<div class="days kidsPick" id="penKids">${S.kids.map(k=>`<button type="button" data-penk="${k.id}" aria-pressed="${penKids.includes(k.id)}">${av(k)}${kn(k)}</button>`).join('')}</div></div>
+    <label class="full" for="penReason">${L('penReason')}<input id="penReason" required placeholder="${L('penPh')}"></label>
+    <div class="full lbl">${L('penQuick')}<div class="days">${PEN_PRESETS[lang].map(x=>`<button type="button" class="preset" data-penpre="${esc(x)}" style="--cc:#E5383B">${esc(x)}</button>`).join('')}</div></div>
+    <label for="penPts">${L('penPts')}<input id="penPts" type="number" min="1" max="100" value="2" required></label>
+    <div><button class="btn penBtn" type="submit">${I('minus')}${L('penBtn')}</button></div>
+  </form></section>
+  <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('list')}</span>${L('penHist')}</h3>
+  ${hist.length?`<div class="penHist">${hist.map(l=>{const k=kid(l.kid);return `<div class="req2"><span class="av">${k?av(k):''}</span><div class="who"><b>${esc(l.reason)}</b><small>${k?kn(k):''} · ${esc(l.date)} · ${fmt(l.at)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span><div class="acts"><button class="ico" data-unpen="${l.id}" title="${L('penUndo')}" aria-label="${L('penUndo')}">${I('retry')}</button></div></div>`}).join('')}</div>`:`<p class="empty">${L('penNone')}</p>`}</section>`;
 }
 
 function parentView(){
@@ -394,9 +442,11 @@ function parentView(){
   const pend=S.logs.filter(l=>l.status==='pending');
   let body='';
   if(pt==='family')body=familyView();
+  else if(pt==='rewards')body=rewardsView();
+  else if(pt==='pen')body=penView();
   else if(pt==='requests'){
     body=`<section class="stats">${S.kids.map(k=>{const l=todays(k.id),d=l.filter(t=>log(t.id,k.id)?.status==='approved').length;
-      return `<div class="panel glass stat"><div class="avBox">${av(k,'lg')}</div><div><div style="font-weight:700">${kn(k)}</div><b>${k.points}</b> ${L('stars')}<br><small style="color:var(--muted)">${L('todayOf',d,l.length)}</small>${(()=>{const n=l.filter(t=>t.pr&&!log(t.id,k.id)&&prayerState(t).s==='missed').length;return n?`<div class="missedTag">${I('x')} ${L('missedCount',n,k.g==='f')}</div>`:''})()}</div></div>`}).join('')}</section>
+      return `<div class="panel glass stat"><div class="avBox">${av(k,'lg')}</div><div><div style="font-weight:700">${kn(k)}</div><b><bdi dir="ltr">${k.points}</bdi></b> ${L('stars')}<br><small style="color:var(--muted)">${L('todayOf',d,l.length)}</small>${(()=>{const n=l.filter(t=>t.pr&&!log(t.id,k.id)&&prayerState(t).s==='missed').length;return n?`<div class="missedTag">${I('x')} ${L('missedCount',n,k.g==='f')}</div>`:''})()}</div></div>`}).join('')}</section>
     <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,var(--coral2),var(--coral))">${I('bell')}</span>${L('waiting',pend.length)}</h3>
     ${pend.length?`<div class="reqCols">${S.kids.map(k=>{const mine=pend.filter(l=>l.kid===k.id);
       return `<div class="reqKid ${mine.length?'':'clear'}"><div class="reqHead">${av(k)}<b>${kn(k)}</b><span class="cnt">${mine.length}</span>${mine.length>1?`<button class="btn go sm" data-okall="${k.id}">${I('check')}${L('approveAll')}</button>`:''}</div>
@@ -418,7 +468,8 @@ function parentView(){
     <div class="adhanBox ${S.adhan.on?'':'off'}">
       <div class="adhanHead"><span class="chip" style="background:linear-gradient(135deg,var(--gold2),var(--gold))">${I('speaker')}</span><b>${L('adhanTitle')}</b><button class="switch" id="adOn" aria-pressed="${!!S.adhan.on}" aria-label="${L('adhanTitle')}"></button></div>
       <div class="lbl">${L('adhanFor')}<div class="days">${PRAYERS.map(k=>`<button type="button" data-adpr="${k}" aria-pressed="${!!S.adhan.pr?.[k]}">${I('bell')} ${L('pn_'+k)}</button>`).join('')}</div></div>
-      <div class="row" style="justify-content:flex-start"><button class="btn sun sm" id="adTest">${I('play')}${L('testSnd')}</button></div>
+      <div class="lbl">${L('soundLbl')}<div class="days"><button type="button" data-snd="chime" aria-pressed="${S.adhan.snd!=='custom'}">${I('sparkle')} ${L('chime')}</button><button type="button" data-snd="custom" aria-pressed="${S.adhan.snd==='custom'}">${I('mosque')} ${L('customSnd')}${S.adhan.sndName?` · ${esc(S.adhan.sndName)}`:''}</button></div></div>
+      <div class="row" style="justify-content:flex-start"><button class="btn sun sm" id="adTest">${I('play')}${L('testSnd')}</button><button class="btn no sm" id="adUp">${I('upload')}${L('uploadSnd')}</button></div>
       <small style="color:var(--muted)">${L('adhanNote')}</small>
     </div></section>
     <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('tag')}</span>${L('types')}</h3>
@@ -446,7 +497,7 @@ function parentView(){
     ${S.tasks.filter(t=>!t.fixed).sort((a,b)=>tm(a).localeCompare(tm(b))).map(t=>`<tr><td><span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span>${esc(tr(t.title))}</td><td>${fmt(tm(t))}</td><td>${t.days.length===7?L('daily'):t.days.map(d=>DAYS[d]).join(L('sep'))}</td><td>${t.kids.map(k=>kid(k)).filter(Boolean).map(kn).join(L('sep'))}</td><td>${t.points}</td><td><button class="btn no sm" data-del="${t.id}" aria-label="${L('del')}">${I('trash')}</button></td></tr>`).join('')}
     </tbody></table></div></section>`;
   }
-  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
+  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="rewards" aria-pressed="${pt==='rewards'}">${I('trophy')}${L('rewards')}</button><button class="glass" data-ptab="pen" aria-pressed="${pt==='pen'}">${I('warn')}${L('penalties')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
 }
 /* ---------- writes ---------- */
 function approve(ls){
@@ -532,6 +583,13 @@ document.addEventListener('click',e=>{
   else if(d.ok){const l=S.logs.find(x=>x.id===d.ok);if(!l)return;approve([l]);burst(e.clientX,e.clientY);toast(L('okFor',tr(kid(l.kid).name)))}
   else if(d.rej){updateDoc(doc(logsCol(),d.rej),{status:'rejected',by:me.uid}).catch(fail);toast(L('rejected_t'))}
   else if(d.del){famUpdate({tasks:F.tasks.filter(t=>t.id!==d.del)});toast(L('deleted'))}
+  else if(d.rewic){newRewIc=d.rewic;document.querySelectorAll('[data-rewic]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+  else if(d.delrew){famUpdate({rewards:(F.rewards||[]).filter(r=>r.id!==d.delrew)}).then(()=>toast(L('rewDeleted')))}
+  else if(d.penk){penKids=penKids.includes(d.penk)?penKids.filter(x=>x!==d.penk):[...penKids,d.penk];b.setAttribute('aria-pressed',penKids.includes(d.penk))}
+  else if(d.penpre){const r=$('#penReason');if(r)r.value=d.penpre}
+  else if(d.unpen){const l=LPen.find(x=>x.id===d.unpen);if(!l)return;const b2=writeBatch(db);b2.delete(doc(logsCol(),l.id));b2.update(famRef(),{['points.'+l.kid]:increment(l.pts)});b2.commit().then(()=>toast(L('penUndone'))).catch(fail)}
+  else if(d.snd){if(d.snd==='custom'&&!S.adhan.sndVer){pickSound();return}famUpdate({'adhan.snd':d.snd})}
+  else if(b.id==='adUp'){pickSound()}
   else if(d.icpick){newIc=d.icpick;document.querySelectorAll('[data-icpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
   else if(d.colpick){newCol=d.colpick;document.querySelectorAll('[data-colpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
   else if(d.preset){const p=PRESETS.find(x=>x[0]===d.preset);famUpdate({cats:[...S.cats,{id:p[0],name:{ar:p[1],en:p[2]},ic:p[3],col:p[4]}]});toast(L('typeAdded'))}
@@ -555,12 +613,19 @@ document.addEventListener('submit',async e=>{
   if(f.id==='codeForm'){e.preventDefault();const c=$('#aCode').value.trim().toUpperCase();if(c.length===6)linkDevice(c);else toast(L('badCode'));return}
   if(f.dataset.kidform){e.preventDefault();const fd=new FormData(f),id=f.dataset.kidform,pin=String(fd.get('pin')||'').trim();
     if(pin&&!/^\d{4}$/.test(pin)){toast(L('pinPh'));return}
-    const look=fd.get('look');
-    setKids(F.kids.map(k=>{if(k.id!==id)return k;const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||fd.get('ar').trim()},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
+    const girl=fd.get('gender')==='g';
+    setKids(F.kids.map(k=>{if(k.id!==id)return k;const look=girl?'girl':(k.look==='girl'?'boy':k.look||'boy');const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||fd.get('ar').trim()},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
     document.activeElement?.blur();return}
-  if(f.id==='newKid'){e.preventDefault();const fd=new FormData(f),nm=fd.get('ar').trim(),look=fd.get('look');if(!nm)return;
+  if(f.id==='newKid'){e.preventDefault();const fd=new FormData(f),nm=fd.get('ar').trim(),look=fd.get('gender')==='g'?'girl':(F.kids.filter(x=>x.look!=='girl').length%2?'boy2':'boy');if(!nm)return;
     const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:nm},look};if(look==='girl')k.g='f';
     famUpdate({kids:[...F.kids,k],['points.'+k.id]:0}).then(()=>toast(L('kidAdded')));document.activeElement?.blur();return}
+  if(f.id==='rewForm'){e.preventDefault();const nm=$('#rwName').value.trim(),cost=Math.max(1,Math.round(+$('#rwCost').value||1));if(!nm)return;
+    famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost}]}).then(()=>toast(L('rewAdded')));document.activeElement?.blur();return}
+  if(f.id==='penForm'){e.preventDefault();const reason=$('#penReason').value.trim(),pts=Math.max(1,Math.round(+$('#penPts').value||1));
+    if(!penKids.length){toast(L('penPick'));return}if(!reason)return;
+    const b=writeBatch(db),names=[];
+    for(const kidId of penKids){b.set(doc(logsCol()),{pen:true,kid:kidId,reason,pts,date:today(),at:now(),status:'approved',ts:serverTimestamp(),by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(-pts)});names.push(tr(kid(kidId).name))}
+    b.commit().catch(fail);penKids=[];toast(L('penDone',names.join(L('sep'))));document.activeElement?.blur();render();return}
   if(f.id==='catForm'){e.preventDefault();const nm=$('#fcName').value.trim();if(!nm)return;famUpdate({cats:[...S.cats,{id:'c'+Date.now(),name:nm,ic:newIc,col:newCol}]});document.activeElement?.blur();toast(L('typeAdded'));return}
   if(f.id!=='addForm')return;
   e.preventDefault();
@@ -582,7 +647,25 @@ function stopAdhan(){if(adOut){try{adOut.disconnect()}catch(e){}adOut=null}}
 function chime(){try{const c=actx();stopAdhan();adOut=c.createGain();adOut.connect(c.destination);const out=adOut,notes=[523.25,659.25,783.99,1046.5,783.99,1046.5];let t=c.currentTime+.05;
   for(let r=0;r<2;r++){notes.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),o2=c.createOscillator();o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*2;
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+1.4);o.connect(g);o2.connect(g);g.connect(out);o.start(t);o2.start(t);o.stop(t+1.5);o2.stop(t+1.5);t+=i===notes.length-1?.9:.32})}}catch(e){}}
-const playAdhan=chime;
+/* a custom sound is stored once per child (in that child's own readable log space) and cached on each device */
+let sndBuf=null,sndBufV=null;
+async function customBuf(){
+  const v=S.adhan?.sndVer;if(!v)return null;if(sndBuf&&sndBufV===v)return sndBuf;
+  let data=null;try{const c=JSON.parse(localStorage.getItem('najmati-snd')||'null');if(c&&c.v===v)data=c.d}catch(e){}
+  if(!data){const kidId=M.role==='kid'?M.kid:S.kids[0]?.id;if(!kidId)return null;const s=await getDoc(doc(logsCol(),'snd_'+kidId));data=s.data()?.snd;if(!data)return null;try{localStorage.setItem('najmati-snd',JSON.stringify({v,d:data}))}catch(e){}}
+  const ab=await (await fetch(data)).arrayBuffer();sndBuf=await actx().decodeAudioData(ab);sndBufV=v;return sndBuf;
+}
+async function playAdhan(){
+  stopAdhan();
+  if(S.adhan?.snd==='custom'&&S.adhan.sndVer){try{const buf=await customBuf();if(buf){const c=actx();stopAdhan();adOut=c.createGain();adOut.connect(c.destination);const src=c.createBufferSource();src.buffer=buf;src.connect(adOut);src.start();return}}catch(e){console.error(e)}}
+  chime();
+}
+function pickSound(){const inp=document.createElement('input');inp.type='file';inp.accept='audio/*';inp.onchange=()=>{const f=inp.files[0];if(!f)return;
+  if(f.size>700*1024){toast(L('sndBig'));return}
+  const r=new FileReader();r.onload=async()=>{toast(L('sndSaving'));const v=Date.now(),b=writeBatch(db);
+    for(const k of F.kids)b.set(doc(logsCol(),'snd_'+k.id),{kid:k.id,snd:r.result,name:f.name,date:'snd',status:'approved',v});
+    b.update(famRef(),{'adhan.snd':'custom','adhan.sndName':f.name,'adhan.sndVer':v});
+    try{await b.commit();try{localStorage.setItem('najmati-snd',JSON.stringify({v,d:r.result}))}catch(e){}toast(L('sndSaved'))}catch(e){fail(e)}};r.readAsDataURL(f)};inp.click()}
 function showAdhan(k){const sh=sheet(`<span class="chip prayer adhanChip">${I('mosque')}</span><h2>${L('adhanNow',L('pn_'+k))}</h2><p style="margin:0;color:var(--muted);font-size:20px;font-family:var(--display)">${L('adhanSub')}</p>
   <div class="row"><button class="btn go" id="adOk">${I('check')}${L('adhanOk')}</button><button class="btn no" id="adStop">${I('speaker')}${L('stopSnd')}</button></div>`);
   sh.classList.add('adhanSheet');sh.querySelector('#adStop').onclick=stopAdhan;sh.querySelector('#adOk').onclick=()=>{stopAdhan();sh.remove()}}
@@ -593,7 +676,7 @@ function adhanCheck(){if(!F||!M||M.role!=='kid'||!S.adhan?.on||document.querySel
 /* ---------- sync ---------- */
 let logSubs=[];
 function subLogs(){
-  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];
+  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];LPen=[];
   const map=s=>s.docs.map(x=>({id:x.id,...x.data()}));
   const upd=()=>{if(F){rebuild();softRender()}};
   const lerr=err=>{if(err.code!=='permission-denied')fail(err)};
@@ -601,6 +684,7 @@ function subLogs(){
   else{
     logSubs.push(onSnapshot(query(logsCol(),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr));
     logSubs.push(onSnapshot(query(logsCol(),where('status','==','pending')),s=>{LP=map(s);upd()},lerr));
+    logSubs.push(onSnapshot(query(logsCol(),where('pen','==',true)),s=>{LPen=map(s);upd()},lerr));
   }
 }
 function unsubAll(){[...subs,...logSubs].forEach(u=>{try{u()}catch(e){}});subs=[];logSubs=[]}
@@ -621,7 +705,7 @@ async function onUser(u){
     if(!m){if(u.isAnonymous){gate.screen='kid';await signOut(auth);return}m=await createFamily(u)}
     M=m;fid=m.fid;V.ptab='requests';V.tab='today';V.role=m.role==='kid'?'kid':'parent';if(m.role==='kid')V.kid=m.kid;
     subs.push(onSnapshot(doc(db,'members',u.uid),s=>{if(!s.exists()&&!s.metadata.fromCache){try{sessionStorage.removeItem('najmati-unlocked')}catch(e){}gate.screen='welcome';signOut(auth)}},()=>{}));
-    subs.push(onSnapshot(famRef(),s=>{if(!s.exists())return;F=s.data();_pt=null;rebuild();if(logDay!==today())subLogs();softRender()},err=>{console.error(err);if(err.code==='permission-denied'){gate.screen='welcome';signOut(auth)}else fail(err)}));
+    subs.push(onSnapshot(famRef(),s=>{if(!s.exists())return;F=s.data();_pt=null;rebuild();if(logDay!==today())subLogs();softRender();if(M.role==='kid'&&S.adhan?.snd==='custom')customBuf().catch(()=>{})},err=>{console.error(err);if(err.code==='permission-denied'){gate.screen='welcome';signOut(auth)}else fail(err)}));
     if(m.role==='parent')subs.push(onSnapshot(query(collection(db,'members'),where('fid','==',fid),where('role','==','kid')),s=>{DEV=s.docs.map(x=>({id:x.id,...x.data()}));if(F)softRender()},()=>{}));
   }catch(e){console.error(e);toast(L('err'));gate.screen='welcome';try{await signOut(auth)}catch(x){}render()}
 }
