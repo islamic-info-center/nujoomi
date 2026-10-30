@@ -107,6 +107,12 @@ document.addEventListener('change',e=>{
   if(e.target.id==='fCountry'){famUpdate({city:PLACES.find(c=>c.id===e.target.value).cities[0][0]})}
   else if(e.target.id==='fCity'){famUpdate({city:e.target.value})}
 });
+/* English name: filled from the Arabic one as you type, until the parent edits it */
+const NAMES={'محمد':'Mohammed','أحمد':'Ahmed','احمد':'Ahmed','عبدالله':'Abdullah','عبد الله':'Abdullah','عبدالرحمن':'Abdulrahman','عبد الرحمن':'Abdulrahman','فاطمة':'Fatima','فاطمه':'Fatima','مريم':'Maryam','سارة':'Sara','ساره':'Sara','يوسف':'Yousef','عمر':'Omar','علي':'Ali','خالد':'Khalid','نورة':'Noura','نوره':'Noura','حمدان':'Hamdan','سلطان':'Sultan','فارس':'Fares','إيلاف':'Elaf','ايلاف':'Elaf','زايد':'Zayed','راشد':'Rashid','سعيد':'Saeed','حمد':'Hamad','منصور':'Mansour','ماجد':'Majid','هند':'Hind','شما':'Shamma','عائشة':'Aisha','عايشة':'Aisha','حصة':'Hessa','لطيفة':'Latifa','مهرة':'Mahra','ريم':'Reem','روضة':'Rawda','آمنة':'Amna','امنة':'Amna','خديجة':'Khadija','زينب':'Zainab','حسن':'Hassan','حسين':'Hussein','إبراهيم':'Ibrahim','ابراهيم':'Ibrahim','إسماعيل':'Ismail','اسماعيل':'Ismail','آدم':'Adam','ادم':'Adam','ياسين':'Yaseen','حمزة':'Hamza','مصطفى':'Mustafa','سيف':'Saif','ليان':'Layan','جود':'Jood','رهف':'Rahaf','لين':'Leen','دانة':'Dana','غلا':'Ghala','شهد':'Shahad','ريان':'Rayan','تميم':'Tamim','عثمان':'Othman','بلال':'Bilal','نوح':'Nooh','موسى':'Musa','عيسى':'Eisa','سلمان':'Salman','فهد':'Fahad','تركي':'Turki','ناصر':'Nasser','بدر':'Badr','جاسم':'Jassim','ميرة':'Meera','ميثاء':'Maitha','سلامة':'Salama','حور':'Hoor','جنى':'Jana','رنا':'Rana','نور':'Noor','شيخة':'Shaikha','شيخه':'Shaikha','عبدالعزيز':'Abdulaziz','عبد العزيز':'Abdulaziz'};
+const TL={'ا':'a','أ':'a','إ':'i','آ':'aa','ب':'b','ت':'t','ث':'th','ج':'j','ح':'h','خ':'kh','د':'d','ذ':'dh','ر':'r','ز':'z','س':'s','ش':'sh','ص':'s','ض':'d','ط':'t','ظ':'z','ع':'a','غ':'gh','ف':'f','ق':'q','ك':'k','ل':'l','م':'m','ن':'n','ه':'h','ة':'a','و':'o','ي':'i','ى':'a','ئ':'e','ؤ':'o','ء':''};
+function translit(ar){const s=String(ar||'').trim();if(!s)return '';if(NAMES[s])return NAMES[s];
+  return s.split(/\s+/).map(w=>{if(NAMES[w])return NAMES[w];let o='';for(const ch of w)o+=TL[ch]??(/[a-z0-9]/i.test(ch)?ch:'');o=o.replace(/(.)\1{2,}/g,'$1$1');return o.charAt(0).toUpperCase()+o.slice(1)}).join(' ')}
+document.addEventListener('input',e=>{const f=e.target.closest?.('#newKid,[data-kidform]');if(f&&e.target.name==='ar'){const en=f.querySelector('input[name=en]');if(en&&(!en.value||en.dataset.auto==='1')){en.value=translit(e.target.value);en.dataset.auto='1'}}else if(f&&e.target.name==='en')e.target.dataset.auto='0'});
 document.addEventListener('input',e=>{if(e.target.id==='aCode'){const v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(v!==e.target.value)e.target.value=v}});
 document.addEventListener('submit',async e=>{
   const f=e.target;
@@ -117,10 +123,10 @@ document.addEventListener('submit',async e=>{
   if(f.dataset.kidform){e.preventDefault();const fd=new FormData(f),id=f.dataset.kidform,pin=String(fd.get('pin')||'').trim();
     if(pin&&!/^\d{4}$/.test(pin)){toast(L('pinPh'));return}
     const girl=fd.get('gender')==='g';
-    setKids(F.kids.map(k=>{if(k.id!==id)return k;const look=girl?'girl':(k.look==='girl'?'boy':k.look||'boy');const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||fd.get('ar').trim()},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
+    setKids(F.kids.map(k=>{if(k.id!==id)return k;const look=girl?'girl':(k.look==='girl'?'boy':k.look||'boy');const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||translit(fd.get('ar').trim())},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
     document.activeElement?.blur();return}
   if(f.id==='newKid'){e.preventDefault();const fd=new FormData(f),nm=fd.get('ar').trim(),look=fd.get('gender')==='g'?'girl':(F.kids.filter(x=>x.look!=='girl').length%2?'boy2':'boy');if(!nm)return;
-    const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:nm},look};if(look==='girl')k.g='f';
+    const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:String(fd.get('en')||'').trim()||translit(nm)},look};if(look==='girl')k.g='f';
     famUpdate({kids:[...F.kids,k],['points.'+k.id]:0}).then(()=>toast(L('kidAdded')));document.activeElement?.blur();return}
   if(f.id==='rewForm'){e.preventDefault();const nm=$('#rwName').value.trim(),cost=Math.max(1,Math.round(+$('#rwCost').value||1));if(!nm)return;
     famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost,...(newRewImg?{img:newRewImg}:{})}]}).then(()=>toast(L('rewAdded')));newRewImg=null;document.activeElement?.blur();return}

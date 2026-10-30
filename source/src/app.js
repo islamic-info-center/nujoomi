@@ -123,7 +123,7 @@ Object.assign(T.ar,{brand:'نجومي',note:'',
   linkTitle:'ربط جهاز الطفل',linkP:'اطلب من ولي الأمر رمز الربط من واجهة الوالدين ← الأبناء والأجهزة، ثم اكتبه هنا.',codeLbl:'رمز الربط',linkBtn:'ربط الجهاز',
   badCode:'الرمز غير صحيح أو انتهت صلاحيته',linked:n=>`تم ربط الجهاز بـ ${n}`,
   pinTitle:n=>`أهلاً ${n}، اكتب رمزك السري`,wrongPin:'الرمز غير صحيح، حاول مرة أخرى',
-  family:'الأبناء والأجهزة',kidName:'الاسم',kidNameEn:'الاسم بالإنجليزي',look:'الشخصية',lk_boy:'ولد',lk_boy2:'ولد بقبعة',lk_girl:'بنت',
+  family:'الأبناء والأجهزة',kidName:'الاسم',kidNameEn:'الاسم بالإنجليزي',enAuto:'يُكتب تلقائياً، ويمكنك تعديله',look:'الشخصية',lk_boy:'ولد',lk_boy2:'ولد بقبعة',lk_girl:'بنت',
   pin:'الرمز السري (اختياري)',pinPh:'4 أرقام',saveBtn:'حفظ',saved:'تم الحفظ',devices:'الأجهزة المرتبطة',noDevices:'لا يوجد جهاز مرتبط بعد',
   linkDev:'ربط جهاز',unlink:'إلغاء الربط',unlinked:'أُلغي ربط الجهاز',codeFor:n=>`رمز ربط جهاز ${n}`,
   codeSteps:'على جهاز الطفل: افتح تطبيق نجومي، اختر «هذا جهاز طفل»، ثم اكتب هذا الرمز. الرمز صالح لمدة 30 دقيقة.',close:'إغلاق',
@@ -147,7 +147,7 @@ Object.assign(T.en,{brand:'Nujoomi',note:'',
   linkTitle:"Link a child's device",linkP:'Ask a parent for the link code from Parent view → Kids & devices, then type it here.',codeLbl:'Link code',linkBtn:'Link device',
   badCode:'The code is wrong or has expired',linked:n=>`Device linked to ${n}`,
   pinTitle:n=>`Hi ${n}, type your secret code`,wrongPin:'Wrong code, try again',
-  family:'Kids & devices',kidName:'Name',kidNameEn:'Name in English',look:'Character',lk_boy:'Boy',lk_boy2:'Boy with cap',lk_girl:'Girl',
+  family:'Kids & devices',kidName:'Name',kidNameEn:'Name in English',enAuto:'Filled in for you; you can edit it',look:'Character',lk_boy:'Boy',lk_boy2:'Boy with cap',lk_girl:'Girl',
   pin:'Secret code (optional)',pinPh:'4 digits',saveBtn:'Save',saved:'Saved',devices:'Linked devices',noDevices:'No device linked yet',
   linkDev:'Link a device',unlink:'Unlink',unlinked:'Device unlinked',codeFor:n=>`Link code for ${n}'s device`,
   codeSteps:"On the child's device: open Nujoomi, choose “This is a child's device”, then type this code. It works for 30 minutes.",close:'Close',
@@ -407,7 +407,7 @@ function familyView(){
       <div class="full row" style="justify-content:flex-start"><button class="btn go sm" type="submit">${I('save')}${L('saveBtn')}</button><button class="btn sun sm" type="button" data-linkdev="${k.id}">${I('link')}${L('linkDev')}</button><button class="btn no sm" type="button" data-delkid="${k.id}">${I('trash')}${L('delKid')}</button></div>
     </form>
     <div class="devs"><b>${I('tablet')} ${L('devices')}</b>${devs.length?devs.map(d=>`<span class="devPill">${esc(d.dev||'iPad')}<button class="ico del" data-unlink="${d.id}" title="${L('unlink')}" aria-label="${L('unlink')}">${I('x')}</button></span>`).join(''):`<small>${L('noDevices')}</small>`}</div></div>`}).join('')}</div>
-  <form id="newKid" class="kidForm newKid"><label>${L('kidName')}<input name="ar" required></label><label>${L('gender')}<select name="gender"><option value="b">${L('boyLbl')}</option><option value="g">${L('girlLbl')}</option></select></label><div><button class="btn sun" type="submit">${I('plus')}${L('addKid')}</button></div></form></section>
+  <form id="newKid" class="kidForm newKid"><label>${L('kidName')}<input name="ar" required></label><label>${L('kidNameEn')}<input name="en" dir="ltr" placeholder="${L('enAuto')}"></label><label>${L('gender')}<select name="gender"><option value="b">${L('boyLbl')}</option><option value="g">${L('girlLbl')}</option></select></label><div><button class="btn sun" type="submit">${I('plus')}${L('addKid')}</button></div></form></section>
   <section class="panel glass"><h3><span class="chip study">${I('user')}</span>${L('account')}</h3><p style="margin:0">${L('loggedAs',`<bdi>${esc(me?.email||'')}</bdi>`)}</p><small style="color:var(--muted)">${L('sharedLogin')}</small>
   <div><button class="btn no" id="logout">${I('logout')}${L('logout')}</button></div></section>`;
 }
@@ -614,6 +614,12 @@ document.addEventListener('change',e=>{
   if(e.target.id==='fCountry'){famUpdate({city:PLACES.find(c=>c.id===e.target.value).cities[0][0]})}
   else if(e.target.id==='fCity'){famUpdate({city:e.target.value})}
 });
+/* English name: filled from the Arabic one as you type, until the parent edits it */
+const NAMES={'محمد':'Mohammed','أحمد':'Ahmed','احمد':'Ahmed','عبدالله':'Abdullah','عبد الله':'Abdullah','عبدالرحمن':'Abdulrahman','عبد الرحمن':'Abdulrahman','فاطمة':'Fatima','فاطمه':'Fatima','مريم':'Maryam','سارة':'Sara','ساره':'Sara','يوسف':'Yousef','عمر':'Omar','علي':'Ali','خالد':'Khalid','نورة':'Noura','نوره':'Noura','حمدان':'Hamdan','سلطان':'Sultan','فارس':'Fares','إيلاف':'Elaf','ايلاف':'Elaf','زايد':'Zayed','راشد':'Rashid','سعيد':'Saeed','حمد':'Hamad','منصور':'Mansour','ماجد':'Majid','هند':'Hind','شما':'Shamma','عائشة':'Aisha','عايشة':'Aisha','حصة':'Hessa','لطيفة':'Latifa','مهرة':'Mahra','ريم':'Reem','روضة':'Rawda','آمنة':'Amna','امنة':'Amna','خديجة':'Khadija','زينب':'Zainab','حسن':'Hassan','حسين':'Hussein','إبراهيم':'Ibrahim','ابراهيم':'Ibrahim','إسماعيل':'Ismail','اسماعيل':'Ismail','آدم':'Adam','ادم':'Adam','ياسين':'Yaseen','حمزة':'Hamza','مصطفى':'Mustafa','سيف':'Saif','ليان':'Layan','جود':'Jood','رهف':'Rahaf','لين':'Leen','دانة':'Dana','غلا':'Ghala','شهد':'Shahad','ريان':'Rayan','تميم':'Tamim','عثمان':'Othman','بلال':'Bilal','نوح':'Nooh','موسى':'Musa','عيسى':'Eisa','سلمان':'Salman','فهد':'Fahad','تركي':'Turki','ناصر':'Nasser','بدر':'Badr','جاسم':'Jassim','ميرة':'Meera','ميثاء':'Maitha','سلامة':'Salama','حور':'Hoor','جنى':'Jana','رنا':'Rana','نور':'Noor','شيخة':'Shaikha','شيخه':'Shaikha','عبدالعزيز':'Abdulaziz','عبد العزيز':'Abdulaziz'};
+const TL={'ا':'a','أ':'a','إ':'i','آ':'aa','ب':'b','ت':'t','ث':'th','ج':'j','ح':'h','خ':'kh','د':'d','ذ':'dh','ر':'r','ز':'z','س':'s','ش':'sh','ص':'s','ض':'d','ط':'t','ظ':'z','ع':'a','غ':'gh','ف':'f','ق':'q','ك':'k','ل':'l','م':'m','ن':'n','ه':'h','ة':'a','و':'o','ي':'i','ى':'a','ئ':'e','ؤ':'o','ء':''};
+function translit(ar){const s=String(ar||'').trim();if(!s)return '';if(NAMES[s])return NAMES[s];
+  return s.split(/\s+/).map(w=>{if(NAMES[w])return NAMES[w];let o='';for(const ch of w)o+=TL[ch]??(/[a-z0-9]/i.test(ch)?ch:'');o=o.replace(/(.)\1{2,}/g,'$1$1');return o.charAt(0).toUpperCase()+o.slice(1)}).join(' ')}
+document.addEventListener('input',e=>{const f=e.target.closest?.('#newKid,[data-kidform]');if(f&&e.target.name==='ar'){const en=f.querySelector('input[name=en]');if(en&&(!en.value||en.dataset.auto==='1')){en.value=translit(e.target.value);en.dataset.auto='1'}}else if(f&&e.target.name==='en')e.target.dataset.auto='0'});
 document.addEventListener('input',e=>{if(e.target.id==='aCode'){const v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');if(v!==e.target.value)e.target.value=v}});
 document.addEventListener('submit',async e=>{
   const f=e.target;
@@ -624,10 +630,10 @@ document.addEventListener('submit',async e=>{
   if(f.dataset.kidform){e.preventDefault();const fd=new FormData(f),id=f.dataset.kidform,pin=String(fd.get('pin')||'').trim();
     if(pin&&!/^\d{4}$/.test(pin)){toast(L('pinPh'));return}
     const girl=fd.get('gender')==='g';
-    setKids(F.kids.map(k=>{if(k.id!==id)return k;const look=girl?'girl':(k.look==='girl'?'boy':k.look||'boy');const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||fd.get('ar').trim()},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
+    setKids(F.kids.map(k=>{if(k.id!==id)return k;const look=girl?'girl':(k.look==='girl'?'boy':k.look||'boy');const n={...k,name:{ar:fd.get('ar').trim(),en:fd.get('en').trim()||translit(fd.get('ar').trim())},look,pin};if(look==='girl')n.g='f';else delete n.g;if(!pin)delete n.pin;return n})).then(()=>toast(L('saved')));
     document.activeElement?.blur();return}
   if(f.id==='newKid'){e.preventDefault();const fd=new FormData(f),nm=fd.get('ar').trim(),look=fd.get('gender')==='g'?'girl':(F.kids.filter(x=>x.look!=='girl').length%2?'boy2':'boy');if(!nm)return;
-    const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:nm},look};if(look==='girl')k.g='f';
+    const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:String(fd.get('en')||'').trim()||translit(nm)},look};if(look==='girl')k.g='f';
     famUpdate({kids:[...F.kids,k],['points.'+k.id]:0}).then(()=>toast(L('kidAdded')));document.activeElement?.blur();return}
   if(f.id==='rewForm'){e.preventDefault();const nm=$('#rwName').value.trim(),cost=Math.max(1,Math.round(+$('#rwCost').value||1));if(!nm)return;
     famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost,...(newRewImg?{img:newRewImg}:{})}]}).then(()=>toast(L('rewAdded')));newRewImg=null;document.activeElement?.blur();return}
