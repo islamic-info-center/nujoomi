@@ -60,7 +60,7 @@ document.addEventListener('click',e=>{
       famUpdate({kids:F.kids.filter(x=>x.id!==id),tasks:(F.tasks||[]).map(t=>({...t,kids:t.kids.filter(x=>x!==id)})).filter(t=>t.kids.length),['points.'+id]:deleteField()}).then(()=>toast(L('kidDeleted')));
       DEV.filter(x=>x.kid===id).forEach(x=>deleteDoc(doc(db,'members',x.id)).catch(()=>{}))}}
   else if(d.kid){V.kid=d.kid;render()}
-  else if(d.tab){V.tab=d.tab;render()}
+  else if(d.tab){V.tab=d.tab;render();if(d.tab==='play')setTimeout(()=>document.querySelector('.wStop.here,.wStop.chest')?.scrollIntoView({block:'center',behavior:'smooth'}),80)}
   else if(d.journey){startJourney(+d.journey)}
   else if(d.qa){answerQ(b,e)}
   else if(d.qclose){closeQuiz()}

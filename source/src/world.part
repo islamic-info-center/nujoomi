@@ -1,0 +1,95 @@
+/* ---------- play world: theme islands joined by bridges, and a mood buddy for the quiz ---------- */
+const WB={
+ web:{body:`<g stroke="#1E2140" stroke-width="3" stroke-linecap="round" fill="none"><path d="M22 30q-10-6-14-1M22 35q-11-1-15 6M23 39q-8 4-10 12M25 26q-6-9-12-9"/><path d="M42 30q10-6 14-1M42 35q11-1 15 6M41 39q8 4 10 12M39 26q6-9 12-9"/></g><ellipse cx="32" cy="34" rx="13" ry="14" fill="#2F3366"/><ellipse cx="28" cy="29" rx="6" ry="5" fill="#7C86FF" opacity=".35"/>`,
+  eyes:[[26.5,31],[37.5,31]],sclera:5,pupil:'#1B1B2F',mouth:[32,40,4.5],mc:'#fff',cheek:[[22.5,38],[41.5,38]]},
+ royal:{body:`<path d="M32 4l8 16.5 18 2.6-13 12.7 3.1 17.9L32 45.3l-16.1 8.4L19 35.8 6 23.1l18-2.6z" fill="#FFC93C" stroke="#E59A00" stroke-width="2.5" stroke-linejoin="round"/>`,
+  eyes:[[26,29],[38,29]],sclera:0,pupil:'#2B1B12',mouth:[32,36,5],mc:'#8E3F2A',cheek:[[22,35],[42,35]]},
+ sea:{body:`<path d="M12 32L2 22v20z" fill="#FF7A2F"/><ellipse cx="34" cy="32" rx="22" ry="16" fill="#FF8A3D"/><path d="M30 17c4-6 10-6 13-2-5 0-9 1-13 2z" fill="#FF6A1F"/><path d="M22 26v12M27 22v20" stroke="#fff" stroke-width="3.5" opacity=".8"/>`,
+  eyes:[[45,28]],sclera:6.5,pupil:'#16324A',mouth:[49,38,4],mc:'#8E3F1A',cheek:[[40,36]]},
+ speed:{body:`<circle cx="34" cy="30" r="17" fill="#2F6BFF"/><ellipse cx="34" cy="35" rx="10" ry="7.5" fill="#FFE2C4"/><path d="M27 46l-3 8h9zM39 46l-1 8h9z" fill="#E8352B"/>`,
+  eyes:[[29,27],[39,27]],sclera:4.5,pupil:'#16324A',mouth:[34,37,4],mc:'#8E3F2A',cheek:[]},
+ blocks:{body:`<rect x="18" y="4" width="4" height="8" fill="#7A7A7A"/><rect x="16" y="2" width="8" height="5" fill="#E8352B"/><rect x="12" y="12" width="40" height="32" fill="#5DBB3F"/><rect x="12" y="12" width="40" height="6" fill="#7CD65A"/><rect x="12" y="40" width="40" height="4" fill="#3E8A2A"/><rect x="20" y="44" width="8" height="12" fill="#7A4E2D"/><rect x="36" y="44" width="8" height="12" fill="#7A4E2D"/>`,
+  eyes:[[24,26],[40,26]],sclera:4.5,pupil:'#16324A',mouth:[32,35,5],mc:'#2E5E1E',cheek:[]}
+};
+function wFace(b,mood){
+  let s='';const [mx,my,w]=b.mouth;
+  b.eyes.forEach(([x,y],i)=>{
+    if(mood==='happy'){s+=`<path d="M${x-3.4} ${y+1}q3.4-4.6 6.8 0" stroke="${b.sclera?b.pupil:b.pupil}" stroke-width="2.6" fill="none" stroke-linecap="round"${b.sclera?` transform="translate(0 0)"`:''}/>`;
+      if(b.sclera)s=`<ellipse cx="${x}" cy="${y}" rx="${b.sclera}" ry="${b.sclera*1.1}" fill="#fff"/>`+s;}
+    else{if(b.sclera)s+=`<ellipse cx="${x}" cy="${y}" rx="${b.sclera}" ry="${b.sclera*1.1}" fill="#fff"/>`;
+      s+=`<circle cx="${x}" cy="${y+(mood==='sad'?1.6:0)}" r="${b.sclera?2.6:3.2}" fill="${b.pupil}"/><circle cx="${x+.9}" cy="${y-.4+(mood==='sad'?1.6:0)}" r=".9" fill="#fff"/>`;
+      if(mood==='sad'){const d=i===0&&b.eyes.length>1?1:-1;s+=`<path d="M${x-4} ${y-6-d*1.5}L${x+4} ${y-6+d*1.5}" stroke="${b.mc==='#fff'?'#fff':b.pupil}" stroke-width="2.2" stroke-linecap="round"/>`}}
+  });
+  b.cheek.forEach(([x,y])=>s+=`<circle cx="${x}" cy="${y}" r="2.4" fill="#FF6B8E" opacity="${mood==='sad'?.35:.75}"/>`);
+  if(mood==='happy')s+=`<path d="M${mx-w} ${my-1}Q${mx} ${my+w*1.5} ${mx+w} ${my-1}Z" fill="#7A1F33"/><path d="M${mx-w*.45} ${my+w*.55}Q${mx} ${my+w*.2} ${mx+w*.45} ${my+w*.55}Q${mx} ${my+w*.95} ${mx-w*.45} ${my+w*.55}" fill="#FF7B92"/>`;
+  else if(mood==='sad'){s+=`<path d="M${mx-w*.8} ${my+2}Q${mx} ${my-2.6} ${mx+w*.8} ${my+2}" stroke="${b.mc}" stroke-width="2.3" fill="none" stroke-linecap="round"/>`;
+    const [tx,ty]=b.eyes[b.eyes.length-1];s+=`<path d="M${tx+2} ${ty+5}q-2 3.5 0 5q2-1.5 0-5z" fill="#6EC8FF"/>`}
+  else s+=`<path d="M${mx-w*.7} ${my}q${w*.7} ${w*.6} ${w*1.4} 0" stroke="${b.mc}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+  return s;
+}
+const WSTAR='M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21l1.4-7L2 9.3l7-.8z';
+function wBuddy(mood){const b=WB[pal]||WB.royal;
+  const sp=mood==='happy'?[['-6%','-10%'],['8%','auto','-12%'],['auto','-14%','auto','2%']].map((p,i)=>`<svg class="spark s${i}" viewBox="0 0 24 24" style="top:${p[0]};inset-inline-start:${p[1]};${p[2]?`inset-inline-end:${p[2]};`:''}${p[3]?`bottom:${p[3]};`:''}"><path d="${WSTAR}"/></svg>`).join(''):'';
+  return `<svg viewBox="0 0 64 64">${b.body}${wFace(b,mood)}</svg>${sp}`}
+function setMood(mood){const el=document.querySelector('.wBd');if(!el)return;el.className='wBd '+mood;el.innerHTML=wBuddy(mood);
+  if(mood==='happy'||mood==='sad'){clearTimeout(setMood.t);setMood.t=setTimeout(()=>{const e=document.querySelector('.wBd');if(e&&e.classList.contains(mood))setMood('idle')},2600)}}
+
+/* each theme gets its own sea, island greens and one landmark */
+const WW={
+ blocks:{w:['#46B4F5','#1C78C8'],g:['#8EE068','#4E9E36'],acc:'#FFB52E',sky:['#8ED8FF','#4FB0F0']},
+ sea:{w:['#22C1E0','#0A5D8F'],g:['#9BE070','#4FA23A'],acc:'#FF8A3D',sky:['#5FD3F3','#1E88C7']},
+ web:{w:['#2E2A72','#0F0C2E'],g:['#4F9E78','#25553F'],acc:'#FF4D6D',sky:['#1B1E4B','#3B2C7A']},
+ royal:{w:['#B9A2FF','#7E5BE6'],g:['#FFC9E4','#E58BBE'],acc:'#FFC93C',sky:['#F8B5D3','#C59BFF']},
+ speed:{w:['#3A86FF','#1846B0'],g:['#4FD06A','#2A8F42'],acc:'#E8352B',sky:['#9AD0FF','#2F6BFF']}
+};
+const MARK={
+ blocks:'<rect x="-3" y="0" width="6" height="12" fill="#7A4E2D"/><rect x="-12" y="-20" width="24" height="22" fill="#3E9E2A"/><rect x="-12" y="-20" width="24" height="7" fill="#62C845"/><rect x="-6" y="-12" width="6" height="6" fill="#2E7E1E"/>',
+ sea:'<path d="M-6 12L-4-18h8L6 12z" fill="#fff"/><path d="M-5.4 2h10.8M-4.6-8h9.2" stroke="#E8352B" stroke-width="5"/><rect x="-6" y="-24" width="12" height="7" rx="2" fill="#FFE27A"/><path d="M-8-24L0-31 8-24z" fill="#E8352B"/>',
+ web:'<rect x="-11" y="-26" width="22" height="38" rx="2" fill="#2A2C66"/><g fill="#FFD66B"><rect x="-7" y="-21" width="4" height="4"/><rect x="3" y="-21" width="4" height="4"/><rect x="-7" y="-13" width="4" height="4" opacity=".4"/><rect x="3" y="-13" width="4" height="4"/><rect x="-7" y="-5" width="4" height="4"/><rect x="3" y="-5" width="4" height="4" opacity=".4"/></g><path d="M-11-26L11 12M11-26L-11 12" stroke="#fff" stroke-width=".6" opacity=".5"/>',
+ royal:'<rect x="-9" y="-10" width="18" height="22" fill="#FFB3D6"/><path d="M-12-10L0-28 12-10z" fill="#9B6BFF"/><path d="M0-28v-8l8 3-8 3" stroke="#9B6BFF" stroke-width="1.6" fill="#FFC93C"/><rect x="-3" y="2" width="6" height="10" rx="3" fill="#C2185B" opacity=".6"/>',
+ speed:'<path d="M-2 12V-24" stroke="#555" stroke-width="2.4"/><path d="M-1-24h18v12H-1z" fill="#fff"/><path d="M-1-24h6v6h-6zM11-24h6v6h-6zM5-18h6v6H5z" fill="#222"/><path d="M8 12l5-14 5 14z" fill="#FF7A1A"/>'
+};
+const seedR=s=>{const x=Math.sin(s*999)*10000;return x-Math.floor(x)};
+function blob(cx,cy,rx,ry,seed,sc=1,dy=0){const n=12,p=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,j=.86+seedR(seed+i)*.24;p.push([cx+Math.cos(a)*rx*sc*j,cy+dy+Math.sin(a)*ry*sc*j])}
+  let d=`M${((p[0][0]+p[1][0])/2).toFixed(1)} ${((p[0][1]+p[1][1])/2).toFixed(1)}`;for(let i=1;i<=n;i++){const a=p[i%n],b=p[(i+1)%n];d+=`Q${a[0].toFixed(1)} ${a[1].toFixed(1)} ${((a[0]+b[0])/2).toFixed(1)} ${((a[1]+b[1])/2).toFixed(1)}`}return d+'Z'}
+function palm(x,y,s,f=1){return `<g transform="translate(${x} ${y}) scale(${s*f} ${s})"><ellipse cx="6" cy="2" rx="12" ry="3.5" fill="rgba(0,0,0,.18)"/><path d="M0 2C2-10 1-22 6-32" stroke="#8A5A2B" stroke-width="4.2" fill="none" stroke-linecap="round"/><path d="M0 2C2-10 1-22 6-32" stroke="#B07A45" stroke-width="1.6" fill="none" stroke-dasharray="2 3"/>
+  <g fill="#2FA84F"><path d="M6-32q-14-6-22 4q10-6 22-4z"/><path d="M6-32q14-8 22 2q-10-5-22-2z"/><path d="M6-32q-6-12-18-12q10 3 18 12z"/><path d="M6-32q6-12 18-10q-10 2-18 10z"/></g><circle cx="5" cy="-30" r="2.4" fill="#7A4E2D"/></g>`}
+function island(x,y,i,st,w){const s=i*7+3,gid='wg'+i;
+  return `<g class="isl ${st}"><defs><radialGradient id="${gid}" cx=".4" cy=".35"><stop offset="0" stop-color="${w.g[0]}"/><stop offset="1" stop-color="${w.g[1]}"/></radialGradient></defs>
+   <path d="${blob(x,y,98,60,s,1.42)}" fill="url(#wReef)"/>
+   <path class="foam" d="${blob(x,y,98,60,s,1.13)}" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-dasharray="12 9"/>
+   <path d="${blob(x,y,98,60,s,1.07,4)}" fill="#C9A564"/><path d="${blob(x,y,98,60,s,1)}" fill="url(#wSand)"/>
+   <path d="${blob(x,y,98,60,s+5,.7,-6)}" fill="url(#${gid})"/><ellipse cx="${x-12}" cy="${y-16}" rx="26" ry="9" fill="#fff" opacity=".14"/>
+   <ellipse cx="${x+74}" cy="${y+18}" rx="7" ry="5" fill="#9AA6B2"/><ellipse cx="${x+72}" cy="${y+16}" rx="3" ry="2" fill="#C7D0D8"/><ellipse cx="${x-80}" cy="${y+10}" rx="5" ry="3.6" fill="#9AA6B2"/>
+   ${palm(x+(i%2?-58:50),y-2,1.2,i%2?-1:1)}${palm(x+(i%2?-40:66),y+16,.95,i%2?1:-1)}
+   <g transform="translate(${x+(i%2?48:-50)} ${y-8}) scale(1.45)">${MARK[pal]||MARK.royal}</g>
+   ${st==='locked'?`<path d="${blob(x,y,98,60,s,1.15)}" fill="url(#wFog)"/>`:''}</g>`}
+function bridge(a,b,done,w){const [x1,y1]=a,[x2,y2]=b,mx=(x1+x2)/2,my=(y1+y2)/2+14,d=`M${x1} ${y1}Q${mx} ${my} ${x2} ${y2}`;
+  return `<path d="${d}" stroke="rgba(0,0,0,.18)" stroke-width="20" fill="none" transform="translate(4 10)"/><path d="${d}" stroke="#5E3B1E" stroke-width="18" fill="none"/>
+   <path d="${d}" stroke="${done?'#E9BC7C':'#B78A57'}" stroke-width="13" fill="none" stroke-dasharray="5 2.5"/>
+   <path d="${d}" stroke="${done?w.acc:'#7A5531'}" stroke-width="2.6" fill="none" transform="translate(0 -9)"/><path d="${d}" stroke="${done?w.acc:'#7A5531'}" stroke-width="2.6" fill="none" transform="translate(0 9)"/>`}
+const SHIP=c=>`<svg viewBox="0 0 80 60"><path d="M8 40h64l-9 14H17z" fill="#8A4B22"/><path d="M8 40h64l-2 4H10z" fill="#B0652F"/><path d="M38 6v34" stroke="#5E3B1E" stroke-width="3"/><path d="M40 8q22 14 0 30z" fill="#fff"/><path d="M36 12q-18 12 0 26z" fill="#F4F1E8"/><path d="M38 6h12l-4 4 4 4H38z" fill="${c}"/><path d="M4 56q8-4 16 0t16 0 16 0 16 0 8 0" stroke="rgba(255,255,255,.7)" stroke-width="2.5" fill="none"/></svg>`;
+
+function playView(k){
+  const w=WW[pal]||WW.royal,n=QZ.length,gap=185,W0=360,H=n*gap+260,P=QZ.map((_,j)=>[j%2?238:122,H-120-j*gap]),T=[180,115];
+  const done=QZ.filter((_,j)=>qLog(k.id,j)).length,cur=QZ.findIndex((_,j)=>!qLog(k.id,j));
+  const st=j=>qLog(k.id,j)?'done':qOpen(k.id,j)?'open':'locked';
+  const pos=([x,y])=>`left:${x/W0*100}%;top:${y/H*100}%`;
+  const all=[...P,T];
+  return `<section class="wSea" style="--w1:${w.w[0]};--w2:${w.w[1]};--acc:${w.acc}">
+   <div class="wHead"><span class="chip">${I('game')}</span><div><h3>${L('advTitle')}</h3><small>${L('advP')} · ${L('jDone',done,n)}</small></div></div>
+   <div class="wWaves"></div>${[[18,52,0],[46,70,-25],[78,60,-48]].map(([t,dur,del],i)=>`<span class="wShip s${i}" style="top:${t}%;animation-duration:${dur}s;animation-delay:${del}s">${SHIP(i===1?w.acc:'#E8352B')}</span>`).join('')}
+   <div class="wMap" style="aspect-ratio:${W0}/${H}"><svg viewBox="0 0 ${W0} ${H}" aria-hidden="true"><defs>
+     <radialGradient id="wReef"><stop offset=".55" stop-color="#7FF0E6" stop-opacity=".75"/><stop offset="1" stop-color="#7FF0E6" stop-opacity="0"/></radialGradient>
+     <linearGradient id="wSand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBE9B4"/><stop offset="1" stop-color="#E8C887"/></linearGradient>
+     <radialGradient id="wFog"><stop offset="0" stop-color="#E9F1F7" stop-opacity=".55"/><stop offset="1" stop-color="#E9F1F7" stop-opacity=".2"/></radialGradient></defs>
+     ${all.slice(0,-1).map((p,j)=>bridge(p,all[j+1],j<done&&j+1<=done,w)).join('')}
+     ${P.map((p,j)=>island(p[0],p[1],j,st(j),w)).join('')}${island(T[0],T[1],n,done===n?'done':'locked',w)}</svg>
+   ${P.map((p,j)=>{const s=st(j),lg=qLog(k.id,j),m=lg?.miss,best=Math.max(1,qBest(k.id,j),m==null?0:m===0?3:m<=2?2:1),here=j===cur;
+     return `<div class="wStop ${s} ${here?'here':''}" style="${pos(p)}">
+       ${s==='done'?`<div class="wStars">${[1,2,3].map(x=>`<svg viewBox="0 0 24 24" class="${x<=best?'on':''}"><path d="${WSTAR}"/></svg>`).join('')}</div>`:''}
+       ${here?`<span class="wMe">${av(k)}</span>`:''}
+       <button class="wNode" data-journey="${j}" aria-label="${esc(L('journey',j+1)+': '+tr(QZ[j].t))}">${s==='done'?I('check'):s==='locked'?I('lock'):`<b>${j+1}</b>`}</button>
+       <span class="wSign"><b>${L('journey',j+1)}</b>${esc(tr(QZ[j].t))}</span></div>`}).join('')}
+   <div class="wStop chest ${done===n?'open':''}" style="${pos(T)}"><span class="wChest">${I('trophy')}</span></div></div></section>`;
+}

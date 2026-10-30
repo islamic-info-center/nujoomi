@@ -42,12 +42,12 @@ const QZ=[
   {q:{ar:'ما أعظم ذنب يجب أن نبتعد عنه؟',en:'What is the greatest sin to stay away from?'},a:[{ar:'الشرك بالله',en:'Associating partners with Allah'},{ar:'النوم مبكرًا',en:'Sleeping early'},{ar:'شرب الماء',en:'Drinking water'}]}]}
 ];
 Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advP:'أكمل الرحلات واجمع النجوم',
-  journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:'حاول مرة أخرى، تقدر!',jLocked:'أكمل الرحلة التي قبلها أولاً',
+  journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:f=>f?'لا بأس، حاولي مرة أخرى!':'لا بأس، حاول مرة أخرى!',qGo:f=>f?'اختاري الإجابة الصحيحة!':'اختر الإجابة الصحيحة!',qNext:'السؤال التالي، هيّا!',jLocked:'أكمل الرحلة التي قبلها أولاً',
   jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم لجرّتك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
   nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل الرحلات! رحلات جديدة قريبًا',onWay:'في الطريق',
   praise:['أحسنت! بارك الله فيك','ممتاز! ما شاء الله','أحسنت يا بطل!','بارك الله فيك!','إجابة صحيحة، أحسنت!','ما شاء الله عليك!'],praiseF:['أحسنتِ! بارك الله فيكِ','ممتازة! ما شاء الله','أحسنتِ يا بطلة!','بارك الله فيكِ!','إجابة صحيحة، أحسنتِ!','ما شاء الله عليكِ!']});
 Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advP:'Finish journeys and collect stars',
-  journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:'Try again, you can do it!',jLocked:'Finish the journey before it first',
+  journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:"That's okay, try again!",qGo:()=>'Pick the right answer!',qNext:'Next question, let\'s go!',jLocked:'Finish the journey before it first',
   jWin:'Journey complete!',jStars:n=>`+${n} stars for your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
   nextJ:'Next journey',toMap:'Map',allDone:'You finished every journey! New ones are coming soon',onWay:'On the way',
   praise:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!'],praiseF:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!']});
@@ -56,17 +56,6 @@ let LQ=[],qAuto=new Set();
 const qLog=(kidId,j)=>LQ.find(l=>l.id===`quiz_${kidId}_${j}`&&l.kid===kidId);
 const qBest=(kidId,j)=>{try{return +localStorage.getItem(`najmati-q-${kidId}-${j}`)||0}catch(e){return 0}};
 const qOpen=(kidId,j)=>j===0||!!qLog(kidId,j-1);
-
-function playView(k){
-  const n=QZ.filter((_,j)=>qLog(k.id,j)).length;
-  const cur=QZ.findIndex((_,j)=>!qLog(k.id,j));
-  return `<section class="adv glass"><div class="advHead"><span class="chip">${I('game')}</span><div><h3>${L('advTitle')}</h3><small>${L('advP')} · ${L('jDone',n,QZ.length)}</small></div></div>
-  <div class="advMap">${QZ.map((J,j)=>{const lg=qLog(k.id,j),open=qOpen(k.id,j),best=qBest(k.id,j),here=j===cur;
-    return `<div class="advStop s${j%4}">${here?`<span class="advMe">${av(k)}</span>`:''}
-      <button class="advNode ${lg?'done':open?'open':'locked'} ${here?'here':''}" data-journey="${j}" style="--c1:${J.c[0]};--c2:${J.c[1]}" aria-label="${esc(L('journey',j+1)+': '+tr(J.t))}">${I(open?J.ic:'lock')}${lg?`<span class="advOk">${I('check')}</span>`:''}</button>
-      <div class="advLbl"><b>${L('journey',j+1)}</b><span>${esc(tr(J.t))}</span>${lg?`<span class="advStars">${[1,2,3].map(s=>`<i class="${s<=best?'on':''}">${I('star')}</i>`).join('')}</span>${lg.status==='pending'?`<small>${I('hourglass')} ${L('onWay')}</small>`:''}`:''}</div></div>`}).join('')}
-    <div class="advStop end"><span class="advChest">${I('trophy')}</span></div></div></section>`;
-}
 
 /* sounds: short synthesized cheers, no files to load */
 function qTone(seq,type='triangle',vol=.18){try{const c=actx(),t0=c.currentTime;seq.forEach(([f,at,len])=>{const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;
@@ -93,21 +82,21 @@ function drawQ(){
   const el=document.querySelector('.quizScr');if(!el||!QS)return;
   const J=QZ[QS.j],Q=J.q[QS.i],k=kid(QS.k);
   const ans=shuffle(Q.a.map((a,x)=>({a,x})));
-  el.style.setProperty('--c1',J.c[0]);el.style.setProperty('--c2',J.c[1]);
+  const w=WW[pal]||WW.royal;el.className='quizScr w-'+pal;el.style.setProperty('--s1',w.sky[0]);el.style.setProperty('--s2',w.sky[1]);el.style.setProperty('--acc',w.acc);
   el.innerHTML=`<div class="qTop"><button class="ico qClose" data-qclose="1" aria-label="${L('toMap')}">${I('x')}</button>
     <div class="qDots">${J.q.map((_,x)=>`<i class="${x<QS.i?'on':x===QS.i?'cur':''}"></i>`).join('')}</div><span class="qMe">${k?av(k):''}</span></div>
+    <div class="qStage"><span class="wBd idle">${wBuddy('idle')}</span><div class="qPraise" aria-live="polite">${QS.i?L('qNext'):L('qGo',k?.g==='f')}</div></div>
     <div class="qCard"><span class="qBadge">${I(J.ic)} ${L('journey',QS.j+1)} · ${L('qOf',QS.i+1,J.q.length)}</span><h2>${esc(tr(Q.q))}</h2></div>
-    <div class="qAns">${ans.map((o,n)=>`<button class="qA" data-qa="${o.x}"><span class="qL">${(lang==='ar'?'أبج':'ABC')[n]}</span><span>${esc(tr(o.a))}</span></button>`).join('')}</div>
-    <div class="qPraise" aria-live="polite"></div>`;
+    <div class="qAns">${ans.map((o,n)=>`<button class="qA" data-qa="${o.x}"><span class="qL">${(lang==='ar'?'أبج':'ABC')[n]}</span><span>${esc(tr(o.a))}</span></button>`).join('')}</div>`;
 }
 function answerQ(btn,e){
   if(!QS||QS.lock)return;const k=kid(QS.k),J=QZ[QS.j],pr=document.querySelector('.qPraise');
   if(btn.dataset.qa==='0'){
     QS.lock=true;btn.classList.add('right');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);
-    const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';say(p);
+    const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');say(p);
     setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<J.q.length)drawQ();else finishJ()},1300);
   }else{
-    QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain');pr.className='qPraise show no';
+    QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain',k?.g==='f');pr.className='qPraise show no';setMood('sad');
     if(navigator.vibrate)navigator.vibrate(120);
   }
 }
@@ -121,8 +110,8 @@ function finishJ(){
     else setDoc(doc(logsCol(),id),{...rec,status:'pending'}).catch(fail);
   }
   const more=j+1<QZ.length;
-  el.innerHTML=`<div class="qWin"><div class="qWinStars">${[1,2,3].map(s=>`<i class="${s<=stars?'on':''}" style="--d:${s*.18}s">${I('star')}</i>`).join('')}</div>
-    ${k?av(k,'lg'):''}<h2>${L('jWin')}</h2><p class="qJ">${esc(tr(J.t))}</p>
+  el.className='quizScr w-'+pal;el.innerHTML=`<div class="qWin"><div class="qWinStars">${[1,2,3].map(s=>`<i class="${s<=stars?'on':''}" style="--d:${s*.18}s">${I('star')}</i>`).join('')}</div>
+    <span class="wBd happy big">${wBuddy('happy')}</span><h2>${L('jWin')}</h2><p class="qJ">${esc(tr(J.t))}</p>
     ${first?`<p class="qGain">${I('star')} ${L('jStars',QUIZ_PTS)}</p>${M.role==='kid'?`<small>${L('jWait')}</small>`:''}`:`<p>${L('jReplay')}</p>`}
     <div class="row">${more?`<button class="btn go" data-journey="${j+1}">${L('nextJ')}</button>`:`<p>${L('allDone')}</p>`}<button class="btn" data-qclose="1">${L('toMap')}</button></div></div>`;
   sndWin();say(L('jWin'));
