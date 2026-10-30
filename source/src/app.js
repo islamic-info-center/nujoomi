@@ -311,7 +311,7 @@ function render(){
   $('#roleKid').setAttribute('aria-pressed',V.role==='kid');
   $('#roleParent').setAttribute('aria-pressed',V.role==='parent');
   $('#view').innerHTML=V.role==='kid'?kidView():parentView();
-  installHint();
+  installHint();placeBuddy();
 }
 /* data from another device re-renders, but never while someone is typing in a form */
 let renderLater=false;
@@ -386,6 +386,7 @@ function kidView(){
     <div class="progress"><div class="track"><i style="width:${pct}%"></i></div><small>${L('doneOf',done,list.length)}</small></div>
   </section>
   <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button></div>
+  ${buddyOff&&tab==='today'?`<button class="buddyOn" data-buddyon="1">${I('sparkle')} ${L('bShow')}</button>`:''}
   ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem"><span class="chip">${I('warn')}</span><div><b>${esc(l.reason)}</b><small>${L('penKid',l.pts)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
   ${body}`;
 }
@@ -541,7 +542,7 @@ document.addEventListener('click',e=>{
   else if(b.id==='mode'){theme=isDark()?'light':'dark';try{localStorage.setItem('najmati-theme',theme)}catch(e){}applyTheme()}
   else if(b.id==='lang'){lang=lang==='ar'?'en':'ar';try{localStorage.setItem('najmati-lang',lang)}catch(e){}applyLang();render()}
   else if(b.id==='palBtn'){palOpen($('#palMenu').hidden)}
-  else if(d.pal){pal=d.pal;try{localStorage.setItem('najmati-pal',pal)}catch(e){}applyPal();palOpen(false);build()}
+  else if(d.pal){pal=d.pal;try{localStorage.setItem('najmati-pal',pal)}catch(e){}applyPal();palOpen(false);build();placeBuddy()}
   else if(b.id==='goParent'||b.id==='tLogin'){gate.screen='login';render()}
   else if(b.id==='tSignup'){gate.screen='signup';render()}
   else if(b.id==='goKid'){gate.screen='kid';render();$('#aCode')?.focus()}
@@ -801,6 +802,79 @@ function frame(t){
     if(shoot){shoot.l+=14;const g=cx.createLinearGradient(shoot.x,shoot.y,shoot.x-shoot.l*.8,shoot.y+shoot.l*.4);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,'rgba(255,255,255,0)');cx.strokeStyle=g;cx.lineWidth=2;cx.beginPath();cx.moveTo(shoot.x,shoot.y);cx.lineTo(shoot.x-Math.min(shoot.l,160)*.8,shoot.y+Math.min(shoot.l,160)*.4);cx.stroke();shoot.x-=8;shoot.y+=4;if(shoot.l>320)shoot=null}}
   if(!reduce)requestAnimationFrame(frame);
 }
+
+/* ---------- helper buddy: a cartoon per theme that walks to the task due now and says what to do ---------- */
+const BUDDY={
+ royal:`<svg viewBox="0 0 64 64"><g class="bob"><path d="M32 4l8 16.5 18 2.6-13 12.7 3.1 17.9L32 45.3l-16.1 8.4L19 35.8 6 23.1l18-2.6z" fill="#FFC93C" stroke="#E59A00" stroke-width="2.5" stroke-linejoin="round"/><circle cx="26" cy="29" r="3.4" fill="#2B1B12"/><circle cx="38" cy="29" r="3.4" fill="#2B1B12"/><circle cx="27.2" cy="27.8" r="1.1" fill="#fff"/><circle cx="39.2" cy="27.8" r="1.1" fill="#fff"/><circle cx="22" cy="35" r="2.6" fill="#FF8FA3" opacity=".7"/><circle cx="42" cy="35" r="2.6" fill="#FF8FA3" opacity=".7"/><path d="M27 36q5 4.5 10 0" stroke="#8E3F2A" stroke-width="2.4" fill="none" stroke-linecap="round"/></g></svg>`,
+ web:`<svg viewBox="0 0 64 64"><g class="legs" stroke="#1E2140" stroke-width="3" stroke-linecap="round" fill="none"><path class="l1" d="M22 30q-10-6-14-1M22 35q-11-1-15 6M23 39q-8 4-10 12M25 26q-6-9-12-9"/><path class="l2" d="M42 30q10-6 14-1M42 35q11-1 15 6M41 39q8 4 10 12M39 26q6-9 12-9"/></g><ellipse cx="32" cy="34" rx="13" ry="14" fill="#2F3366"/><ellipse cx="32" cy="34" rx="13" ry="14" fill="url(#wg)" opacity=".5"/><defs><radialGradient id="wg" cx=".35" cy=".3"><stop offset="0" stop-color="#7C86FF"/><stop offset="1" stop-color="#2F3366" stop-opacity="0"/></radialGradient></defs><ellipse cx="26.5" cy="31" rx="5" ry="5.6" fill="#fff"/><ellipse cx="37.5" cy="31" rx="5" ry="5.6" fill="#fff"/><circle cx="27.5" cy="32" r="2.6" fill="#1B1B2F"/><circle cx="38.5" cy="32" r="2.6" fill="#1B1B2F"/><circle cx="28.3" cy="31" r=".9" fill="#fff"/><circle cx="39.3" cy="31" r=".9" fill="#fff"/><path d="M28 40q4 3 8 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="22.5" cy="38" r="2.2" fill="#FF6B8E" opacity=".75"/><circle cx="41.5" cy="38" r="2.2" fill="#FF6B8E" opacity=".75"/></svg>`,
+ sea:`<svg viewBox="0 0 64 64"><g class="bob"><path class="tail" d="M12 32L2 22v20z" fill="#FF7A2F"/><ellipse cx="34" cy="32" rx="22" ry="16" fill="#FF8A3D"/><path d="M30 17c4-6 10-6 13-2-5 0-9 1-13 2z" fill="#FF6A1F"/><path d="M22 26v12M27 22v20" stroke="#fff" stroke-width="3.5" opacity=".8"/><circle cx="45" cy="28" r="6.5" fill="#fff"/><circle cx="46.5" cy="28.5" r="3.4" fill="#16324A"/><circle cx="47.6" cy="27.3" r="1.1" fill="#fff"/><path d="M47 38q4 2 7-1" stroke="#8E3F1A" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="40" cy="36" r="2.3" fill="#FF6B8E" opacity=".7"/></g></svg>`,
+ speed:`<svg viewBox="0 0 64 64"><g class="speedlines" stroke="#7FC8FF" stroke-width="3" stroke-linecap="round"><path d="M4 26h9M2 33h10M5 40h8"/></g><g class="bob"><circle cx="34" cy="30" r="17" fill="#2F6BFF"/><circle cx="34" cy="30" r="17" fill="url(#sg)" opacity=".55"/><defs><radialGradient id="sg" cx=".35" cy=".3"><stop offset="0" stop-color="#9CC2FF"/><stop offset="1" stop-color="#2F6BFF" stop-opacity="0"/></radialGradient></defs><ellipse cx="34" cy="35" rx="10" ry="7.5" fill="#FFE2C4"/><ellipse cx="29" cy="27" rx="4.3" ry="5" fill="#fff"/><ellipse cx="39" cy="27" rx="4.3" ry="5" fill="#fff"/><circle cx="30" cy="28" r="2.3" fill="#16324A"/><circle cx="40" cy="28" r="2.3" fill="#16324A"/><path d="M30 37q4 3 8 0" stroke="#8E3F2A" stroke-width="2.2" fill="none" stroke-linecap="round"/></g><g class="legs"><path class="l1" d="M27 46l-3 8h9z" fill="#E8352B"/><path class="l2" d="M39 46l-1 8h9z" fill="#E8352B"/><path d="M24 54h9M38 54h9" stroke="#fff" stroke-width="2"/></g></svg>`,
+ blocks:`<svg viewBox="0 0 64 64"><g class="bob"><rect x="18" y="4" width="4" height="8" fill="#7A7A7A"/><rect x="16" y="2" width="8" height="5" fill="#E8352B"/><rect x="12" y="12" width="40" height="32" fill="#5DBB3F"/><rect x="12" y="12" width="40" height="6" fill="#7CD65A"/><rect x="12" y="40" width="40" height="4" fill="#3E8A2A"/><rect x="20" y="22" width="8" height="8" fill="#fff"/><rect x="36" y="22" width="8" height="8" fill="#fff"/><rect x="23" y="25" width="5" height="5" fill="#16324A"/><rect x="39" y="25" width="5" height="5" fill="#16324A"/><rect x="26" y="34" width="12" height="3" fill="#2E5E1E"/><rect x="24" y="32" width="3" height="3" fill="#2E5E1E"/><rect x="37" y="32" width="3" height="3" fill="#2E5E1E"/></g><g class="legs"><rect class="l1" x="20" y="44" width="8" height="12" fill="#7A4E2D"/><rect class="l2" x="36" y="44" width="8" height="12" fill="#7A4E2D"/></g></svg>`
+};
+Object.assign(T.ar,{
+  bPray:(t,f)=>`حان وقت ${t}! بعد ما ${f?'تصلين اضغطي':'تصلي اضغط'} عليها`,
+  bDue:(t,f)=>`حان وقت «${t}». ${f?'اضغطي':'اضغط'} عليها لما ${f?'تخلصين':'تخلص'}`,
+  bNext:(t,h)=>`المهمة التالية: «${t}» الساعة ${h}`,
+  bAll:(f)=>`ما شاء الله! ${f?'أنجزتِ':'أنجزت'} كل مهام اليوم`,
+  bWait:'طلباتك عند ماما أو بابا، انتظر الاعتماد',bHide:'إخفاء المساعد',bShow:'إظهار المساعد'});
+Object.assign(T.en,{
+  bPray:t=>`It's time for ${t}! Tap it after you pray`,bDue:t=>`Time for “${t}”. Tap it when you finish`,
+  bNext:(t,h)=>`Next: “${t}” at ${h}`,bAll:()=>`Amazing! You finished all of today's tasks`,
+  bWait:'Your requests are with Mom or Dad',bHide:'Hide helper',bShow:'Show helper'});
+
+let buddyOff=false;try{buddyOff=localStorage.getItem('najmati-buddy')==='off'}catch(e){}
+let buddyKey='',buddyMsgAt=0;
+function buddyEl(){let b=$('#buddy');if(b)return b;
+  b=document.createElement('div');b.id='buddy';b.innerHTML='<span class="thread"></span><button class="bd" aria-label=""></button><div class="bubble" role="status"></div>';
+  document.body.appendChild(b);b.style.transform=`translate(16px,${innerHeight-120}px)`;
+  b.querySelector('.bd').addEventListener('click',e=>{e.stopPropagation();const t=b.dataset.target&&document.querySelector(`[data-task="${b.dataset.target}"]`);
+    if(t){t.scrollIntoView({behavior:'smooth',block:'center'});t.classList.remove('buddyPing');void t.offsetWidth;t.classList.add('buddyPing')}
+    b.classList.add('talk');buddyMsgAt=Date.now();b.classList.remove('hop');void b.offsetWidth;b.classList.add('hop')});
+  return b}
+function buddyFocus(k){
+  const n=nowMin(),f=k.g==='f',list=todays(k.id);let pend=false;
+  const st=t=>{const s=log(t.id,k.id)?.status;if(s==='approved')return 'done';if(s==='pending'){pend=true;return 'done'}
+    if(t.pr){const p=prayerState(t).s;return p==='now'?'due':p==='missed'?'gone':'later'}
+    const [h,m]=t.time.split(':').map(Number);return h*60+m<=n?'due':'later'};
+  const ss=list.map(t=>[t,st(t)]);
+  const due=ss.filter(x=>x[1]==='due').map(x=>x[0]).sort((a,b)=>(b.pr?1:0)-(a.pr?1:0));
+  if(due[0]){const t=due[0];return {t,msg:t.pr?L('bPray',esc(tr(t.title)),f):L('bDue',esc(tr(t.title)),f),urgent:true}}
+  const next=ss.find(x=>x[1]==='later');
+  if(next)return {t:next[0],msg:L('bNext',esc(tr(next[0].title)),fmt(tm(next[0])))};
+  return {t:null,msg:pend?L('bWait'):L('bAll',f),happy:!pend};
+}
+function placeBuddy(){
+  const show=F&&M&&V.role==='kid'&&V.tab==='today'&&!buddyOff&&document.querySelector('.kidTabs');
+  const b=$('#buddy');if(!show){if(b)b.hidden=true;return}
+  const el=buddyEl();el.hidden=false;el.className='b-'+pal;
+  const k=kid(V.kid);if(!k)return;const fo=buddyFocus(k);
+  const bd=el.querySelector('.bd');bd.innerHTML=BUDDY[pal]||BUDDY.royal;bd.setAttribute('aria-label',fo.msg.replace(/<[^>]+>/g,''));
+  const key=(fo.t?.id||'none')+'|'+fo.msg;
+  document.querySelectorAll('.buddyFocus').forEach(x=>x.classList.remove('buddyFocus'));
+  const card=fo.t&&document.querySelector(`[data-task="${fo.t.id}"]`);
+  if(card&&fo.urgent)card.classList.add('buddyFocus');
+  el.dataset.target=fo.t?.id||'';el._fo=fo;
+  el.classList.toggle('happy',!!fo.happy);el.classList.toggle('urgent',!!fo.urgent);
+  positionBuddy();
+  el.querySelector('.bubble').innerHTML=`${fo.msg}<button class="bx" data-buddyoff="1" aria-label="${L('bHide')}">${I('x')}</button>`;
+  /* the bubble talks when the focus changes, then rests; tapping the buddy brings it back */
+  if(key!==buddyKey){buddyKey=key;buddyMsgAt=Date.now()}
+  el.classList.toggle('talk',Date.now()-buddyMsgAt<12000);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-buddyoff]');if(!b)return;e.stopPropagation();buddyOff=true;try{localStorage.setItem('najmati-buddy','off')}catch(x){}render()},true);
+document.addEventListener('click',e=>{const b=e.target.closest('[data-buddyon]');if(!b)return;buddyOff=false;try{localStorage.removeItem('najmati-buddy')}catch(x){}buddyMsgAt=Date.now();render()});
+/* the buddy stands on its task card when that card is on screen, otherwise it waits in the corner */
+function positionBuddy(){const el=$('#buddy');if(!el||el.hidden)return;const id=el.dataset.target;const card=id&&document.querySelector(`[data-task="${id}"]`);
+  let x,y,home=true;
+  if(card){const r=card.getBoundingClientRect();if(r.top>70&&r.top<innerHeight-140){x=r.left+(lang==='ar'?r.width-70:6);y=r.top-46;home=false}}
+  if(home){x=lang==='ar'?14:innerWidth-78;y=innerHeight-104}
+  x=Math.max(4,Math.min(x,innerWidth-68));
+  const t=`translate(${Math.round(x)}px,${Math.round(y)}px)`;
+  if(el.style.transform!==t){el.classList.add('walk');el.style.transform=t;clearTimeout(el._w);el._w=setTimeout(()=>el.classList.remove('walk'),1500)}
+  el.classList.toggle('flip',x<innerWidth/2);el.classList.toggle('home',home)}
+let _bq=0;addEventListener('scroll',()=>{if(_bq)return;_bq=requestAnimationFrame(()=>{_bq=0;positionBuddy()})},{passive:true});
+addEventListener('resize',()=>placeBuddy());
+setInterval(()=>{const b=$('#buddy');if(b&&!b.hidden&&Date.now()-buddyMsgAt>12000)b.classList.remove('talk')},3000);
 addEventListener('resize',build);
 mq.addEventListener?.('change',applyTheme);
 new MutationObserver(()=>{$('#mode').innerHTML=isDark()?I('sun'):I('moon');if(reduce)frame(0)}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});

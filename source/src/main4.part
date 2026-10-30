@@ -40,7 +40,7 @@ document.addEventListener('click',e=>{
   else if(b.id==='mode'){theme=isDark()?'light':'dark';try{localStorage.setItem('najmati-theme',theme)}catch(e){}applyTheme()}
   else if(b.id==='lang'){lang=lang==='ar'?'en':'ar';try{localStorage.setItem('najmati-lang',lang)}catch(e){}applyLang();render()}
   else if(b.id==='palBtn'){palOpen($('#palMenu').hidden)}
-  else if(d.pal){pal=d.pal;try{localStorage.setItem('najmati-pal',pal)}catch(e){}applyPal();palOpen(false);build()}
+  else if(d.pal){pal=d.pal;try{localStorage.setItem('najmati-pal',pal)}catch(e){}applyPal();palOpen(false);build();placeBuddy()}
   else if(b.id==='goParent'||b.id==='tLogin'){gate.screen='login';render()}
   else if(b.id==='tSignup'){gate.screen='signup';render()}
   else if(b.id==='goKid'){gate.screen='kid';render();$('#aCode')?.focus()}

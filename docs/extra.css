@@ -76,3 +76,40 @@ body{padding-top:env(safe-area-inset-top,0px)}
 .rewItem b{flex:1}
 .penHist .req2{display:flex;align-items:center;gap:12px}
 .penHist .req2 .who{flex:1}
+
+/* Helper buddy */
+#buddy{position:fixed;top:0;left:0;width:64px;height:64px;z-index:20;transition:transform 1.1s cubic-bezier(.45,.05,.3,1);pointer-events:none}
+#buddy.b-web.home .thread{display:none}
+#buddy .bd{width:64px;height:64px;padding:0;border:0;background:none;box-shadow:none;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 6px 6px rgba(0,0,0,.25));animation:bIdle 2.6s ease-in-out infinite}
+#buddy .bd svg{width:100%;height:100%;overflow:visible}
+#buddy.flip .bd{transform:scaleX(-1)}
+#buddy .thread{display:none}
+#buddy.b-web .thread{display:block;position:absolute;left:31px;bottom:44px;width:2px;height:120vh;background:linear-gradient(to top,rgba(70,80,140,.7),rgba(70,80,140,0) 160px)}
+#buddy.b-web .bd{animation:bSwing 3s ease-in-out infinite;transform-origin:50% -60px}
+#buddy.walk .legs .l1{animation:bLeg .25s ease-in-out infinite alternate}
+#buddy.walk .legs .l2{animation:bLeg .25s ease-in-out infinite alternate-reverse}
+#buddy.walk .bob{animation:bBob .3s ease-in-out infinite alternate}
+#buddy.b-sea .tail{animation:bTail .5s ease-in-out infinite alternate;transform-origin:12px 32px}
+#buddy.urgent .bd{animation:bJump .9s ease-in-out infinite}
+#buddy.happy .bd{animation:bJump 1.4s ease-in-out infinite}
+#buddy.hop .bd{animation:bHop .5s ease}
+#buddy .bubble{position:absolute;bottom:58px;right:20px;width:max-content;max-width:min(260px,70vw);padding:10px 14px;padding-inline-end:34px;border-radius:18px;background:#fff;color:#16324A;font-weight:800;font-size:15px;line-height:1.45;box-shadow:0 8px 20px rgba(0,0,0,.18),0 0 0 3px var(--gold);opacity:0;transform:translateY(8px) scale(.9);transition:.25s;pointer-events:none}
+#buddy.flip .bubble{right:auto;left:20px}
+#buddy.talk .bubble{opacity:1;transform:none;pointer-events:auto}
+#buddy .bubble .bx{position:absolute;top:6px;inset-inline-end:6px;width:24px;height:24px;border-radius:50%;padding:0;display:grid;place-items:center;background:#EEF2F7;border:0;box-shadow:none}
+#buddy .bubble .bx svg{width:14px;height:14px}
+.task.buddyFocus{animation:bGlow 1.6s ease-in-out infinite}
+.task.buddyPing{animation:bPing .7s ease 2}
+.buddyOn{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;font-weight:700;font-size:14px}
+@keyframes bIdle{50%{transform:translateY(-4px)}}
+#buddy.flip .bd{animation-name:bIdleF}
+@keyframes bIdleF{0%,100%{transform:scaleX(-1)}50%{transform:scaleX(-1) translateY(-4px)}}
+@keyframes bSwing{0%,100%{rotate:-6deg}50%{rotate:6deg}}
+@keyframes bLeg{from{transform:translateY(0)}to{transform:translateY(-3px) rotate(-6deg)}}
+@keyframes bBob{to{transform:translateY(-3px)}}
+@keyframes bTail{to{transform:scaleY(.7)}}
+@keyframes bJump{0%,60%,100%{translate:0 0}30%{translate:0 -12px}}
+@keyframes bHop{40%{translate:0 -18px}}
+@keyframes bGlow{50%{box-shadow:0 0 0 4px var(--gold),0 0 30px var(--gold)}}
+@keyframes bPing{50%{transform:scale(1.05)}}
+@media (prefers-reduced-motion:reduce){#buddy,#buddy *{animation:none!important;transition:none!important}}
