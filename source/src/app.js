@@ -823,16 +823,17 @@ function drawQ(){
   const J=QZ[QS.j],Q=J.q[QS.i],k=kid(QS.k);
   const ans=shuffle(Q.a.map((a,x)=>({a,x})));
   const w=WW[pal]||WW.royal;el.className='quizScr w-'+pal;el.style.setProperty('--s1',w.sky[0]);el.style.setProperty('--s2',w.sky[1]);el.style.setProperty('--acc',w.acc);
-  el.innerHTML=`<div class="qTop"><button class="ico qClose" data-qclose="1" aria-label="${L('toMap')}">${I('x')}</button>
+  const qb=QB[pal]||QB.royal;el.classList.add('qB');
+  el.innerHTML=`${QSCENE}<div class="qTop"><button class="ico qClose" data-qclose="1" aria-label="${L('toMap')}">${I('x')}</button>
     <div class="qDots">${J.q.map((_,x)=>`<i class="${x<QS.i?'on':x===QS.i?'cur':''}"></i>`).join('')}</div><span class="qStarN" id="qStarN">${I('star')}<bdi dir="ltr">${QS.i}/${J.q.length}</bdi></span><span class="qMe">${k?av(k):''}</span></div>
     <div class="qStage"><span class="wBd idle">${wBuddy('idle')}</span><div class="qPraise" aria-live="polite">${QS.i?L('qNext'):L('qGo',k?.g==='f')}</div></div>
-    <div class="qCard"><span class="qBadge">${I(J.ic)} ${L('journey',QS.j+1)} · ${L('qOf',QS.i+1,J.q.length)}</span><h2>${esc(tr(Q.q))}</h2></div>
-    <div class="qAns">${ans.map((o,n)=>`<button class="qA" data-qa="${o.x}"><span class="qL">${(lang==='ar'?'أبج':'ABC')[n]}</span><span>${esc(tr(o.a))}</span></button>`).join('')}</div>`;
+    <div class="qBoard" style="--r1:${qb.r[0]};--r2:${qb.r[1]}"><span class="qRib">${L('journey',QS.j+1)} · ${L('qOf',QS.i+1,J.q.length)}</span><div><h2>${esc(tr(Q.q))}</h2></div></div>
+    <div class="qAns">${ans.map((o,n)=>`<button class="qA" data-qa="${o.x}" style="--g1:${qb.g[n][0]};--g2:${qb.g[n][1]};--g3:${qb.g[n][2]}"><span class="qL">${(lang==='ar'?'أبج':'ABC')[n]}</span><span>${esc(tr(o.a))}</span></button>`).join('')}</div>`;
 }
 function answerQ(btn,e){
   if(!QS||QS.lock)return;const k=kid(QS.k),J=QZ[QS.j],pr=document.querySelector('.qPraise');
   if(btn.dataset.qa==='0'){
-    QS.lock=true;btn.classList.add('right');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);flyStar(r);
+    QS.lock=true;btn.classList.add('right');btn.parentElement.classList.add('solved');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);flyStar(r);
     const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');cheer('ok',p);
     setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<J.q.length)drawQ();else finishJ()},1300);
   }else{
@@ -911,6 +912,15 @@ function setMood(mood){const el=document.querySelector('.wBd');if(!el)return;el.
   clearTimeout(setMood.t)}
 
 /* each theme gets its own sea, island greens and one landmark */
+/* game-board quiz colours per theme: ribbon pair and one candy colour (light, main, edge) per answer */
+const QB={
+ royal:{r:['#FF5FA2','#D62F7A'],g:[['#B48CFF','#7C4DFF','#5A2FD6'],['#FF8CC0','#F0569F','#B5306F'],['#4FE0D8','#18A9B5','#0E7A84']]},
+ web:{r:['#FF4D6D','#C9183D'],g:[['#FF7A93','#FF2E58','#B5133A'],['#6F9BFF','#3561F0','#1F3FB0'],['#FFD66B','#F2A20C','#B97700']]},
+ sea:{r:['#FF8A3D','#E0601A'],g:[['#FFB06B','#FF7A2F','#C2531A'],['#5FF0C8','#18B58C','#0E7F61'],['#8FA6FF','#5B6CFF','#3A47C2']]},
+ speed:{r:['#FF5A4E','#C21D14'],g:[['#FF7B6E','#E8352B','#A81E16'],['#FFD25E','#FFB400','#C28400'],['#5EE39A','#1FB45A','#13803F']]},
+ blocks:{r:['#FF8A3D','#D9611A'],g:[['#FFCC66','#FFA41B','#C27500'],['#8BE068','#4EA83A','#2E7520'],['#7CC6FF','#3A92E8','#2364AE']]}
+};
+const QSCENE='<svg class="qScene" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120Q60 70 120 110T240 90 300 100V300H0Z" fill="rgba(255,255,255,.22)"/><path d="M0 170Q80 130 150 160T300 150V300H0Z" fill="rgba(255,255,255,.16)"/></svg><div class="qClouds" aria-hidden="true"><i></i><i></i><i></i></div>';
 const WW={
  blocks:{w:['#46B4F5','#1C78C8'],g:['#8EE068','#4E9E36'],acc:'#FFB52E',sky:['#8ED8FF','#4FB0F0']},
  sea:{w:['#22C1E0','#0A5D8F'],g:['#9BE070','#4FA23A'],acc:'#FF8A3D',sky:['#5FD3F3','#1E88C7']},

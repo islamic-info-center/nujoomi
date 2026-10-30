@@ -35,6 +35,15 @@ function setMood(mood){const el=document.querySelector('.wBd');if(!el)return;el.
   clearTimeout(setMood.t)}
 
 /* each theme gets its own sea, island greens and one landmark */
+/* game-board quiz colours per theme: ribbon pair and one candy colour (light, main, edge) per answer */
+const QB={
+ royal:{r:['#FF5FA2','#D62F7A'],g:[['#B48CFF','#7C4DFF','#5A2FD6'],['#FF8CC0','#F0569F','#B5306F'],['#4FE0D8','#18A9B5','#0E7A84']]},
+ web:{r:['#FF4D6D','#C9183D'],g:[['#FF7A93','#FF2E58','#B5133A'],['#6F9BFF','#3561F0','#1F3FB0'],['#FFD66B','#F2A20C','#B97700']]},
+ sea:{r:['#FF8A3D','#E0601A'],g:[['#FFB06B','#FF7A2F','#C2531A'],['#5FF0C8','#18B58C','#0E7F61'],['#8FA6FF','#5B6CFF','#3A47C2']]},
+ speed:{r:['#FF5A4E','#C21D14'],g:[['#FF7B6E','#E8352B','#A81E16'],['#FFD25E','#FFB400','#C28400'],['#5EE39A','#1FB45A','#13803F']]},
+ blocks:{r:['#FF8A3D','#D9611A'],g:[['#FFCC66','#FFA41B','#C27500'],['#8BE068','#4EA83A','#2E7520'],['#7CC6FF','#3A92E8','#2364AE']]}
+};
+const QSCENE='<svg class="qScene" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120Q60 70 120 110T240 90 300 100V300H0Z" fill="rgba(255,255,255,.22)"/><path d="M0 170Q80 130 150 160T300 150V300H0Z" fill="rgba(255,255,255,.16)"/></svg><div class="qClouds" aria-hidden="true"><i></i><i></i><i></i></div>';
 const WW={
  blocks:{w:['#46B4F5','#1C78C8'],g:['#8EE068','#4E9E36'],acc:'#FFB52E',sky:['#8ED8FF','#4FB0F0']},
  sea:{w:['#22C1E0','#0A5D8F'],g:['#9BE070','#4FA23A'],acc:'#FF8A3D',sky:['#5FD3F3','#1E88C7']},
