@@ -898,8 +898,8 @@ function wFace(b,mood){
   });
   b.cheek.forEach(([x,y])=>s+=`<circle cx="${x}" cy="${y}" r="2.4" fill="#FF6B8E" opacity="${mood==='sad'?.35:.75}"/>`);
   if(mood==='happy')s+=`<path d="M${mx-w} ${my-1}Q${mx} ${my+w*1.5} ${mx+w} ${my-1}Z" fill="#7A1F33"/><path d="M${mx-w*.45} ${my+w*.55}Q${mx} ${my+w*.2} ${mx+w*.45} ${my+w*.55}Q${mx} ${my+w*.95} ${mx-w*.45} ${my+w*.55}" fill="#FF7B92"/>`;
-  else if(mood==='sad'){s+=`<path d="M${mx-w*.8} ${my+2}Q${mx} ${my-2.6} ${mx+w*.8} ${my+2}" stroke="${b.mc}" stroke-width="2.3" fill="none" stroke-linecap="round"/>`;
-    const [tx,ty]=b.eyes[b.eyes.length-1];s+=`<path d="M${tx+2} ${ty+5}q-2 3.5 0 5q2-1.5 0-5z" fill="#6EC8FF"/>`}
+  else if(mood==='sad'){s+=`<path d="M${mx-w} ${my+3}Q${mx} ${my-3.6} ${mx+w} ${my+3}" stroke="${b.mc}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+    const [tx,ty]=b.eyes[b.eyes.length-1];s+=`<path class="tear" d="M${tx+2} ${ty+4}q-3 5 0 7q3-2 0-7z" fill="#6EC8FF" stroke="#fff" stroke-width=".6"/>`}
   else s+=`<path d="M${mx-w*.7} ${my}q${w*.7} ${w*.6} ${w*1.4} 0" stroke="${b.mc}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
   return s;
 }
@@ -908,7 +908,7 @@ function wBuddy(mood){const b=WB[pal]||WB.royal;
   const sp=mood==='happy'?[['-6%','-10%'],['8%','auto','-12%'],['auto','-14%','auto','2%']].map((p,i)=>`<svg class="spark s${i}" viewBox="0 0 24 24" style="top:${p[0]};inset-inline-start:${p[1]};${p[2]?`inset-inline-end:${p[2]};`:''}${p[3]?`bottom:${p[3]};`:''}"><path d="${WSTAR}"/></svg>`).join(''):'';
   return `<svg viewBox="0 0 64 64">${b.body}${wFace(b,mood)}</svg>${sp}`}
 function setMood(mood){const el=document.querySelector('.wBd');if(!el)return;el.className='wBd '+mood;el.innerHTML=wBuddy(mood);
-  if(mood==='happy'||mood==='sad'){clearTimeout(setMood.t);setMood.t=setTimeout(()=>{const e=document.querySelector('.wBd');if(e&&e.classList.contains(mood))setMood('idle')},2600)}}
+  clearTimeout(setMood.t)}
 
 /* each theme gets its own sea, island greens and one landmark */
 const WW={
