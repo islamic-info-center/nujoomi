@@ -137,7 +137,7 @@ Object.assign(T.ar,{brand:'نجومي',note:'',
   penalties:'العقوبات',penNew:'خصم نجوم (عقوبة)',penP:'اختر الطفل، واكتب السبب، وحدد عدد النجوم. يظهر الخصم وسببه للطفل في يومه.',penWho:'على من؟',penReason:'سبب العقوبة',penPh:'مثال: الشجار مع الإخوة',penQuick:'أسباب شائعة (اضغط للاختيار)',penPts:'عدد النجوم المخصومة',penBtn:'خصم النجوم',penHist:'سجل العقوبات',penNone:'لا توجد عقوبات. ما شاء الله!',penUndo:'تراجع وإرجاع النجوم',penDone:n=>`خُصمت النجوم من ${n}`,penUndone:'أُلغيت العقوبة وأُرجعت النجوم',penPick:'اختر طفلاً واحداً على الأقل',penKid:n=>`خُصم منك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'}`,
   rewardsMgr:'إدارة المكافآت',rewardsP:'ضع المكافآت التي تناسبكم وسعر كل واحدة بالنجوم. تظهر للأبناء كما وضعتها بالضبط.',rewName:'اسم المكافأة',rewPh:'مثال: ساعة ألعاب إلكترونية',rewCost:'السعر بالنجوم',addReward:'إضافة المكافأة',rewAdded:'أُضيفت المكافأة',rewPhoto:'صورة المكافأة',rewUseIcon:'استخدام الأيقونة بدل الصورة',rewPhotoOpt:'صورة المكافأة (اختياري)',rewAddPhoto:'إضافة صورة',rewPhotoHint:'صوّر المنتج أو المكان الذي يحبه الأبناء، وستظهر الصورة بدل الأيقونة.',rewDeleted:'حُذفت المكافأة',noRewardsP:'لا توجد مكافآت بعد. أضف أول مكافأة من الأسفل.',noRewards:'لم يضع الوالدان مكافآت بعد.',
   sndBig:'الملف كبير، اختر مقطعاً أقصر (أقل من 700 كيلوبايت تقريباً، أي نصف دقيقة)',sndSaving:'جارٍ رفع الصوت إلى أجهزة الأبناء…',sndSaved:'حُفظ الصوت وسيصل لأجهزة الأبناء',
-  adhanNote:'يعمل التنبيه بصوته والتطبيق مفتوح على جهاز الطفل. الصوت المخصص يصل لأجهزة الأبناء تلقائياً. إشعارات الأذان والجهاز مقفل ستأتي في تحديث قادم.'
+  adhanNote:'يؤذن على كل جهاز فتح فيه التطبيق (الأبناء وولي الأمر) بالصوت الذي اخترته. إذا فُتح التطبيق خلال 15 دقيقة من دخول الوقت يؤذن فوراً. لا يعمل والجهاز مقفل أو التطبيق مغلق تماماً.',playAdhan:'تشغيل الأذان'
 });
 Object.assign(T.en,{brand:'Nujoomi',note:'',
   welcome:'Welcome to Nujoomi',welcomeP:'The family app for prayer, study and home chores, with stars to earn.',
@@ -161,7 +161,7 @@ Object.assign(T.en,{brand:'Nujoomi',note:'',
   penalties:'Penalties',penNew:'Deduct stars (penalty)',penP:'Pick the child, write the reason and the number of stars. The child sees the deduction and the reason on their day.',penWho:'For whom?',penReason:'Reason',penPh:'e.g. Fighting with siblings',penQuick:'Common reasons (tap to pick)',penPts:'Stars to deduct',penBtn:'Deduct stars',penHist:'Penalty history',penNone:'No penalties. Well done!',penUndo:'Undo and return stars',penDone:n=>`Stars deducted from ${n}`,penUndone:'Penalty undone, stars returned',penPick:'Pick at least one child',penKid:n=>`${n} star${n>1?'s':''} deducted`,
   rewardsMgr:'Manage rewards',rewardsP:'Add the rewards that suit your family and a star price for each. Children see exactly what you add.',rewName:'Reward name',rewPh:'e.g. One hour of video games',rewCost:'Price in stars',addReward:'Add reward',rewAdded:'Reward added',rewPhoto:'Reward photo',rewUseIcon:'Use the icon instead',rewPhotoOpt:'Photo (optional)',rewAddPhoto:'Add a photo',rewPhotoHint:'Take a photo of the treat or place the kids love; it shows instead of the icon.',rewDeleted:'Reward deleted',noRewardsP:'No rewards yet. Add the first one below.',noRewards:'No rewards yet.',
   sndBig:'The file is too large; pick a shorter clip (under about 700 KB, around 30 seconds)',sndSaving:'Uploading the sound to the children\'s devices…',sndSaved:'Sound saved; it will reach the children\'s devices',
-  adhanNote:'The alert plays while the app is open on the child\'s device. A custom sound reaches the children\'s devices automatically. Adhan notifications on a locked device come in a later update.'
+  adhanNote:'The adhan plays on every device with the app open (children and parents) using the sound you chose. Opened within 15 minutes of the prayer time, it plays right away. It cannot play on a locked device or a fully closed app.',playAdhan:'Play adhan'
 });
 let lang='ar';try{lang=localStorage.getItem('najmati-lang')||'ar'}catch(e){}
 const L=(k,...a)=>{const v=T[lang][k];return typeof v==='function'?v(...a):v};
@@ -667,7 +667,11 @@ function syncKidsPick(){const ks=[...document.querySelectorAll('#fKids [data-k]'
 /* ---------- adhan alert (one shared audio context, unlocked by the first tap so it can play later) ---------- */
 let adCtx=null,adOut=null;
 function actx(){if(!adCtx)adCtx=new (window.AudioContext||window.webkitAudioContext)();if(adCtx.state==='suspended')adCtx.resume();return adCtx}
-document.addEventListener('pointerdown',()=>{try{actx()}catch(e){}},{once:true});
+/* browsers only start sound after a tap; keep trying on every tap until the audio is running, and ask once for notifications */
+let askedNote=false;
+['pointerdown','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{if(!adCtx||adCtx.state!=='running')actx();
+  if(!askedNote&&S.adhan?.on&&'Notification' in window&&Notification.permission==='default'){askedNote=true;Notification.requestPermission().catch(()=>{})}}catch(e){}},true));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){try{actx()}catch(e){}setTimeout(adhanCheck,500)}});
 function stopAdhan(){if(adOut){try{adOut.disconnect()}catch(e){}adOut=null}}
 function chime(){try{const c=actx();stopAdhan();adOut=c.createGain();adOut.connect(c.destination);const out=adOut,notes=[523.25,659.25,783.99,1046.5,783.99,1046.5];let t=c.currentTime+.05;
   for(let r=0;r<2;r++){notes.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),o2=c.createOscillator();o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*2;
@@ -692,11 +696,13 @@ function pickSound(){const inp=document.createElement('input');inp.type='file';i
     b.update(famRef(),{'adhan.snd':'custom','adhan.sndName':f.name,'adhan.sndVer':v});
     try{await b.commit();try{localStorage.setItem('najmati-snd',JSON.stringify({v,d:r.result}))}catch(e){}toast(L('sndSaved'))}catch(e){fail(e)}};r.readAsDataURL(f)};inp.click()}
 function showAdhan(k){const sh=sheet(`<span class="chip prayer adhanChip">${I('mosque')}</span><h2>${L('adhanNow',L('pn_'+k))}</h2><p style="margin:0;color:var(--muted);font-size:20px;font-family:var(--display)">${L('adhanSub')}</p>
-  <div class="row"><button class="btn go" id="adOk">${I('check')}${L('adhanOk')}</button><button class="btn no" id="adStop">${I('speaker')}${L('stopSnd')}</button></div>`);
-  sh.classList.add('adhanSheet');sh.querySelector('#adStop').onclick=stopAdhan;sh.querySelector('#adOk').onclick=()=>{stopAdhan();sh.remove()}}
-function adhanCheck(){if(!F||!M||M.role!=='kid'||!S.adhan?.on||document.querySelector('.adhanSheet'))return;const p=prayerTimes(),n=nowMin(),day=today();
+  <div class="row"><button class="btn sun" id="adPlay">${I('play')}${L('playAdhan')}</button><button class="btn go" id="adOk">${I('check')}${L('adhanOk')}</button><button class="btn no" id="adStop">${I('speaker')}${L('stopSnd')}</button></div>`);
+  sh.classList.add('adhanSheet');sh.querySelector('#adStop').onclick=stopAdhan;sh.querySelector('#adPlay').onclick=()=>{actx();playAdhan()};sh.querySelector('#adOk').onclick=()=>{stopAdhan();sh.remove()}}
+function adhanCheck(){if(!F||!M||!S.adhan?.on||document.querySelector('.adhanSheet'))return;const p=prayerTimes(),n=nowMin(),day=today();
   let done='';try{done=localStorage.getItem('najmati-alerted')||''}catch(e){}
-  for(const k of PRAYERS){if(!S.adhan.pr?.[k])continue;const st=p[k];if(n>=st&&n<st+15){const key=day+k;if(done===key)continue;try{localStorage.setItem('najmati-alerted',key)}catch(e){}playAdhan();showAdhan(k);break}}}
+  for(const k of PRAYERS){if(!S.adhan.pr?.[k])continue;const st=p[k];if(n>=st&&n<st+15){const key=day+k;if(done===key)continue;try{localStorage.setItem('najmati-alerted',key)}catch(e){}playAdhan();showAdhan(k);adhanNote(k);break}}}
+function adhanNote(k){try{if(navigator.vibrate)navigator.vibrate([400,200,400,200,800]);if(!document.hidden||!('Notification' in window)||Notification.permission!=='granted')return;
+  navigator.serviceWorker?.getRegistration().then(r=>{const o={body:L('adhanSub'),icon:'icons/icon-192.png',badge:'icons/icon-192.png',tag:'adhan',renotify:true,vibrate:[400,200,400]};r?r.showNotification(L('adhanNow',L('pn_'+k)),o):new Notification(L('adhanNow',L('pn_'+k)),o)}).catch(()=>{})}catch(e){}}
 
 /* ---------- sync ---------- */
 let logSubs=[];
@@ -732,7 +738,7 @@ async function onUser(u){
     if(!m){if(u.isAnonymous){gate.screen='kid';await signOut(auth);return}m=await createFamily(u)}
     M=m;fid=m.fid;V.ptab='requests';V.tab='today';V.role=m.role==='kid'?'kid':'parent';if(m.role==='kid')V.kid=m.kid;
     subs.push(onSnapshot(doc(db,'members',u.uid),s=>{if(!s.exists()&&!s.metadata.fromCache){try{sessionStorage.removeItem('najmati-unlocked')}catch(e){}gate.screen='welcome';signOut(auth)}},()=>{}));
-    subs.push(onSnapshot(famRef(),s=>{if(!s.exists())return;F=s.data();_pt=null;rebuild();if(logDay!==today())subLogs();softRender();if(M.role==='kid'&&S.adhan?.snd==='custom')customBuf().catch(()=>{})},err=>{console.error(err);if(err.code==='permission-denied'){gate.screen='welcome';signOut(auth)}else fail(err)}));
+    subs.push(onSnapshot(famRef(),s=>{if(!s.exists())return;F=s.data();_pt=null;rebuild();if(logDay!==today())subLogs();softRender();if(S.adhan?.on&&S.adhan?.snd==='custom')customBuf().catch(()=>{})},err=>{console.error(err);if(err.code==='permission-denied'){gate.screen='welcome';signOut(auth)}else fail(err)}));
     if(m.role==='parent')subs.push(onSnapshot(query(collection(db,'members'),where('fid','==',fid),where('role','==','kid')),s=>{DEV=s.docs.map(x=>({id:x.id,...x.data()}));if(F)softRender()},()=>{}));
   }catch(e){console.error(e);toast(L('err'));gate.screen='welcome';try{await signOut(auth)}catch(x){}render()}
 }
