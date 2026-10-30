@@ -200,7 +200,7 @@ let S={kids:[],tasks:[],cats:[],rewards:[],logs:[],city:'dubai',adhan:{on:false,
 function rebuild(){
   const kids=(F.kids||[]).map(k=>({...k,points:(F.points||{})[k.id]||0}));
   const pr=FIXED.map((f,i)=>({id:'p'+(i+1),title:{ar:f[1],en:f[2]},cat:'prayer',ic:f[3],points:f[4],time:'00:00',pr:f[0],fixed:true,days:ALL,kids:kids.map(k=>k.id)}));
-  const lm=new Map();for(const l of [...LT,...LP])lm.set(l.id,l);
+  const lm=new Map();for(const l of [...LT,...LP])if(!('quiz' in l))lm.set(l.id,l);
   S={kids,tasks:[...pr,...(F.tasks||[])],cats:F.cats||DEF_CATS,rewards:F.rewards||[],logs:[...lm.values()],city:F.city||'dubai',adhan:F.adhan||{on:false,pr:{}},view:V,sim:null};
   if(M.role==='kid'){V.role='kid';V.kid=M.kid}
   else if(!kids.find(k=>k.id===V.kid)&&kids[0])V.kid=kids[0].id;
@@ -376,6 +376,7 @@ function kidView(){
           ${st==='approved'?`<span class="seal">${I('check')}</span>`:label?`<span class="state">${label}</span>`:''}
           <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
           ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">+${t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
+  }else if(tab==='play'){body=playView(k)
   }else{
     body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
       const can=k.points>=r.cost;
@@ -389,7 +390,7 @@ function kidView(){
     <div class="jar" id="jar"><b>${I('star')}<bdi dir="ltr">${k.points}</bdi></b><span>${L('stars')}</span></div>
     <div class="progress"><div class="track"><i style="width:${pct}%"></i></div><small>${L('doneOf',done,list.length)}</small></div>
   </section>
-  <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button></div>
+  <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button><button class="tPlay" data-tab="play" aria-pressed="${tab==='play'}"><span class="bigIc">${I('game')}</span><span>${L('play')}<small>${L('jDone',QZ.filter((_,j)=>qLog(k.id,j)).length,QZ.length)}</small></span></button></div>
   ${buddyOff&&tab==='today'?`<button class="buddyOn" data-buddyon="1">${I('sparkle')} ${L('bShow')}</button>`:''}
   ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem"><span class="chip">${I('warn')}</span><div><b>${esc(l.reason)}</b><small>${L('penKid',l.pts)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
   ${body}`;
@@ -509,7 +510,7 @@ function parentView(){
 function approve(ls){
   const b=writeBatch(db);
   for(const l of ls){
-    const pts=l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
+    const pts=('quiz' in l)?QUIZ_PTS:l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
     b.update(famRef(),{['points.'+l.kid]:increment(pts)});
     b.update(doc(logsCol(),l.id),{status:'approved',by:me.uid});
   }
@@ -568,6 +569,9 @@ document.addEventListener('click',e=>{
       DEV.filter(x=>x.kid===id).forEach(x=>deleteDoc(doc(db,'members',x.id)).catch(()=>{}))}}
   else if(d.kid){V.kid=d.kid;render()}
   else if(d.tab){V.tab=d.tab;render()}
+  else if(d.journey){startJourney(+d.journey)}
+  else if(d.qa){answerQ(b,e)}
+  else if(d.qclose){closeQuiz()}
   else if(d.ptab){V.ptab=d.ptab;render()}
   else if(d.task){
     const t=task(d.task),k=kid(V.kid),l=log(t.id,k.id);
@@ -692,15 +696,17 @@ function adhanCheck(){if(!F||!M||M.role!=='kid'||!S.adhan?.on||document.querySel
 /* ---------- sync ---------- */
 let logSubs=[];
 function subLogs(){
-  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];LPen=[];
+  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];LPen=[];LQ=[];
   const map=s=>s.docs.map(x=>({id:x.id,...x.data()}));
   const upd=()=>{if(F){rebuild();softRender()}};
   const lerr=err=>{if(err.code!=='permission-denied')fail(err)};
-  if(M.role==='kid'){logSubs.push(onSnapshot(query(logsCol(),where('kid','==',M.kid),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr))}
+  if(M.role==='kid'){logSubs.push(onSnapshot(query(logsCol(),where('kid','==',M.kid),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr));
+    logSubs.push(onSnapshot(query(logsCol(),where('kid','==',M.kid),where('date','==','quiz')),s=>{LQ=map(s);upd()},lerr))}
   else{
     logSubs.push(onSnapshot(query(logsCol(),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr));
     logSubs.push(onSnapshot(query(logsCol(),where('status','==','pending')),s=>{LP=map(s);upd()},lerr));
     logSubs.push(onSnapshot(query(logsCol(),where('pen','==',true)),s=>{LPen=map(s);upd()},lerr));
+    logSubs.push(onSnapshot(query(logsCol(),where('date','==','quiz')),s=>{LQ=map(s);autoQuiz();upd()},lerr));
   }
 }
 function unsubAll(){[...subs,...logSubs].forEach(u=>{try{u()}catch(e){}});subs=[];logSubs=[]}
@@ -726,6 +732,142 @@ async function onUser(u){
   }catch(e){console.error(e);toast(L('err'));gate.screen='welcome';try{await signOut(auth)}catch(x){}render()}
 }
 function tick(){if(!F)return;if(logDay!==today())subLogs();if(!document.querySelector('.sheet'))softRender()}
+
+/* ---------- play: an adventure map of short quiz journeys ----------
+   To add questions: add a journey to QZ (or a question to a journey). In each question the
+   first answer is the correct one; answers are shuffled on screen. */
+const QUIZ_PTS=5;
+const QZ=[
+ {t:{ar:'ربّي الله',en:'My Lord is Allah'},ic:'star',c:['#FFC94A','#FF8A3D'],q:[
+  {q:{ar:'من ربّك؟',en:'Who is your Lord?'},a:[{ar:'الله',en:'Allah'},{ar:'الشمس',en:'The sun'},{ar:'القمر',en:'The moon'}]},
+  {q:{ar:'أين الله؟',en:'Where is Allah?'},a:[{ar:'في السماء، مستوٍ على العرش',en:'Above the heavens, over the Throne'},{ar:'تحت الأرض',en:'Under the ground'},{ar:'في البحر',en:'In the sea'}]},
+  {q:{ar:'من خلقك وخلق كل شيء؟',en:'Who created you and everything?'},a:[{ar:'الله',en:'Allah'},{ar:'الناس',en:'People'},{ar:'خلقنا أنفسنا',en:'We made ourselves'}]},
+  {q:{ar:'كم إلهًا نعبد؟',en:'How many gods do we worship?'},a:[{ar:'إلهًا واحدًا: الله',en:'One: Allah'},{ar:'اثنين',en:'Two'},{ar:'ثلاثة',en:'Three'}]},
+  {q:{ar:'ما معنى «لا إله إلا الله»؟',en:'What does "La ilaha illa Allah" mean?'},a:[{ar:'لا معبود بحقٍّ إلا الله',en:'None deserves worship but Allah'},{ar:'تحية الصباح',en:'A morning greeting'},{ar:'كلمة نقولها عند النوم فقط',en:'Something we only say at bedtime'}]}]},
+ {t:{ar:'نبيّي محمد ﷺ',en:'My Prophet Muhammad ﷺ'},ic:'heart',c:['#FF8FB1','#E8457C'],q:[
+  {q:{ar:'من نبيّك؟',en:'Who is your Prophet?'},a:[{ar:'محمد ﷺ',en:'Muhammad ﷺ'},{ar:'لا أعرف',en:"I don't know"},{ar:'ليس لنا نبي',en:'We have no prophet'}]},
+  {q:{ar:'ما اسم والد النبي ﷺ؟',en:"What was the Prophet's ﷺ father's name?"},a:[{ar:'عبدالله',en:'Abdullah'},{ar:'أبو طالب',en:'Abu Talib'},{ar:'عبدالمطلب',en:'Abdul-Muttalib'}]},
+  {q:{ar:'في أي مدينة وُلد النبي ﷺ؟',en:'In which city was the Prophet ﷺ born?'},a:[{ar:'مكة',en:'Makkah'},{ar:'المدينة',en:'Madinah'},{ar:'الطائف',en:'Taif'}]},
+  {q:{ar:'من هو آخر الأنبياء؟',en:'Who is the last prophet?'},a:[{ar:'محمد ﷺ',en:'Muhammad ﷺ'},{ar:'عيسى عليه السلام',en:'Isa (Jesus)'},{ar:'إبراهيم عليه السلام',en:'Ibrahim'}]},
+  {q:{ar:'ماذا نقول عندما نسمع اسم النبي محمد؟',en:"What do we say when we hear the Prophet's name?"},a:[{ar:'صلى الله عليه وسلم',en:'Peace and blessings be upon him'},{ar:'صباح الخير',en:'Good morning'},{ar:'لا نقول شيئًا',en:'Nothing'}]}]},
+ {t:{ar:'ديني الإسلام',en:'My religion is Islam'},ic:'mosque',c:['#5FD3A0','#1FA67A'],q:[
+  {q:{ar:'ما دينك؟',en:'What is your religion?'},a:[{ar:'الإسلام',en:'Islam'},{ar:'لا دين لي',en:'None'},{ar:'لا أعرف',en:"I don't know"}]},
+  {q:{ar:'كم عدد أركان الإسلام؟',en:'How many pillars of Islam are there?'},a:[{ar:'خمسة',en:'Five'},{ar:'ستة',en:'Six'},{ar:'ثلاثة',en:'Three'}]},
+  {q:{ar:'ما الركن الأول من أركان الإسلام؟',en:'What is the first pillar of Islam?'},a:[{ar:'الشهادتان',en:'The two testimonies'},{ar:'الصوم',en:'Fasting'},{ar:'الحج',en:'Hajj'}]},
+  {q:{ar:'كم صلاةً نصلي في اليوم والليلة؟',en:'How many prayers do we pray each day?'},a:[{ar:'خمس صلوات',en:'Five'},{ar:'ثلاث صلوات',en:'Three'},{ar:'سبع صلوات',en:'Seven'}]},
+  {q:{ar:'في أي شهر يصوم المسلمون؟',en:'In which month do Muslims fast?'},a:[{ar:'رمضان',en:'Ramadan'},{ar:'شعبان',en:"Sha'ban"},{ar:'شوّال',en:'Shawwal'}]}]},
+ {t:{ar:'أركان الإيمان',en:'Pillars of faith'},ic:'sparkle',c:['#9B7BFF','#5A3BE0'],q:[
+  {q:{ar:'كم عدد أركان الإيمان؟',en:'How many pillars of faith are there?'},a:[{ar:'ستة',en:'Six'},{ar:'خمسة',en:'Five'},{ar:'أربعة',en:'Four'}]},
+  {q:{ar:'أيّ هذه من أركان الإيمان؟',en:'Which of these is a pillar of faith?'},a:[{ar:'الإيمان بالملائكة',en:'Belief in the angels'},{ar:'الصوم',en:'Fasting'},{ar:'الزكاة',en:'Zakat'}]},
+  {q:{ar:'من الملَك الذي نزل بالوحي على الأنبياء؟',en:'Which angel brought revelation to the prophets?'},a:[{ar:'جبريل عليه السلام',en:'Jibril'},{ar:'ميكائيل عليه السلام',en:'Mikail'},{ar:'إسرافيل عليه السلام',en:'Israfil'}]},
+  {q:{ar:'ما الكتاب الذي أنزله الله على محمد ﷺ؟',en:'Which book did Allah reveal to Muhammad ﷺ?'},a:[{ar:'القرآن الكريم',en:'The Quran'},{ar:'التوراة',en:'The Torah'},{ar:'الإنجيل',en:'The Injil'}]},
+  {q:{ar:'ما الركن السادس من أركان الإيمان؟',en:'What is the sixth pillar of faith?'},a:[{ar:'الإيمان بالقدر خيره وشره',en:'Belief in divine decree, good and bad'},{ar:'صيام رمضان',en:'Fasting Ramadan'},{ar:'الصدقة',en:'Charity'}]}]},
+ {t:{ar:'القرآن والسنة',en:'Quran and Sunnah'},ic:'book',c:['#4FC3F7','#1E7FD0'],q:[
+  {q:{ar:'ما مرجعنا في ديننا؟',en:'What do we follow in our religion?'},a:[{ar:'القرآن والسنة',en:'The Quran and the Sunnah'},{ar:'ما يقوله أي أحد',en:'Whatever anyone says'},{ar:'الرسوم المتحركة',en:'Cartoons'}]},
+  {q:{ar:'ما أعظم سورة في القرآن؟',en:'What is the greatest surah of the Quran?'},a:[{ar:'سورة الفاتحة',en:'Al-Fatiha'},{ar:'سورة الناس',en:'An-Nas'},{ar:'سورة الكوثر',en:'Al-Kawthar'}]},
+  {q:{ar:'كم عدد سور القرآن الكريم؟',en:'How many surahs are in the Quran?'},a:[{ar:'114 سورة',en:'114'},{ar:'100 سورة',en:'100'},{ar:'30 سورة',en:'30'}]},
+  {q:{ar:'أيّ سورة تعدل ثلث القرآن؟',en:'Which surah equals a third of the Quran?'},a:[{ar:'سورة الإخلاص',en:'Al-Ikhlas'},{ar:'سورة الفلق',en:'Al-Falaq'},{ar:'سورة الكوثر',en:'Al-Kawthar'}]},
+  {q:{ar:'ما آخر سورة في المصحف؟',en:'What is the last surah in the Quran?'},a:[{ar:'سورة الناس',en:'An-Nas'},{ar:'سورة الفلق',en:'Al-Falaq'},{ar:'سورة الإخلاص',en:'Al-Ikhlas'}]}]},
+ {t:{ar:'أحبّ الله',en:'I love Allah'},ic:'moon',c:['#FFB547','#F0569F'],q:[
+  {q:{ar:'لماذا خلقنا الله؟',en:'Why did Allah create us?'},a:[{ar:'لنعبده وحده',en:'To worship Him alone'},{ar:'لنلعب فقط',en:'Only to play'},{ar:'لننام فقط',en:'Only to sleep'}]},
+  {q:{ar:'من ندعو ونسأل إذا احتجنا شيئًا؟',en:'Who do we ask when we need something?'},a:[{ar:'الله وحده',en:'Allah alone'},{ar:'الشجرة',en:'A tree'},{ar:'النجوم',en:'The stars'}]},
+  {q:{ar:'على من نتوكّل؟',en:'Who do we put our trust in?'},a:[{ar:'على الله',en:'Allah'},{ar:'على الحظ',en:'Luck'},{ar:'على التمائم',en:'Charms'}]},
+  {q:{ar:'من يعلم ما في قلوبنا؟',en:'Who knows what is in our hearts?'},a:[{ar:'الله',en:'Allah'},{ar:'لا أحد',en:'Nobody'},{ar:'صديقي',en:'My friend'}]},
+  {q:{ar:'ما أعظم ذنب يجب أن نبتعد عنه؟',en:'What is the greatest sin to stay away from?'},a:[{ar:'الشرك بالله',en:'Associating partners with Allah'},{ar:'النوم مبكرًا',en:'Sleeping early'},{ar:'شرب الماء',en:'Drinking water'}]}]}
+];
+Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advP:'أكمل الرحلات واجمع النجوم',
+  journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:'حاول مرة أخرى، تقدر!',jLocked:'أكمل الرحلة التي قبلها أولاً',
+  jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم لجرّتك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
+  nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل الرحلات! رحلات جديدة قريبًا',onWay:'في الطريق',
+  praise:['أحسنت!','ممتاز!','رائع يا بطل!','ما شاء الله!','إجابة صحيحة!','أنت نجم!'],praiseF:['أحسنتِ!','ممتاز!','رائعة يا بطلة!','ما شاء الله!','إجابة صحيحة!','أنتِ نجمة!']});
+Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advP:'Finish journeys and collect stars',
+  journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:'Try again, you can do it!',jLocked:'Finish the journey before it first',
+  jWin:'Journey complete!',jStars:n=>`+${n} stars for your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
+  nextJ:'Next journey',toMap:'Map',allDone:'You finished every journey! New ones are coming soon',onWay:'On the way',
+  praise:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!'],praiseF:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!']});
+
+let LQ=[],qAuto=new Set();
+const qLog=(kidId,j)=>LQ.find(l=>l.id===`quiz_${kidId}_${j}`&&l.kid===kidId);
+const qBest=(kidId,j)=>{try{return +localStorage.getItem(`najmati-q-${kidId}-${j}`)||0}catch(e){return 0}};
+const qOpen=(kidId,j)=>j===0||!!qLog(kidId,j-1);
+
+function playView(k){
+  const n=QZ.filter((_,j)=>qLog(k.id,j)).length;
+  const cur=QZ.findIndex((_,j)=>!qLog(k.id,j));
+  return `<section class="adv glass"><div class="advHead"><span class="chip">${I('game')}</span><div><h3>${L('advTitle')}</h3><small>${L('advP')} · ${L('jDone',n,QZ.length)}</small></div></div>
+  <div class="advMap">${QZ.map((J,j)=>{const lg=qLog(k.id,j),open=qOpen(k.id,j),best=qBest(k.id,j),here=j===cur;
+    return `<div class="advStop s${j%4}">${here?`<span class="advMe">${av(k)}</span>`:''}
+      <button class="advNode ${lg?'done':open?'open':'locked'} ${here?'here':''}" data-journey="${j}" style="--c1:${J.c[0]};--c2:${J.c[1]}" aria-label="${esc(L('journey',j+1)+': '+tr(J.t))}">${I(open?J.ic:'lock')}${lg?`<span class="advOk">${I('check')}</span>`:''}</button>
+      <div class="advLbl"><b>${L('journey',j+1)}</b><span>${esc(tr(J.t))}</span>${lg?`<span class="advStars">${[1,2,3].map(s=>`<i class="${s<=best?'on':''}">${I('star')}</i>`).join('')}</span>${lg.status==='pending'?`<small>${I('hourglass')} ${L('onWay')}</small>`:''}`:''}</div></div>`}).join('')}
+    <div class="advStop end"><span class="advChest">${I('trophy')}</span></div></div></section>`;
+}
+
+/* sounds: short synthesized cheers, no files to load */
+function qTone(seq,type='triangle',vol=.18){try{const c=actx(),t0=c.currentTime;seq.forEach(([f,at,len])=>{const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0,t0+at);g.gain.linearRampToValueAtTime(vol,t0+at+.02);g.gain.exponentialRampToValueAtTime(.001,t0+at+len);o.connect(g).connect(c.destination);o.start(t0+at);o.stop(t0+at+len+.05)})}catch(e){}}
+const sndOk=()=>qTone([[523,0,.18],[659,.09,.18],[784,.18,.2],[1047,.28,.35]]);
+const sndNo=()=>qTone([[330,0,.2],[262,.16,.3]],'sine',.15);
+const sndWin=()=>qTone([[523,0,.2],[659,.12,.2],[784,.24,.2],[1047,.36,.25],[784,.6,.15],[1047,.72,.6],[1319,.72,.6]]);
+function say(txt){try{const v=speechSynthesis.getVoices().find(x=>/^ar/i.test(x.lang));if(lang==='ar'&&!v)return;const u=new SpeechSynthesisUtterance(txt);if(lang==='ar'){u.voice=v;u.lang=v.lang}u.rate=1.05;u.pitch=1.3;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const r=Math.floor(Math.random()*(i+1));[a[i],a[r]]=[a[r],a[i]]}return a};
+
+let QS=null;
+function startJourney(j){
+  const k=kid(V.kid);if(!k)return;
+  if(!qOpen(k.id,j)){sndNo();toast(L('jLocked'));return}
+  QS={j,i:0,miss:0,k:k.id,lock:false};
+  document.querySelector('.quizScr')?.remove();
+  const el=document.createElement('div');el.className='quizScr';el.dir=lang==='ar'?'rtl':'ltr';document.body.appendChild(el);
+  drawQ();
+}
+function drawQ(){
+  const el=document.querySelector('.quizScr');if(!el||!QS)return;
+  const J=QZ[QS.j],Q=J.q[QS.i],k=kid(QS.k);
+  const ans=shuffle(Q.a.map((a,x)=>({a,x})));
+  el.style.setProperty('--c1',J.c[0]);el.style.setProperty('--c2',J.c[1]);
+  el.innerHTML=`<div class="qTop"><button class="ico qClose" data-qclose="1" aria-label="${L('toMap')}">${I('x')}</button>
+    <div class="qDots">${J.q.map((_,x)=>`<i class="${x<QS.i?'on':x===QS.i?'cur':''}"></i>`).join('')}</div><span class="qMe">${k?av(k):''}</span></div>
+    <div class="qCard"><span class="qBadge">${I(J.ic)} ${L('journey',QS.j+1)} · ${L('qOf',QS.i+1,J.q.length)}</span><h2>${esc(tr(Q.q))}</h2></div>
+    <div class="qAns">${ans.map((o,n)=>`<button class="qA" data-qa="${o.x}"><span class="qL">${(lang==='ar'?'أبج':'ABC')[n]}</span><span>${esc(tr(o.a))}</span></button>`).join('')}</div>
+    <div class="qPraise" aria-live="polite"></div>`;
+}
+function answerQ(btn,e){
+  if(!QS||QS.lock)return;const k=kid(QS.k),J=QZ[QS.j],pr=document.querySelector('.qPraise');
+  if(btn.dataset.qa==='0'){
+    QS.lock=true;btn.classList.add('right');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);
+    const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';say(p);
+    setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<J.q.length)drawQ();else finishJ()},1300);
+  }else{
+    QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain');pr.className='qPraise show no';
+    if(navigator.vibrate)navigator.vibrate(120);
+  }
+}
+function finishJ(){
+  const el=document.querySelector('.quizScr');if(!el||!QS)return;
+  const {j,k:kidId,miss}=QS,k=kid(kidId),J=QZ[j],stars=miss===0?3:miss<=2?2:1;
+  try{if(stars>qBest(kidId,j))localStorage.setItem(`najmati-q-${kidId}-${j}`,stars)}catch(e){}
+  const first=!qLog(kidId,j),id=`quiz_${kidId}_${j}`,rec={quiz:j,kid:kidId,date:'quiz',day:today(),at:now(),miss,ts:serverTimestamp()};
+  if(first){
+    if(M.role==='parent'){const b=writeBatch(db);b.set(doc(logsCol(),id),{...rec,status:'approved',by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(QUIZ_PTS)});b.commit().catch(fail)}
+    else setDoc(doc(logsCol(),id),{...rec,status:'pending'}).catch(fail);
+  }
+  const more=j+1<QZ.length;
+  el.innerHTML=`<div class="qWin"><div class="qWinStars">${[1,2,3].map(s=>`<i class="${s<=stars?'on':''}" style="--d:${s*.18}s">${I('star')}</i>`).join('')}</div>
+    ${k?av(k,'lg'):''}<h2>${L('jWin')}</h2><p class="qJ">${esc(tr(J.t))}</p>
+    ${first?`<p class="qGain">${I('star')} ${L('jStars',QUIZ_PTS)}</p>${M.role==='kid'?`<small>${L('jWait')}</small>`:''}`:`<p>${L('jReplay')}</p>`}
+    <div class="row">${more?`<button class="btn go" data-journey="${j+1}">${L('nextJ')}</button>`:`<p>${L('allDone')}</p>`}<button class="btn" data-qclose="1">${L('toMap')}</button></div></div>`;
+  sndWin();say(L('jWin'));
+  for(let n=0;n<4;n++)setTimeout(()=>burst(innerWidth*(.2+.6*Math.random()),innerHeight*(.25+.3*Math.random())),n*250);
+  QS=null;if(F){rebuild();softRender()}
+}
+function closeQuiz(){QS=null;document.querySelector('.quizScr')?.remove();try{speechSynthesis.cancel()}catch(e){}render()}
+
+/* a parent's open app turns finished journeys into stars, once each */
+function autoQuiz(){
+  if(M?.role!=='parent')return;
+  const ls=LQ.filter(l=>l.status==='pending'&&l.id===`quiz_${l.kid}_${l.quiz}`&&kid(l.kid)&&!qAuto.has(l.id));
+  if(!ls.length)return;ls.forEach(l=>qAuto.add(l.id));approve(ls);
+}
 const cv=$('#sky'),cx=cv.getContext('2d');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let W,H,dpr,items=[];

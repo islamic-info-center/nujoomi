@@ -2,7 +2,7 @@
 function approve(ls){
   const b=writeBatch(db);
   for(const l of ls){
-    const pts=l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
+    const pts=('quiz' in l)?QUIZ_PTS:l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
     b.update(famRef(),{['points.'+l.kid]:increment(pts)});
     b.update(doc(logsCol(),l.id),{status:'approved',by:me.uid});
   }
@@ -61,6 +61,9 @@ document.addEventListener('click',e=>{
       DEV.filter(x=>x.kid===id).forEach(x=>deleteDoc(doc(db,'members',x.id)).catch(()=>{}))}}
   else if(d.kid){V.kid=d.kid;render()}
   else if(d.tab){V.tab=d.tab;render()}
+  else if(d.journey){startJourney(+d.journey)}
+  else if(d.qa){answerQ(b,e)}
+  else if(d.qclose){closeQuiz()}
   else if(d.ptab){V.ptab=d.ptab;render()}
   else if(d.task){
     const t=task(d.task),k=kid(V.kid),l=log(t.id,k.id);
@@ -185,15 +188,17 @@ function adhanCheck(){if(!F||!M||M.role!=='kid'||!S.adhan?.on||document.querySel
 /* ---------- sync ---------- */
 let logSubs=[];
 function subLogs(){
-  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];LPen=[];
+  logSubs.forEach(u=>u());logSubs=[];logDay=today();LT=[];LP=[];LPen=[];LQ=[];
   const map=s=>s.docs.map(x=>({id:x.id,...x.data()}));
   const upd=()=>{if(F){rebuild();softRender()}};
   const lerr=err=>{if(err.code!=='permission-denied')fail(err)};
-  if(M.role==='kid'){logSubs.push(onSnapshot(query(logsCol(),where('kid','==',M.kid),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr))}
+  if(M.role==='kid'){logSubs.push(onSnapshot(query(logsCol(),where('kid','==',M.kid),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr));
+    logSubs.push(onSnapshot(query(logsCol(),where('kid','==',M.kid),where('date','==','quiz')),s=>{LQ=map(s);upd()},lerr))}
   else{
     logSubs.push(onSnapshot(query(logsCol(),where('date','==',logDay)),s=>{LT=map(s);upd()},lerr));
     logSubs.push(onSnapshot(query(logsCol(),where('status','==','pending')),s=>{LP=map(s);upd()},lerr));
     logSubs.push(onSnapshot(query(logsCol(),where('pen','==',true)),s=>{LPen=map(s);upd()},lerr));
+    logSubs.push(onSnapshot(query(logsCol(),where('date','==','quiz')),s=>{LQ=map(s);autoQuiz();upd()},lerr));
   }
 }
 function unsubAll(){[...subs,...logSubs].forEach(u=>{try{u()}catch(e){}});subs=[];logSubs=[]}

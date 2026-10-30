@@ -122,6 +122,7 @@ function kidView(){
           ${st==='approved'?`<span class="seal">${I('check')}</span>`:label?`<span class="state">${label}</span>`:''}
           <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
           ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">+${t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
+  }else if(tab==='play'){body=playView(k)
   }else{
     body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
       const can=k.points>=r.cost;
@@ -135,7 +136,7 @@ function kidView(){
     <div class="jar" id="jar"><b>${I('star')}<bdi dir="ltr">${k.points}</bdi></b><span>${L('stars')}</span></div>
     <div class="progress"><div class="track"><i style="width:${pct}%"></i></div><small>${L('doneOf',done,list.length)}</small></div>
   </section>
-  <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button></div>
+  <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button><button class="tPlay" data-tab="play" aria-pressed="${tab==='play'}"><span class="bigIc">${I('game')}</span><span>${L('play')}<small>${L('jDone',QZ.filter((_,j)=>qLog(k.id,j)).length,QZ.length)}</small></span></button></div>
   ${buddyOff&&tab==='today'?`<button class="buddyOn" data-buddyon="1">${I('sparkle')} ${L('bShow')}</button>`:''}
   ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem"><span class="chip">${I('warn')}</span><div><b>${esc(l.reason)}</b><small>${L('penKid',l.pts)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
   ${body}`;

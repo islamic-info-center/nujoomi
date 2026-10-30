@@ -35,7 +35,7 @@ let S={kids:[],tasks:[],cats:[],rewards:[],logs:[],city:'dubai',adhan:{on:false,
 function rebuild(){
   const kids=(F.kids||[]).map(k=>({...k,points:(F.points||{})[k.id]||0}));
   const pr=FIXED.map((f,i)=>({id:'p'+(i+1),title:{ar:f[1],en:f[2]},cat:'prayer',ic:f[3],points:f[4],time:'00:00',pr:f[0],fixed:true,days:ALL,kids:kids.map(k=>k.id)}));
-  const lm=new Map();for(const l of [...LT,...LP])lm.set(l.id,l);
+  const lm=new Map();for(const l of [...LT,...LP])if(!('quiz' in l))lm.set(l.id,l);
   S={kids,tasks:[...pr,...(F.tasks||[])],cats:F.cats||DEF_CATS,rewards:F.rewards||[],logs:[...lm.values()],city:F.city||'dubai',adhan:F.adhan||{on:false,pr:{}},view:V,sim:null};
   if(M.role==='kid'){V.role='kid';V.kid=M.kid}
   else if(!kids.find(k=>k.id===V.kid)&&kids[0])V.kid=kids[0].id;
