@@ -8,6 +8,10 @@ function pickPhoto(kidId){const inp=document.createElement('input');inp.type='fi
     famUpdate({kids:F.kids.map(k=>k.id===kidId?{...k,photo:c.toDataURL('image/jpeg',.8)}:k)}).then(()=>toast(L('photoSaved')))};im.src=r.result};r.readAsDataURL(f)};
   inp.click()}
 
+function pickImage(sz,cb){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+    const c=document.createElement('canvas');c.width=c.height=sz;const g=c.getContext('2d');const m=Math.min(im.width,im.height);
+    g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,sz,sz);cb(c.toDataURL('image/jpeg',.78))};im.src=r.result};r.readAsDataURL(f)};inp.click()}
 function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
 function sheet(html){const el=document.createElement('div');el.className='sheet';el.innerHTML=`<div class="card glass" dir="${lang==='ar'?'rtl':'ltr'}">${html}</div>`;el.addEventListener('click',e=>{if(e.target===el)el.remove()});document.body.appendChild(el);return el}
 function burst(x,y){for(let i=0;i<12;i++){const s=document.createElement('span');s.className='burst';s.innerHTML=I('star');const a=Math.PI*2*i/12;s.style.left=x+'px';s.style.top=y+'px';s.style.setProperty('--dx',Math.cos(a)*120+'px');s.style.setProperty('--dy',Math.sin(a)*120+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}}

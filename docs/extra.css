@@ -113,3 +113,21 @@ body{padding-top:env(safe-area-inset-top,0px)}
 @keyframes bGlow{50%{box-shadow:0 0 0 4px var(--gold),0 0 30px var(--gold)}}
 @keyframes bPing{50%{transform:scale(1.05)}}
 @media (prefers-reduced-motion:reduce){#buddy,#buddy *{animation:none!important;transition:none!important}}
+/* Reward cards (parent manager) and reward photos */
+.rewList{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.rewItem{display:none}
+.rewCard{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:20px;background:var(--glass2);border:1px solid var(--edge);box-shadow:0 4px 0 var(--depth)}
+.rewPic{aspect-ratio:4/3;border-radius:14px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,color-mix(in srgb,#FFB547 25%,transparent),color-mix(in srgb,#F0569F 25%,transparent))}
+.rewPic img{width:100%;height:100%;object-fit:cover}
+.rewPic .chip{width:64px;height:64px;background:linear-gradient(135deg,#FFB547,#F0569F)}
+.rewPic .chip svg{width:34px;height:34px}
+.rewT{font-size:18px;line-height:1.35;min-height:2.7em}
+.rewFoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.rewCost{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:99px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:var(--gold-ink);font-weight:800;font-size:17px;box-shadow:0 3px 0 color-mix(in srgb,var(--gold) 60%,#000)}
+.rewCost svg{width:16px;height:16px;fill:currentColor}
+.rewActs{display:flex;gap:4px}
+.rewActs .ico{width:32px;height:32px}
+.rewPrev{width:64px;height:64px;border-radius:14px;overflow:hidden;display:inline-block}
+.rewPrev img{width:100%;height:100%;object-fit:cover}
+.task .rewImg{width:100%;aspect-ratio:16/10;border-radius:16px;overflow:hidden;display:block;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.task .rewImg img{width:100%;height:100%;object-fit:cover;display:block}

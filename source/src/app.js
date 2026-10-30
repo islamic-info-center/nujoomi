@@ -135,7 +135,7 @@ Object.assign(T.ar,{brand:'نجومي',note:'',
   offline:'لا يوجد اتصال، سيتم حفظ التغييرات وإرسالها عند عودة الإنترنت',
   gender:'الجنس',boyLbl:'ولد',girlLbl:'بنت',doneShort:(d,n)=>`أنجزت ${d} من ${n}`,canCount:n=>n?`تقدر تطلب ${n}`:'اجمع النجوم',
   penalties:'العقوبات',penNew:'خصم نجوم (عقوبة)',penP:'اختر الطفل، واكتب السبب، وحدد عدد النجوم. يظهر الخصم وسببه للطفل في يومه.',penWho:'على من؟',penReason:'سبب العقوبة',penPh:'مثال: الشجار مع الإخوة',penQuick:'أسباب شائعة (اضغط للاختيار)',penPts:'عدد النجوم المخصومة',penBtn:'خصم النجوم',penHist:'سجل العقوبات',penNone:'لا توجد عقوبات. ما شاء الله!',penUndo:'تراجع وإرجاع النجوم',penDone:n=>`خُصمت النجوم من ${n}`,penUndone:'أُلغيت العقوبة وأُرجعت النجوم',penPick:'اختر طفلاً واحداً على الأقل',penKid:n=>`خُصم منك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'}`,
-  rewardsMgr:'إدارة المكافآت',rewardsP:'ضع المكافآت التي تناسبكم وسعر كل واحدة بالنجوم. تظهر للأبناء كما وضعتها بالضبط.',rewName:'اسم المكافأة',rewPh:'مثال: ساعة ألعاب إلكترونية',rewCost:'السعر بالنجوم',addReward:'إضافة المكافأة',rewAdded:'أُضيفت المكافأة',rewDeleted:'حُذفت المكافأة',noRewardsP:'لا توجد مكافآت بعد. أضف أول مكافأة من الأسفل.',noRewards:'لم يضع الوالدان مكافآت بعد.',
+  rewardsMgr:'إدارة المكافآت',rewardsP:'ضع المكافآت التي تناسبكم وسعر كل واحدة بالنجوم. تظهر للأبناء كما وضعتها بالضبط.',rewName:'اسم المكافأة',rewPh:'مثال: ساعة ألعاب إلكترونية',rewCost:'السعر بالنجوم',addReward:'إضافة المكافأة',rewAdded:'أُضيفت المكافأة',rewPhoto:'صورة المكافأة',rewUseIcon:'استخدام الأيقونة بدل الصورة',rewPhotoOpt:'صورة المكافأة (اختياري)',rewAddPhoto:'إضافة صورة',rewPhotoHint:'صوّر المنتج أو المكان الذي يحبه الأبناء، وستظهر الصورة بدل الأيقونة.',rewDeleted:'حُذفت المكافأة',noRewardsP:'لا توجد مكافآت بعد. أضف أول مكافأة من الأسفل.',noRewards:'لم يضع الوالدان مكافآت بعد.',
   sndBig:'الملف كبير، اختر مقطعاً أقصر (أقل من 700 كيلوبايت تقريباً، أي نصف دقيقة)',sndSaving:'جارٍ رفع الصوت إلى أجهزة الأبناء…',sndSaved:'حُفظ الصوت وسيصل لأجهزة الأبناء',
   adhanNote:'يعمل التنبيه بصوته والتطبيق مفتوح على جهاز الطفل. الصوت المخصص يصل لأجهزة الأبناء تلقائياً. إشعارات الأذان والجهاز مقفل ستأتي في تحديث قادم.'
 });
@@ -159,7 +159,7 @@ Object.assign(T.en,{brand:'Nujoomi',note:'',
   offline:'No connection. Changes are saved and sent when the internet is back',
   gender:'Gender',boyLbl:'Boy',girlLbl:'Girl',doneShort:(d,n)=>`${d} of ${n} done`,canCount:n=>n?`${n} you can get`:'Collect stars',
   penalties:'Penalties',penNew:'Deduct stars (penalty)',penP:'Pick the child, write the reason and the number of stars. The child sees the deduction and the reason on their day.',penWho:'For whom?',penReason:'Reason',penPh:'e.g. Fighting with siblings',penQuick:'Common reasons (tap to pick)',penPts:'Stars to deduct',penBtn:'Deduct stars',penHist:'Penalty history',penNone:'No penalties. Well done!',penUndo:'Undo and return stars',penDone:n=>`Stars deducted from ${n}`,penUndone:'Penalty undone, stars returned',penPick:'Pick at least one child',penKid:n=>`${n} star${n>1?'s':''} deducted`,
-  rewardsMgr:'Manage rewards',rewardsP:'Add the rewards that suit your family and a star price for each. Children see exactly what you add.',rewName:'Reward name',rewPh:'e.g. One hour of video games',rewCost:'Price in stars',addReward:'Add reward',rewAdded:'Reward added',rewDeleted:'Reward deleted',noRewardsP:'No rewards yet. Add the first one below.',noRewards:'No rewards yet.',
+  rewardsMgr:'Manage rewards',rewardsP:'Add the rewards that suit your family and a star price for each. Children see exactly what you add.',rewName:'Reward name',rewPh:'e.g. One hour of video games',rewCost:'Price in stars',addReward:'Add reward',rewAdded:'Reward added',rewPhoto:'Reward photo',rewUseIcon:'Use the icon instead',rewPhotoOpt:'Photo (optional)',rewAddPhoto:'Add a photo',rewPhotoHint:'Take a photo of the treat or place the kids love; it shows instead of the icon.',rewDeleted:'Reward deleted',noRewardsP:'No rewards yet. Add the first one below.',noRewards:'No rewards yet.',
   sndBig:'The file is too large; pick a shorter clip (under about 700 KB, around 30 seconds)',sndSaving:'Uploading the sound to the children\'s devices…',sndSaved:'Sound saved; it will reach the children\'s devices',
   adhanNote:'The alert plays while the app is open on the child\'s device. A custom sound reaches the children\'s devices automatically. Adhan notifications on a locked device come in a later update.'
 });
@@ -232,6 +232,10 @@ function pickPhoto(kidId){const inp=document.createElement('input');inp.type='fi
     famUpdate({kids:F.kids.map(k=>k.id===kidId?{...k,photo:c.toDataURL('image/jpeg',.8)}:k)}).then(()=>toast(L('photoSaved')))};im.src=r.result};r.readAsDataURL(f)};
   inp.click()}
 
+function pickImage(sz,cb){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+    const c=document.createElement('canvas');c.width=c.height=sz;const g=c.getContext('2d');const m=Math.min(im.width,im.height);
+    g.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,sz,sz);cb(c.toDataURL('image/jpeg',.78))};im.src=r.result};r.readAsDataURL(f)};inp.click()}
 function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
 function sheet(html){const el=document.createElement('div');el.className='sheet';el.innerHTML=`<div class="card glass" dir="${lang==='ar'?'rtl':'ltr'}">${html}</div>`;el.addEventListener('click',e=>{if(e.target===el)el.remove()});document.body.appendChild(el);return el}
 function burst(x,y){for(let i=0;i<12;i++){const s=document.createElement('span');s.className='burst';s.innerHTML=I('star');const a=Math.PI*2*i/12;s.style.left=x+'px';s.style.top=y+'px';s.style.setProperty('--dx',Math.cos(a)*120+'px');s.style.setProperty('--dy',Math.sin(a)*120+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}}
@@ -376,7 +380,7 @@ function kidView(){
     body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
       const can=k.points>=r.cost;
       return `<button class="task glass reward" data-reward="${r.id}" ${can?'':'aria-disabled="true"'}>
-        <span class="chip">${I(r.ic)}</span><span class="t">${esc(tr(r.title))}</span>
+        ${r.img?`<span class="rewImg"><img src="${r.img}" alt=""></span>`:`<span class="chip">${I(r.ic)}</span>`}<span class="t">${esc(tr(r.title))}</span>
         <span class="meta"><span>${can?L('canNow'):L('left',r.cost-k.points)}</span><span class="pts">${I('star')} ${r.cost}</span></span></button>`}).join('')}</div></section>`;
   }
   return `${kidPicker()}
@@ -409,14 +413,15 @@ function familyView(){
 }
 
 const REWIC=['gift','game','tree','ice','pizza','tv','bike','cake','cash','ball','book','palette','toys','heart','star'];
-let newRewIc='gift';
+let newRewIc='gift',newRewImg=null;
 function rewardsView(){
   return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#FFB547,#F0569F)">${I('trophy')}</span>${L('rewardsMgr')}</h3>
   <p style="margin:0;color:var(--muted)">${L('rewardsP')}</p>
-  ${S.rewards.length?`<div class="rewList">${S.rewards.map(r=>`<div class="rewItem"><span class="chip">${I(r.ic)}</span><b>${esc(tr(r.title))}</b><span class="pts">${I('star')} ${r.cost}</span><button class="ico del" data-delrew="${r.id}" title="${L('del')}" aria-label="${L('del')}">${I('trash')}</button></div>`).join('')}</div>`:`<p class="empty">${L('noRewardsP')}</p>`}
+  ${S.rewards.length?`<div class="rewList">${S.rewards.map(r=>`<div class="rewCard"><div class="rewPic">${r.img?`<img src="${r.img}" alt="">`:`<span class="chip">${I(r.ic)}</span>`}</div><b class="rewT">${esc(tr(r.title))}</b><div class="rewFoot"><span class="rewCost">${I('star')}<bdi dir="ltr">${r.cost}</bdi></span><span class="rewActs"><button class="ico" data-rewphoto="${r.id}" title="${L('rewPhoto')}" aria-label="${L('rewPhoto')}">${I('camera')}</button>${r.img?`<button class="ico" data-rewunphoto="${r.id}" title="${L('rewUseIcon')}" aria-label="${L('rewUseIcon')}">${I('star')}</button>`:''}<button class="ico del" data-delrew="${r.id}" title="${L('del')}" aria-label="${L('del')}">${I('trash')}</button></span></div></div>`).join('')}</div>`:`<p class="empty">${L('noRewardsP')}</p>`}
   <form id="rewForm" class="catForm">
     <label for="rwName">${L('rewName')}<input id="rwName" required placeholder="${L('rewPh')}"></label>
     <label for="rwCost">${L('rewCost')}<input id="rwCost" type="number" min="1" max="1000" value="20" required></label>
+    <div class="lbl">${L('rewPhotoOpt')}<div class="row" style="justify-content:flex-start;align-items:center">${newRewImg?`<span class="rewPrev"><img src="${newRewImg}" alt=""></span><button type="button" class="btn no sm" id="rwNoPhoto">${I('x')}${L('removePhoto')}</button>`:''}<button type="button" class="btn no sm" id="rwPhoto">${I('camera')}${newRewImg?L('changePhoto'):L('rewAddPhoto')}</button></div><small style="color:var(--muted)">${L('rewPhotoHint')}</small></div>
     <div class="lbl">${L('icon')}<div class="days icPick">${REWIC.map(k=>`<button type="button" data-rewic="${k}" aria-pressed="${k===newRewIc}" aria-label="${k}">${I(k)}</button>`).join('')}</div></div>
     <div><button class="btn sun" type="submit">${I('plus')}${L('addReward')}</button></div>
   </form></section>`;
@@ -585,6 +590,10 @@ document.addEventListener('click',e=>{
   else if(d.rej){updateDoc(doc(logsCol(),d.rej),{status:'rejected',by:me.uid}).catch(fail);toast(L('rejected_t'))}
   else if(d.del){famUpdate({tasks:F.tasks.filter(t=>t.id!==d.del)});toast(L('deleted'))}
   else if(d.rewic){newRewIc=d.rewic;document.querySelectorAll('[data-rewic]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+  else if(b.id==='rwPhoto'){pickImage(320,img=>{const keep=[$('#rwName')?.value,$('#rwCost')?.value];newRewImg=img;render();if($('#rwName')){$('#rwName').value=keep[0]||'';$('#rwCost').value=keep[1]||20}})}
+  else if(b.id==='rwNoPhoto'){const keep=[$('#rwName')?.value,$('#rwCost')?.value];newRewImg=null;render();$('#rwName').value=keep[0]||'';$('#rwCost').value=keep[1]||20}
+  else if(d.rewphoto){pickImage(320,img=>famUpdate({rewards:F.rewards.map(r=>r.id===d.rewphoto?{...r,img}:r)}).then(()=>toast(L('photoSaved'))))}
+  else if(d.rewunphoto){famUpdate({rewards:F.rewards.map(r=>{if(r.id!==d.rewunphoto)return r;const {img,...x}=r;return x})})}
   else if(d.delrew){famUpdate({rewards:(F.rewards||[]).filter(r=>r.id!==d.delrew)}).then(()=>toast(L('rewDeleted')))}
   else if(d.penk){penKids=penKids.includes(d.penk)?penKids.filter(x=>x!==d.penk):[...penKids,d.penk];b.setAttribute('aria-pressed',penKids.includes(d.penk))}
   else if(d.penpre){const r=$('#penReason');if(r)r.value=d.penpre}
@@ -621,7 +630,7 @@ document.addEventListener('submit',async e=>{
     const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:nm},look};if(look==='girl')k.g='f';
     famUpdate({kids:[...F.kids,k],['points.'+k.id]:0}).then(()=>toast(L('kidAdded')));document.activeElement?.blur();return}
   if(f.id==='rewForm'){e.preventDefault();const nm=$('#rwName').value.trim(),cost=Math.max(1,Math.round(+$('#rwCost').value||1));if(!nm)return;
-    famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost}]}).then(()=>toast(L('rewAdded')));document.activeElement?.blur();return}
+    famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost,...(newRewImg?{img:newRewImg}:{})}]}).then(()=>toast(L('rewAdded')));newRewImg=null;document.activeElement?.blur();return}
   if(f.id==='penForm'){e.preventDefault();const reason=$('#penReason').value.trim(),pts=Math.max(1,Math.round(+$('#penPts').value||1));
     if(!penKids.length){toast(L('penPick'));return}if(!reason)return;
     const b=writeBatch(db),names=[];

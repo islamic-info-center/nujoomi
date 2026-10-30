@@ -126,7 +126,7 @@ function kidView(){
     body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
       const can=k.points>=r.cost;
       return `<button class="task glass reward" data-reward="${r.id}" ${can?'':'aria-disabled="true"'}>
-        <span class="chip">${I(r.ic)}</span><span class="t">${esc(tr(r.title))}</span>
+        ${r.img?`<span class="rewImg"><img src="${r.img}" alt=""></span>`:`<span class="chip">${I(r.ic)}</span>`}<span class="t">${esc(tr(r.title))}</span>
         <span class="meta"><span>${can?L('canNow'):L('left',r.cost-k.points)}</span><span class="pts">${I('star')} ${r.cost}</span></span></button>`}).join('')}</div></section>`;
   }
   return `${kidPicker()}
@@ -159,14 +159,15 @@ function familyView(){
 }
 
 const REWIC=['gift','game','tree','ice','pizza','tv','bike','cake','cash','ball','book','palette','toys','heart','star'];
-let newRewIc='gift';
+let newRewIc='gift',newRewImg=null;
 function rewardsView(){
   return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#FFB547,#F0569F)">${I('trophy')}</span>${L('rewardsMgr')}</h3>
   <p style="margin:0;color:var(--muted)">${L('rewardsP')}</p>
-  ${S.rewards.length?`<div class="rewList">${S.rewards.map(r=>`<div class="rewItem"><span class="chip">${I(r.ic)}</span><b>${esc(tr(r.title))}</b><span class="pts">${I('star')} ${r.cost}</span><button class="ico del" data-delrew="${r.id}" title="${L('del')}" aria-label="${L('del')}">${I('trash')}</button></div>`).join('')}</div>`:`<p class="empty">${L('noRewardsP')}</p>`}
+  ${S.rewards.length?`<div class="rewList">${S.rewards.map(r=>`<div class="rewCard"><div class="rewPic">${r.img?`<img src="${r.img}" alt="">`:`<span class="chip">${I(r.ic)}</span>`}</div><b class="rewT">${esc(tr(r.title))}</b><div class="rewFoot"><span class="rewCost">${I('star')}<bdi dir="ltr">${r.cost}</bdi></span><span class="rewActs"><button class="ico" data-rewphoto="${r.id}" title="${L('rewPhoto')}" aria-label="${L('rewPhoto')}">${I('camera')}</button>${r.img?`<button class="ico" data-rewunphoto="${r.id}" title="${L('rewUseIcon')}" aria-label="${L('rewUseIcon')}">${I('star')}</button>`:''}<button class="ico del" data-delrew="${r.id}" title="${L('del')}" aria-label="${L('del')}">${I('trash')}</button></span></div></div>`).join('')}</div>`:`<p class="empty">${L('noRewardsP')}</p>`}
   <form id="rewForm" class="catForm">
     <label for="rwName">${L('rewName')}<input id="rwName" required placeholder="${L('rewPh')}"></label>
     <label for="rwCost">${L('rewCost')}<input id="rwCost" type="number" min="1" max="1000" value="20" required></label>
+    <div class="lbl">${L('rewPhotoOpt')}<div class="row" style="justify-content:flex-start;align-items:center">${newRewImg?`<span class="rewPrev"><img src="${newRewImg}" alt=""></span><button type="button" class="btn no sm" id="rwNoPhoto">${I('x')}${L('removePhoto')}</button>`:''}<button type="button" class="btn no sm" id="rwPhoto">${I('camera')}${newRewImg?L('changePhoto'):L('rewAddPhoto')}</button></div><small style="color:var(--muted)">${L('rewPhotoHint')}</small></div>
     <div class="lbl">${L('icon')}<div class="days icPick">${REWIC.map(k=>`<button type="button" data-rewic="${k}" aria-pressed="${k===newRewIc}" aria-label="${k}">${I(k)}</button>`).join('')}</div></div>
     <div><button class="btn sun" type="submit">${I('plus')}${L('addReward')}</button></div>
   </form></section>`;

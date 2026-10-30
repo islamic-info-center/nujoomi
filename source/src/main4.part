@@ -83,6 +83,10 @@ document.addEventListener('click',e=>{
   else if(d.rej){updateDoc(doc(logsCol(),d.rej),{status:'rejected',by:me.uid}).catch(fail);toast(L('rejected_t'))}
   else if(d.del){famUpdate({tasks:F.tasks.filter(t=>t.id!==d.del)});toast(L('deleted'))}
   else if(d.rewic){newRewIc=d.rewic;document.querySelectorAll('[data-rewic]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
+  else if(b.id==='rwPhoto'){pickImage(320,img=>{const keep=[$('#rwName')?.value,$('#rwCost')?.value];newRewImg=img;render();if($('#rwName')){$('#rwName').value=keep[0]||'';$('#rwCost').value=keep[1]||20}})}
+  else if(b.id==='rwNoPhoto'){const keep=[$('#rwName')?.value,$('#rwCost')?.value];newRewImg=null;render();$('#rwName').value=keep[0]||'';$('#rwCost').value=keep[1]||20}
+  else if(d.rewphoto){pickImage(320,img=>famUpdate({rewards:F.rewards.map(r=>r.id===d.rewphoto?{...r,img}:r)}).then(()=>toast(L('photoSaved'))))}
+  else if(d.rewunphoto){famUpdate({rewards:F.rewards.map(r=>{if(r.id!==d.rewunphoto)return r;const {img,...x}=r;return x})})}
   else if(d.delrew){famUpdate({rewards:(F.rewards||[]).filter(r=>r.id!==d.delrew)}).then(()=>toast(L('rewDeleted')))}
   else if(d.penk){penKids=penKids.includes(d.penk)?penKids.filter(x=>x!==d.penk):[...penKids,d.penk];b.setAttribute('aria-pressed',penKids.includes(d.penk))}
   else if(d.penpre){const r=$('#penReason');if(r)r.value=d.penpre}
@@ -119,7 +123,7 @@ document.addEventListener('submit',async e=>{
     const k={id:'k'+Date.now().toString(36),name:{ar:nm,en:nm},look};if(look==='girl')k.g='f';
     famUpdate({kids:[...F.kids,k],['points.'+k.id]:0}).then(()=>toast(L('kidAdded')));document.activeElement?.blur();return}
   if(f.id==='rewForm'){e.preventDefault();const nm=$('#rwName').value.trim(),cost=Math.max(1,Math.round(+$('#rwCost').value||1));if(!nm)return;
-    famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost}]}).then(()=>toast(L('rewAdded')));document.activeElement?.blur();return}
+    famUpdate({rewards:[...(F.rewards||[]),{id:'r'+Date.now().toString(36),title:{ar:nm,en:nm},ic:newRewIc,cost,...(newRewImg?{img:newRewImg}:{})}]}).then(()=>toast(L('rewAdded')));newRewImg=null;document.activeElement?.blur();return}
   if(f.id==='penForm'){e.preventDefault();const reason=$('#penReason').value.trim(),pts=Math.max(1,Math.round(+$('#penPts').value||1));
     if(!penKids.length){toast(L('penPick'));return}if(!reason)return;
     const b=writeBatch(db),names=[];
