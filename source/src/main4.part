@@ -193,7 +193,7 @@ function adhanCheck(){if(!F||!M||!S.adhan?.on||document.querySelector('.adhanShe
   let done='';try{done=localStorage.getItem('najmati-alerted')||''}catch(e){}
   for(const k of PRAYERS){if(!S.adhan.pr?.[k])continue;const st=p[k];if(n>=st&&n<st+15){const key=day+k;if(done===key)continue;try{localStorage.setItem('najmati-alerted',key)}catch(e){}playAdhan();showAdhan(k);adhanNote(k);break}}}
 function adhanNote(k){try{if(navigator.vibrate)navigator.vibrate([400,200,400,200,800]);if(!document.hidden||!('Notification' in window)||Notification.permission!=='granted')return;
-  navigator.serviceWorker?.getRegistration().then(r=>{const o={body:L('adhanSub'),icon:'icons/icon-192.png',badge:'icons/icon-192.png',tag:'adhan',renotify:true,vibrate:[400,200,400]};r?r.showNotification(L('adhanNow',L('pn_'+k)),o):new Notification(L('adhanNow',L('pn_'+k)),o)}).catch(()=>{})}catch(e){}}
+  navigator.serviceWorker?.getRegistration().then(r=>{const o={body:L('adhanSub'),icon:'icons/icon-192.png?v=2',badge:'icons/icon-192.png?v=2',tag:'adhan',renotify:true,vibrate:[400,200,400]};r?r.showNotification(L('adhanNow',L('pn_'+k)),o):new Notification(L('adhanNow',L('pn_'+k)),o)}).catch(()=>{})}catch(e){}}
 
 /* ---------- sync ---------- */
 let logSubs=[];
