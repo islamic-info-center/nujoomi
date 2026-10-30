@@ -45,7 +45,7 @@ Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,adv
   journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:'حاول مرة أخرى، تقدر!',jLocked:'أكمل الرحلة التي قبلها أولاً',
   jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم لجرّتك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
   nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل الرحلات! رحلات جديدة قريبًا',onWay:'في الطريق',
-  praise:['أحسنت!','ممتاز!','رائع يا بطل!','ما شاء الله!','إجابة صحيحة!','أنت نجم!'],praiseF:['أحسنتِ!','ممتاز!','رائعة يا بطلة!','ما شاء الله!','إجابة صحيحة!','أنتِ نجمة!']});
+  praise:['أحسنت! بارك الله فيك','ممتاز! ما شاء الله','أحسنت يا بطل!','بارك الله فيك!','إجابة صحيحة، أحسنت!','ما شاء الله عليك!'],praiseF:['أحسنتِ! بارك الله فيكِ','ممتازة! ما شاء الله','أحسنتِ يا بطلة!','بارك الله فيكِ!','إجابة صحيحة، أحسنتِ!','ما شاء الله عليكِ!']});
 Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advP:'Finish journeys and collect stars',
   journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:'Try again, you can do it!',jLocked:'Finish the journey before it first',
   jWin:'Journey complete!',jStars:n=>`+${n} stars for your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
@@ -74,7 +74,10 @@ function qTone(seq,type='triangle',vol=.18){try{const c=actx(),t0=c.currentTime;
 const sndOk=()=>qTone([[523,0,.18],[659,.09,.18],[784,.18,.2],[1047,.28,.35]]);
 const sndNo=()=>qTone([[330,0,.2],[262,.16,.3]],'sine',.15);
 const sndWin=()=>qTone([[523,0,.2],[659,.12,.2],[784,.24,.2],[1047,.36,.25],[784,.6,.15],[1047,.72,.6],[1319,.72,.6]]);
-function say(txt){try{const v=speechSynthesis.getVoices().find(x=>/^ar/i.test(x.lang));if(lang==='ar'&&!v)return;const u=new SpeechSynthesisUtterance(txt);if(lang==='ar'){u.voice=v;u.lang=v.lang}u.rate=1.05;u.pitch=1.3;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+/* speak only with a voice in the app's language; if the device has none, stay silent rather than read Arabic with an English voice */
+let voices=[];const loadVoices=()=>{try{voices=speechSynthesis.getVoices()}catch(e){}};loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices)}catch(e){}
+function say(txt){try{if(!voices.length)loadVoices();const want=lang==='ar'?/^ar/i:/^en/i;const v=voices.find(x=>want.test(x.lang)&&x.localService)||voices.find(x=>want.test(x.lang));if(!v)return;
+  const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=lang==='ar'?.95:1.05;u.pitch=1.25;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const r=Math.floor(Math.random()*(i+1));[a[i],a[r]]=[a[r],a[i]]}return a};
 
 let QS=null;
