@@ -231,3 +231,10 @@ body{padding-top:env(safe-area-inset-top,0px)}
 .w-web .qTop,.w-web .qDots{color:#fff}
 @media (max-width:420px){.wBd{width:138px;height:138px}.qStage{min-height:140px}.wNode{width:52px;height:52px}.wStars svg{width:34px;height:34px}.wStars svg:nth-child(2){width:44px;height:44px}.wSign{font-size:12px}}
 @media (prefers-reduced-motion:reduce){.wShip,.wShip svg,.wWaves,.wMap .foam,.wStop.here .wNode,.wMe,.wBd,.wBd .spark,.quizScr,.qA,.qWinStars i{animation:none!important;opacity:1}}
+
+.cheerBox .cheerP{margin:0 0 10px;color:var(--muted)}
+.cheerRow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid rgba(0,0,0,.08)}
+.cheerRow>div:first-child{display:flex;flex-direction:column;min-width:0}
+.cheerRow small{color:var(--muted);display:flex;align-items:center;gap:4px}.cheerRow small svg{width:16px;height:16px}
+.cheerRow.have small{color:#1A9E57;font-weight:700}
+.cheerRow .row{display:flex;gap:8px;align-items:center;margin:0}

@@ -65,7 +65,7 @@ const sndNo=()=>qTone([[330,0,.2],[262,.16,.3]],'sine',.15);
 const sndWin=()=>qTone([[523,0,.2],[659,.12,.2],[784,.24,.2],[1047,.36,.25],[784,.6,.15],[1047,.72,.6],[1319,.72,.6]]);
 /* speak only with a voice in the app's language; if the device has none, stay silent rather than read Arabic with an English voice */
 let voices=[];const loadVoices=()=>{try{voices=speechSynthesis.getVoices()}catch(e){}};loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices)}catch(e){}
-function say(txt){try{if(!voices.length)loadVoices();const want=lang==='ar'?/^ar/i:/^en/i;const v=voices.find(x=>want.test(x.lang)&&x.localService)||voices.find(x=>want.test(x.lang));if(!v)return;
+function say(txt){try{if(!voices.length)loadVoices();const want=lang==='ar'?/^ar/i:/^en/i;const v=voices.find(x=>want.test(x.lang)&&x.localService)||(lang==='ar'?null:voices.find(x=>want.test(x.lang)));if(!v)return;
   const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=lang==='ar'?.95:1.05;u.pitch=1.25;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const r=Math.floor(Math.random()*(i+1));[a[i],a[r]]=[a[r],a[i]]}return a};
 
@@ -73,7 +73,7 @@ let QS=null;
 function startJourney(j){
   const k=kid(V.kid);if(!k)return;
   if(!qOpen(k.id,j)){sndNo();toast(L('jLocked'));return}
-  QS={j,i:0,miss:0,k:k.id,lock:false};
+  QS={j,i:0,miss:0,k:k.id,lock:false};preloadCheers(k.id);
   document.querySelector('.quizScr')?.remove();
   const el=document.createElement('div');el.className='quizScr';el.dir=lang==='ar'?'rtl':'ltr';document.body.appendChild(el);
   drawQ();
@@ -93,10 +93,10 @@ function answerQ(btn,e){
   if(!QS||QS.lock)return;const k=kid(QS.k),J=QZ[QS.j],pr=document.querySelector('.qPraise');
   if(btn.dataset.qa==='0'){
     QS.lock=true;btn.classList.add('right');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);
-    const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');say(p);
+    const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');cheer('ok',p);
     setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<J.q.length)drawQ();else finishJ()},1300);
   }else{
-    QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain',k?.g==='f');pr.className='qPraise show no';setMood('sad');
+    QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain',k?.g==='f');pr.className='qPraise show no';setMood('sad');cheer('no',L('tryAgain',k?.g==='f'));
     if(navigator.vibrate)navigator.vibrate(120);
   }
 }
@@ -114,7 +114,7 @@ function finishJ(){
     <span class="wBd happy big">${wBuddy('happy')}</span><h2>${L('jWin')}</h2><p class="qJ">${esc(tr(J.t))}</p>
     ${first?`<p class="qGain">${I('star')} ${L('jStars',QUIZ_PTS)}</p>${M.role==='kid'?`<small>${L('jWait')}</small>`:''}`:`<p>${L('jReplay')}</p>`}
     <div class="row">${more?`<button class="btn go" data-journey="${j+1}">${L('nextJ')}</button>`:`<p>${L('allDone')}</p>`}<button class="btn" data-qclose="1">${L('toMap')}</button></div></div>`;
-  sndWin();say(L('jWin'));
+  sndWin();cheer('win',L('jWin'),600);
   for(let n=0;n<4;n++)setTimeout(()=>burst(innerWidth*(.2+.6*Math.random()),innerHeight*(.25+.3*Math.random())),n*250);
   QS=null;if(F){rebuild();softRender()}
 }

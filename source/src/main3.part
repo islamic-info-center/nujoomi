@@ -225,6 +225,7 @@ function parentView(){
       <div class="row" style="justify-content:flex-start"><button class="btn sun sm" id="adTest">${I('play')}${L('testSnd')}</button><button class="btn no sm" id="adUp">${I('upload')}${L('uploadSnd')}</button></div>
       <small style="color:var(--muted)">${L('adhanNote')}</small>
     </div></section>
+    ${cheerView()}
     <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('tag')}</span>${L('types')}</h3>
       <div class="catList"><span class="catPill fixed"><span class="chip prayer">${I('mosque')}</span>${L('prayer')}<small>${I('lock')}</small></span>${S.cats.map(c=>{const n=S.tasks.filter(t=>t.cat===c.id).length;
         return `<span class="catPill"><span class="chip ${catCls(c.id)}" style="${catSty(c.id)}">${I(c.ic)}</span>${esc(tr(c.name))}<small>${L('taskCount',n)}</small><button class="ico del" data-delcat="${c.id}" aria-label="${L('del')}">${I('x')}</button></span>`}).join('')}</div>

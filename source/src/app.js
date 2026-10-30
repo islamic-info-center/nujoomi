@@ -201,7 +201,7 @@ function rebuild(){
   const kids=(F.kids||[]).map(k=>({...k,points:(F.points||{})[k.id]||0}));
   const pr=FIXED.map((f,i)=>({id:'p'+(i+1),title:{ar:f[1],en:f[2]},cat:'prayer',ic:f[3],points:f[4],time:'00:00',pr:f[0],fixed:true,days:ALL,kids:kids.map(k=>k.id)}));
   const lm=new Map();for(const l of [...LT,...LP])if(!('quiz' in l))lm.set(l.id,l);
-  S={kids,tasks:[...pr,...(F.tasks||[])],cats:F.cats||DEF_CATS,rewards:F.rewards||[],logs:[...lm.values()],city:F.city||'dubai',adhan:F.adhan||{on:false,pr:{}},view:V,sim:null};
+  S={kids,tasks:[...pr,...(F.tasks||[])],cats:F.cats||DEF_CATS,rewards:F.rewards||[],logs:[...lm.values()],city:F.city||'dubai',adhan:F.adhan||{on:false,pr:{}},cheer:F.cheer||{},view:V,sim:null};
   if(M.role==='kid'){V.role='kid';V.kid=M.kid}
   else if(!kids.find(k=>k.id===V.kid)&&kids[0])V.kid=kids[0].id;
 }
@@ -479,6 +479,7 @@ function parentView(){
       <div class="row" style="justify-content:flex-start"><button class="btn sun sm" id="adTest">${I('play')}${L('testSnd')}</button><button class="btn no sm" id="adUp">${I('upload')}${L('uploadSnd')}</button></div>
       <small style="color:var(--muted)">${L('adhanNote')}</small>
     </div></section>
+    ${cheerView()}
     <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('tag')}</span>${L('types')}</h3>
       <div class="catList"><span class="catPill fixed"><span class="chip prayer">${I('mosque')}</span>${L('prayer')}<small>${I('lock')}</small></span>${S.cats.map(c=>{const n=S.tasks.filter(t=>t.cat===c.id).length;
         return `<span class="catPill"><span class="chip ${catCls(c.id)}" style="${catSty(c.id)}">${I(c.ic)}</span>${esc(tr(c.name))}<small>${L('taskCount',n)}</small><button class="ico del" data-delcat="${c.id}" aria-label="${L('del')}">${I('x')}</button></span>`}).join('')}</div>
@@ -611,6 +612,10 @@ document.addEventListener('click',e=>{
   else if(b.id==='adOn'){famUpdate({'adhan.on':!S.adhan.on})}
   else if(d.adpr){const v=!S.adhan.pr?.[d.adpr];b.setAttribute('aria-pressed',v);famUpdate({['adhan.pr.'+d.adpr]:v})}
   else if(b.id==='adTest'){playAdhan();toast(L('playing'))}
+  else if(d.crec){recToggle(d.crec)}
+  else if(d.cup){upCheer(d.cup)}
+  else if(d.cplay){cheer(d.cplay,'',0)}
+  else if(d.cdel){delCheer(d.cdel)}
   else if(b.id==='fAll'){const on=b.getAttribute('aria-pressed')!=='true';document.querySelectorAll('#fKids [data-k]').forEach(x=>x.setAttribute('aria-pressed',on));b.setAttribute('aria-pressed',on);syncKidsPick()}
   else if(d.day!==undefined||d.k){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');if(d.k)syncKidsPick()}
 });
@@ -799,7 +804,7 @@ const sndNo=()=>qTone([[330,0,.2],[262,.16,.3]],'sine',.15);
 const sndWin=()=>qTone([[523,0,.2],[659,.12,.2],[784,.24,.2],[1047,.36,.25],[784,.6,.15],[1047,.72,.6],[1319,.72,.6]]);
 /* speak only with a voice in the app's language; if the device has none, stay silent rather than read Arabic with an English voice */
 let voices=[];const loadVoices=()=>{try{voices=speechSynthesis.getVoices()}catch(e){}};loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices)}catch(e){}
-function say(txt){try{if(!voices.length)loadVoices();const want=lang==='ar'?/^ar/i:/^en/i;const v=voices.find(x=>want.test(x.lang)&&x.localService)||voices.find(x=>want.test(x.lang));if(!v)return;
+function say(txt){try{if(!voices.length)loadVoices();const want=lang==='ar'?/^ar/i:/^en/i;const v=voices.find(x=>want.test(x.lang)&&x.localService)||(lang==='ar'?null:voices.find(x=>want.test(x.lang)));if(!v)return;
   const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=lang==='ar'?.95:1.05;u.pitch=1.25;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const r=Math.floor(Math.random()*(i+1));[a[i],a[r]]=[a[r],a[i]]}return a};
 
@@ -807,7 +812,7 @@ let QS=null;
 function startJourney(j){
   const k=kid(V.kid);if(!k)return;
   if(!qOpen(k.id,j)){sndNo();toast(L('jLocked'));return}
-  QS={j,i:0,miss:0,k:k.id,lock:false};
+  QS={j,i:0,miss:0,k:k.id,lock:false};preloadCheers(k.id);
   document.querySelector('.quizScr')?.remove();
   const el=document.createElement('div');el.className='quizScr';el.dir=lang==='ar'?'rtl':'ltr';document.body.appendChild(el);
   drawQ();
@@ -827,10 +832,10 @@ function answerQ(btn,e){
   if(!QS||QS.lock)return;const k=kid(QS.k),J=QZ[QS.j],pr=document.querySelector('.qPraise');
   if(btn.dataset.qa==='0'){
     QS.lock=true;btn.classList.add('right');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);
-    const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');say(p);
+    const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');cheer('ok',p);
     setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<J.q.length)drawQ();else finishJ()},1300);
   }else{
-    QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain',k?.g==='f');pr.className='qPraise show no';setMood('sad');
+    QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain',k?.g==='f');pr.className='qPraise show no';setMood('sad');cheer('no',L('tryAgain',k?.g==='f'));
     if(navigator.vibrate)navigator.vibrate(120);
   }
 }
@@ -848,7 +853,7 @@ function finishJ(){
     <span class="wBd happy big">${wBuddy('happy')}</span><h2>${L('jWin')}</h2><p class="qJ">${esc(tr(J.t))}</p>
     ${first?`<p class="qGain">${I('star')} ${L('jStars',QUIZ_PTS)}</p>${M.role==='kid'?`<small>${L('jWait')}</small>`:''}`:`<p>${L('jReplay')}</p>`}
     <div class="row">${more?`<button class="btn go" data-journey="${j+1}">${L('nextJ')}</button>`:`<p>${L('allDone')}</p>`}<button class="btn" data-qclose="1">${L('toMap')}</button></div></div>`;
-  sndWin();say(L('jWin'));
+  sndWin();cheer('win',L('jWin'),600);
   for(let n=0;n<4;n++)setTimeout(()=>burst(innerWidth*(.2+.6*Math.random()),innerHeight*(.25+.3*Math.random())),n*250);
   QS=null;if(F){rebuild();softRender()}
 }
@@ -955,6 +960,52 @@ function playView(k){
        <span class="wSign"><b>${L('journey',j+1)}</b>${esc(tr(QZ[j].t))}</span></div>`}).join('')}
    <div class="wStop chest ${done===n?'open':''}" style="${pos(T)}"><span class="wChest">${I('trophy')}</span></div></div></section>`;
 }
+/* ---------- cheer voices: a parent records "أحسنت! بارك الله فيك" etc. once; every child device plays it in the quiz ---------- */
+const CHEERS=['ok','no','win'];
+Object.assign(T.ar,{cheerTitle:'أصوات التشجيع في «العب»',cheerP:'سجّل بصوتك ما يسمعه الطفل في اللعبة، مثلاً: «أحسنت! بارك الله فيك». إن لم تسجّل، يُستخدم صوت الجهاز إن كان فيه صوت عربي.',
+  ch_ok:'عند الإجابة الصحيحة',ch_okH:'مثلاً: أحسنت! بارك الله فيك',ch_no:'عند الإجابة الخاطئة',ch_noH:'مثلاً: لا بأس، حاول مرة أخرى',ch_win:'عند إنهاء الرحلة',ch_winH:'مثلاً: ما شاء الله! أنهيت الرحلة',
+  rec:'تسجيل',recStop:'إيقاف وحفظ',recOn:'يسجّل الآن… تكلّم',recSaved:'حُفظ الصوت وسيُسمع في اللعبة',noMic:'لم نستطع الوصول إلى الميكروفون. اسمح للتطبيق باستخدامه أو ارفع ملفاً صوتياً',recNone:'لا يوجد تسجيل',recHave:'مسجّل'});
+Object.assign(T.en,{cheerTitle:'Cheer voices in Play',cheerP:'Record what your child hears in the game, like "Well done!". Without a recording, the device voice is used when it has one for the app language.',
+  ch_ok:'Right answer',ch_okH:'e.g. Well done!',ch_no:'Wrong answer',ch_noH:"e.g. That's okay, try again",ch_win:'Journey finished',ch_winH:'e.g. Amazing, you finished the journey!',
+  rec:'Record',recStop:'Stop and save',recOn:'Recording… speak now',recSaved:'Saved; it will play in the game',noMic:"We couldn't use the microphone. Allow it, or upload an audio file",recNone:'Not recorded',recHave:'Recorded'});
+
+function cheerView(){const c=S.cheer||{};
+  return `<section class="panel glass cheerBox"><h3><span class="chip" style="background:linear-gradient(135deg,#4FD8A8,#1E9E86)">${I('speaker')}</span>${L('cheerTitle')}</h3>
+   <p class="cheerP">${L('cheerP')}</p>
+   ${CHEERS.map(s=>{const on=recSlot===s;return `<div class="cheerRow ${c[s]?'have':''}"><div><b>${L('ch_'+s)}</b><small>${on?L('recOn'):c[s]?I('check')+' '+L('recHave'):L('ch_'+s+'H')}</small></div>
+     <div class="row"><button class="btn ${on?'no':'go'} sm" data-crec="${s}">${on?I('check')+L('recStop'):I('speaker')+L('rec')}</button>
+     <button class="btn sun sm" data-cup="${s}">${I('upload')}</button>${c[s]?`<button class="btn sun sm" data-cplay="${s}" aria-label="${L('testSnd')}">${I('play')}</button><button class="ico del" data-cdel="${s}" aria-label="${L('del')}">${I('trash')}</button>`:''}</div></div>`}).join('')}
+  </section>`}
+
+let recSlot=null,recMR=null,recTimer=null;
+async function recToggle(slot){
+  if(recSlot){recMR?.stop();return}
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast(L('noMic'));return}
+  const chunks=[];let mr;try{mr=new MediaRecorder(stream)}catch(e){stream.getTracks().forEach(t=>t.stop());toast(L('noMic'));return}
+  mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  mr.onstop=()=>{clearTimeout(recTimer);stream.getTracks().forEach(t=>t.stop());const s=slot;recSlot=null;recMR=null;render();
+    const blob=new Blob(chunks,{type:mr.mimeType||'audio/webm'});if(blob.size<800)return;const r=new FileReader();r.onload=()=>saveCheer(s,r.result);r.readAsDataURL(blob)};
+  recSlot=slot;recMR=mr;mr.start();recTimer=setTimeout(()=>{if(mr.state==='recording')mr.stop()},6000);render();
+}
+function upCheer(slot){const inp=document.createElement('input');inp.type='file';inp.accept='audio/*';inp.onchange=()=>{const f=inp.files[0];if(!f)return;
+  if(f.size>300*1024){toast(L('sndBig'));return}const r=new FileReader();r.onload=()=>saveCheer(slot,r.result);r.readAsDataURL(f)};inp.click()}
+async function saveCheer(slot,data){const v=Date.now(),b=writeBatch(db);
+  for(const k of F.kids)b.set(doc(logsCol(),`cheer_${slot}_${k.id}`),{kid:k.id,snd:data,date:'snd',status:'approved',v});
+  b.update(famRef(),{['cheer.'+slot]:v});
+  try{await b.commit();cheerMem[slot]=null;try{localStorage.setItem('najmati-ch-'+slot,JSON.stringify({v,d:data}))}catch(e){}toast(L('recSaved'))}catch(e){fail(e)}}
+function delCheer(slot){const b=writeBatch(db);for(const k of F.kids)b.delete(doc(logsCol(),`cheer_${slot}_${k.id}`));b.update(famRef(),{['cheer.'+slot]:deleteField()});b.commit().catch(fail);cheerMem[slot]=null}
+
+const cheerMem={};
+async function cheerBuf(slot,kidId){
+  const v=S.cheer?.[slot];if(!v)return null;const m=cheerMem[slot];if(m&&m.v===v)return m.buf;
+  let data=null;try{const c=JSON.parse(localStorage.getItem('najmati-ch-'+slot)||'null');if(c&&c.v===v)data=c.d}catch(e){}
+  if(!data){const id=M.role==='kid'?M.kid:(kidId||S.kids[0]?.id);if(!id)return null;const s=await getDoc(doc(logsCol(),`cheer_${slot}_${id}`));data=s.data()?.snd;if(!data)return null;try{localStorage.setItem('najmati-ch-'+slot,JSON.stringify({v,d:data}))}catch(e){}}
+  const buf=await actx().decodeAudioData(await (await fetch(data)).arrayBuffer());cheerMem[slot]={v,buf};return buf}
+function preloadCheers(kidId){CHEERS.forEach(s=>cheerBuf(s,kidId).catch(()=>{}))}
+/* the parent's recording when there is one, otherwise the device voice in the app's language */
+async function cheer(slot,text,delay=250){
+  try{const buf=await cheerBuf(slot,QS?.k);if(buf){const c=actx(),src=c.createBufferSource(),g=c.createGain();g.gain.value=1.4;src.buffer=buf;src.connect(g).connect(c.destination);src.start(c.currentTime+delay/1000);return}}catch(e){console.error(e)}
+  if(text)setTimeout(()=>say(text),delay)}
 const cv=$('#sky'),cx=cv.getContext('2d');
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let W,H,dpr,items=[];

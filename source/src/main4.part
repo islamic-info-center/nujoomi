@@ -103,6 +103,10 @@ document.addEventListener('click',e=>{
   else if(b.id==='adOn'){famUpdate({'adhan.on':!S.adhan.on})}
   else if(d.adpr){const v=!S.adhan.pr?.[d.adpr];b.setAttribute('aria-pressed',v);famUpdate({['adhan.pr.'+d.adpr]:v})}
   else if(b.id==='adTest'){playAdhan();toast(L('playing'))}
+  else if(d.crec){recToggle(d.crec)}
+  else if(d.cup){upCheer(d.cup)}
+  else if(d.cplay){cheer(d.cplay,'',0)}
+  else if(d.cdel){delCheer(d.cdel)}
   else if(b.id==='fAll'){const on=b.getAttribute('aria-pressed')!=='true';document.querySelectorAll('#fKids [data-k]').forEach(x=>x.setAttribute('aria-pressed',on));b.setAttribute('aria-pressed',on);syncKidsPick()}
   else if(d.day!==undefined||d.k){b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');if(d.k)syncKidsPick()}
 });

@@ -1,0 +1,46 @@
+/* ---------- cheer voices: a parent records "أحسنت! بارك الله فيك" etc. once; every child device plays it in the quiz ---------- */
+const CHEERS=['ok','no','win'];
+Object.assign(T.ar,{cheerTitle:'أصوات التشجيع في «العب»',cheerP:'سجّل بصوتك ما يسمعه الطفل في اللعبة، مثلاً: «أحسنت! بارك الله فيك». إن لم تسجّل، يُستخدم صوت الجهاز إن كان فيه صوت عربي.',
+  ch_ok:'عند الإجابة الصحيحة',ch_okH:'مثلاً: أحسنت! بارك الله فيك',ch_no:'عند الإجابة الخاطئة',ch_noH:'مثلاً: لا بأس، حاول مرة أخرى',ch_win:'عند إنهاء الرحلة',ch_winH:'مثلاً: ما شاء الله! أنهيت الرحلة',
+  rec:'تسجيل',recStop:'إيقاف وحفظ',recOn:'يسجّل الآن… تكلّم',recSaved:'حُفظ الصوت وسيُسمع في اللعبة',noMic:'لم نستطع الوصول إلى الميكروفون. اسمح للتطبيق باستخدامه أو ارفع ملفاً صوتياً',recNone:'لا يوجد تسجيل',recHave:'مسجّل'});
+Object.assign(T.en,{cheerTitle:'Cheer voices in Play',cheerP:'Record what your child hears in the game, like "Well done!". Without a recording, the device voice is used when it has one for the app language.',
+  ch_ok:'Right answer',ch_okH:'e.g. Well done!',ch_no:'Wrong answer',ch_noH:"e.g. That's okay, try again",ch_win:'Journey finished',ch_winH:'e.g. Amazing, you finished the journey!',
+  rec:'Record',recStop:'Stop and save',recOn:'Recording… speak now',recSaved:'Saved; it will play in the game',noMic:"We couldn't use the microphone. Allow it, or upload an audio file",recNone:'Not recorded',recHave:'Recorded'});
+
+function cheerView(){const c=S.cheer||{};
+  return `<section class="panel glass cheerBox"><h3><span class="chip" style="background:linear-gradient(135deg,#4FD8A8,#1E9E86)">${I('speaker')}</span>${L('cheerTitle')}</h3>
+   <p class="cheerP">${L('cheerP')}</p>
+   ${CHEERS.map(s=>{const on=recSlot===s;return `<div class="cheerRow ${c[s]?'have':''}"><div><b>${L('ch_'+s)}</b><small>${on?L('recOn'):c[s]?I('check')+' '+L('recHave'):L('ch_'+s+'H')}</small></div>
+     <div class="row"><button class="btn ${on?'no':'go'} sm" data-crec="${s}">${on?I('check')+L('recStop'):I('speaker')+L('rec')}</button>
+     <button class="btn sun sm" data-cup="${s}">${I('upload')}</button>${c[s]?`<button class="btn sun sm" data-cplay="${s}" aria-label="${L('testSnd')}">${I('play')}</button><button class="ico del" data-cdel="${s}" aria-label="${L('del')}">${I('trash')}</button>`:''}</div></div>`}).join('')}
+  </section>`}
+
+let recSlot=null,recMR=null,recTimer=null;
+async function recToggle(slot){
+  if(recSlot){recMR?.stop();return}
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast(L('noMic'));return}
+  const chunks=[];let mr;try{mr=new MediaRecorder(stream)}catch(e){stream.getTracks().forEach(t=>t.stop());toast(L('noMic'));return}
+  mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  mr.onstop=()=>{clearTimeout(recTimer);stream.getTracks().forEach(t=>t.stop());const s=slot;recSlot=null;recMR=null;render();
+    const blob=new Blob(chunks,{type:mr.mimeType||'audio/webm'});if(blob.size<800)return;const r=new FileReader();r.onload=()=>saveCheer(s,r.result);r.readAsDataURL(blob)};
+  recSlot=slot;recMR=mr;mr.start();recTimer=setTimeout(()=>{if(mr.state==='recording')mr.stop()},6000);render();
+}
+function upCheer(slot){const inp=document.createElement('input');inp.type='file';inp.accept='audio/*';inp.onchange=()=>{const f=inp.files[0];if(!f)return;
+  if(f.size>300*1024){toast(L('sndBig'));return}const r=new FileReader();r.onload=()=>saveCheer(slot,r.result);r.readAsDataURL(f)};inp.click()}
+async function saveCheer(slot,data){const v=Date.now(),b=writeBatch(db);
+  for(const k of F.kids)b.set(doc(logsCol(),`cheer_${slot}_${k.id}`),{kid:k.id,snd:data,date:'snd',status:'approved',v});
+  b.update(famRef(),{['cheer.'+slot]:v});
+  try{await b.commit();cheerMem[slot]=null;try{localStorage.setItem('najmati-ch-'+slot,JSON.stringify({v,d:data}))}catch(e){}toast(L('recSaved'))}catch(e){fail(e)}}
+function delCheer(slot){const b=writeBatch(db);for(const k of F.kids)b.delete(doc(logsCol(),`cheer_${slot}_${k.id}`));b.update(famRef(),{['cheer.'+slot]:deleteField()});b.commit().catch(fail);cheerMem[slot]=null}
+
+const cheerMem={};
+async function cheerBuf(slot,kidId){
+  const v=S.cheer?.[slot];if(!v)return null;const m=cheerMem[slot];if(m&&m.v===v)return m.buf;
+  let data=null;try{const c=JSON.parse(localStorage.getItem('najmati-ch-'+slot)||'null');if(c&&c.v===v)data=c.d}catch(e){}
+  if(!data){const id=M.role==='kid'?M.kid:(kidId||S.kids[0]?.id);if(!id)return null;const s=await getDoc(doc(logsCol(),`cheer_${slot}_${id}`));data=s.data()?.snd;if(!data)return null;try{localStorage.setItem('najmati-ch-'+slot,JSON.stringify({v,d:data}))}catch(e){}}
+  const buf=await actx().decodeAudioData(await (await fetch(data)).arrayBuffer());cheerMem[slot]={v,buf};return buf}
+function preloadCheers(kidId){CHEERS.forEach(s=>cheerBuf(s,kidId).catch(()=>{}))}
+/* the parent's recording when there is one, otherwise the device voice in the app's language */
+async function cheer(slot,text,delay=250){
+  try{const buf=await cheerBuf(slot,QS?.k);if(buf){const c=actx(),src=c.createBufferSource(),g=c.createGain();g.gain.value=1.4;src.buffer=buf;src.connect(g).connect(c.destination);src.start(c.currentTime+delay/1000);return}}catch(e){console.error(e)}
+  if(text)setTimeout(()=>say(text),delay)}

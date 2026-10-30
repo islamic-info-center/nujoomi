@@ -1,6 +1,6 @@
 /* App shell cache: the app opens without internet; family data syncs through Firestore's own offline cache. */
-const V='nujoomi-v7';
-const SHELL=['./','index.html','app.css?v=2','extra.css?v=6','app.js?v=7','config.js?v=2','manifest.webmanifest','icons/icon-192.png','icons/apple-touch-icon.png'];
+const V='nujoomi-v8';
+const SHELL=['./','index.html','app.css?v=2','extra.css?v=7','app.js?v=8','config.js?v=2','manifest.webmanifest','icons/icon-192.png','icons/apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
