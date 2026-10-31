@@ -365,3 +365,15 @@ body{padding-top:env(safe-area-inset-top,0px)}
 .secB.on .secDots i{background:rgba(255,255,255,.35)}.secB.on .secDots i.f{background:#fff;box-shadow:none}
 .secB.on .secGo{width:40px;height:40px;border-radius:50%;background:#fff;color:var(--c2)}
 .secB.on .secGo svg{fill:currentColor;width:18px;height:18px}
+/* parent tabs: each tab has its own colour */
+[data-ptab="requests"]{--t1:#5AA8FF;--t2:#2F6BFF}
+[data-ptab="tasks"]{--t1:#B49BFF;--t2:#7A4DFF}
+[data-ptab="rewards"]{--t1:#FFB547;--t2:#F0569F}
+[data-ptab="pen"]{--t1:#5FD68A;--t2:#16A060}
+[data-ptab="family"]{--t1:#5EE0E6;--t2:#0E9CC0}
+.tabs button[data-ptab]{background:linear-gradient(160deg,color-mix(in srgb,var(--t2) 22%,var(--glass2)),var(--glass));border:1.5px solid color-mix(in srgb,var(--t2) 45%,transparent);box-shadow:inset 0 2px 0 var(--hi),0 4px 0 color-mix(in srgb,var(--t2) 40%,var(--depth))}
+.tabs button[data-ptab] svg{color:var(--t2);stroke-width:2.4}
+:root[data-theme="dark"] .tabs button[data-ptab] svg{color:var(--t1)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tabs button[data-ptab] svg{color:var(--t1)}}
+.tabs button[data-ptab][aria-pressed="true"]{background:linear-gradient(160deg,var(--t1),var(--t2));color:#fff;border-color:#fff;box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 4px 0 color-mix(in srgb,var(--t2) 55%,#000)}
+.tabs button[data-ptab][aria-pressed="true"] svg{color:#fff!important}
