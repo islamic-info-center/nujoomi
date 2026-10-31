@@ -307,3 +307,42 @@ body{padding-top:env(safe-area-inset-top,0px)}
 .task.s-qada .state{background:#7A8BA6}
 .task.s-qada.s-approved .state{background:#3F9B6E}
 @media (prefers-reduced-motion:reduce){.s-missed .state{animation:none}}
+/* ---------- compact parent view ---------- */
+.stats{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.stat{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px}
+.stat .av{width:54px;height:54px}
+.stMid{display:flex;flex-direction:column;gap:2px;min-width:0}
+.stName{font-size:18px;line-height:1.2}
+.stMid small{color:var(--muted)}
+.stMid .missedTag{margin-top:4px;font-size:12px;padding:2px 9px}
+.stPts{display:flex;flex-direction:column;align-items:center;line-height:1}
+.stPts b{font-family:var(--display);font-size:40px;color:var(--gold2);text-shadow:0 0 10px var(--glow),0 3px 0 color-mix(in srgb,var(--gold) 50%,#000);font-variant-numeric:tabular-nums}
+.stPts small{color:var(--muted);font-size:13px;margin-top:4px}
+.empty{padding:10px}
+@media (max-width:700px){
+  .tabs:has([data-ptab]){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .tabs:has([data-ptab]) button{flex-direction:column;justify-content:center;gap:4px;padding:8px 2px;border-radius:14px;font-size:11.5px;line-height:1.25;text-align:center}
+  .tabs:has([data-ptab]) button svg{width:20px;height:20px}
+  .panel{padding:14px;gap:10px}
+  .panel h3{font-size:19px}
+  .rewList{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .rewCard{padding:8px;gap:6px;border-radius:16px}
+  .rewPic{aspect-ratio:16/10;border-radius:12px}
+  .rewPic .chip{width:44px;height:44px}.rewPic .chip svg{width:24px;height:24px}
+  .rewT{font-size:15px;min-height:0}
+  .rewCost{font-size:14px;padding:3px 9px}
+  .rewActs .ico{width:28px;height:28px}
+  .famKid{grid-template-columns:1fr;justify-items:stretch;padding:12px;gap:10px}
+  .famKid .avBox{flex-direction:row;justify-content:flex-start;gap:10px}
+  .famKid .av.lg{width:56px;height:56px;border-width:3px}
+  .famKid .kidForm,.kidForm.newKid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .kidForm label{font-size:13px}
+  .kidForm .full{grid-column:1/-1}
+  .kidForm .row{gap:6px}
+}
+.stat b.stName{font-family:var(--display);font-size:18px;line-height:1.2;color:var(--ink);text-shadow:none}
+@media (max-width:700px){.kidForm.newKid>div{grid-column:1/-1}.kidForm.newKid .btn{width:100%;justify-content:center}}
+.stMid{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:8px}
+.stMid .stName{flex-basis:100%}
+.stMid .missedTag{margin-top:0}
+.stat{padding:10px 14px}
