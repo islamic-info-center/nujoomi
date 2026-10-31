@@ -51,6 +51,7 @@ const P={
   palette:'<path d="M12 3a9 9 0 0 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>',
   tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/>',
   play:'<path d="M7 4.5v15l12-7.5z"/>',
+  chevL:'<path d="M15 6l-6 6 6 6"/>',chevR:'<path d="M9 6l6 6-6 6"/>',
   upload:'<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',
   speaker:'<path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
   globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>'
@@ -813,12 +814,12 @@ const QZ=[
   {q:{ar:'ما أعظم ذنب يجب أن نبتعد عنه؟',en:'What is the greatest sin to stay away from?'},a:[{ar:'الشرك بالله',en:'Associating partners with Allah'},{ar:'النوم مبكرًا',en:'Sleeping early'},{ar:'شرب الماء',en:'Drinking water'}]}]}
 ];
 QZ.forEach((J,i)=>{J.id??=String(i);J.s??='aq'});
-Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advOf:n=>`مغامرة ${n}`,secPick:'اختر القسم',advP:'أكمل الرحلات واجمع النجوم',
+Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advOf:n=>`مغامرة ${n}`,secPick:'اختر القسم',secNext:n=>`تابع: الرحلة ${n}`,secAll:'أنهيت كل الرحلات!',advP:'أكمل الرحلات واجمع النجوم',
   journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:f=>f?'لا بأس، حاولي مرة أخرى!':'لا بأس، حاول مرة أخرى!',qGo:f=>f?'اختاري الإجابة الصحيحة!':'اختر الإجابة الصحيحة!',qNext:'السؤال التالي، هيّا!',jLocked:'أكمل الرحلة التي قبلها أولاً',
   jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم أُضيفت لرصيدك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
   nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل رحلات هذا القسم! جرّب قسمًا آخر',onWay:'في الطريق',
   praise:['أحسنت! بارك الله فيك','ممتاز! ما شاء الله','أحسنت يا بطل!','بارك الله فيك!','إجابة صحيحة، أحسنت!','ما شاء الله عليك!'],praiseF:['أحسنتِ! بارك الله فيكِ','ممتازة! ما شاء الله','أحسنتِ يا بطلة!','بارك الله فيكِ!','إجابة صحيحة، أحسنتِ!','ما شاء الله عليكِ!']});
-Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advOf:n=>`${n} adventure`,secPick:'Pick a section',advP:'Finish journeys and collect stars',
+Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advOf:n=>`${n} adventure`,secPick:'Pick a section',secNext:n=>`Continue: journey ${n}`,secAll:'All journeys done!',advP:'Finish journeys and collect stars',
   journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:"That's okay, try again!",qGo:()=>'Pick the right answer!',qNext:'Next question, let\'s go!',jLocked:'Finish the journey before it first',
   jWin:'Journey complete!',jStars:n=>`+${n} stars added to your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
   nextJ:'Next journey',toMap:'Map',allDone:'You finished this section! Try another one',onWay:'On the way',
@@ -1228,8 +1229,9 @@ function playView(k){
   const st=J=>qLog(k.id,J.id)?'done':qOpen(k.id,J.id)?'open':'locked';
   const pos=([x,y])=>`left:${x/W0*100}%;top:${y/H*100}%`;
   const all=[...P,T];
-  const tabs=Object.entries(SECS).map(([key,S0])=>{const l=secJ(key),d=l.filter(J=>qLog(k.id,J.id)).length;
-    return `<button class="secB" data-qsec="${key}" aria-pressed="${key===qSec}" style="--c1:${S0.c[0]};--c2:${S0.c[1]}"><span class="secIc">${I(S0.ic)}</span><b>${esc(tr(S0.t))}</b><small><bdi dir="ltr">${d}/${l.length}</bdi></small></button>`}).join('');
+  /* sections as stacked rows: six dots per section fill as journeys are finished; the chosen one shows where to continue */
+  const tabs=Object.entries(SECS).map(([key,S0])=>{const l=secJ(key),on=key===qSec,nx=l.findIndex(J=>!qLog(k.id,J.id));
+    return `<button class="secB ${on?'on':''}" ${on&&nx>=0?`data-journey="${l[nx].id}"`:`data-qsec="${key}"`} aria-pressed="${on}" style="--c1:${S0.c[0]};--c2:${S0.c[1]}"><span class="secIc">${I(S0.ic)}</span><span class="secTx"><b>${esc(tr(S0.t))}</b><span class="secDots">${l.map(J=>`<i class="${qLog(k.id,J.id)?'f':''}"></i>`).join('')}</span>${on?`<small>${nx<0?L('secAll'):L('secNext',nx+1)}</small>`:''}</span><span class="secGo">${on?I('play'):I(lang==='ar'?'chevL':'chevR')}</span></button>`}).join('');
   return `<div class="secRow" role="group" aria-label="${L('secPick')}">${tabs}</div><section class="wSea" style="--w1:${w.w[0]};--w2:${w.w[1]};--acc:${w.acc}">
    <div class="wHead"><span class="chip" style="background:linear-gradient(135deg,${SECS[qSec].c[0]},${SECS[qSec].c[1]})">${I(SECS[qSec].ic)}</span><div><h3>${L('advOf',tr(SECS[qSec].t))}</h3><small>${L('advP')} · ${L('jDone',done,n)}</small></div></div>
    <div class="wWaves"></div>${[[18,52,0],[46,70,-25],[78,60,-48]].map(([t,dur,del],i)=>`<span class="wShip s${i}" style="top:${t}%;animation-duration:${dur}s;animation-delay:${del}s">${SHIP(i===1?w.acc:'#E8352B')}</span>`).join('')}

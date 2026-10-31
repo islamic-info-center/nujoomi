@@ -87,8 +87,9 @@ function playView(k){
   const st=J=>qLog(k.id,J.id)?'done':qOpen(k.id,J.id)?'open':'locked';
   const pos=([x,y])=>`left:${x/W0*100}%;top:${y/H*100}%`;
   const all=[...P,T];
-  const tabs=Object.entries(SECS).map(([key,S0])=>{const l=secJ(key),d=l.filter(J=>qLog(k.id,J.id)).length;
-    return `<button class="secB" data-qsec="${key}" aria-pressed="${key===qSec}" style="--c1:${S0.c[0]};--c2:${S0.c[1]}"><span class="secIc">${I(S0.ic)}</span><b>${esc(tr(S0.t))}</b><small><bdi dir="ltr">${d}/${l.length}</bdi></small></button>`}).join('');
+  /* sections as stacked rows: six dots per section fill as journeys are finished; the chosen one shows where to continue */
+  const tabs=Object.entries(SECS).map(([key,S0])=>{const l=secJ(key),on=key===qSec,nx=l.findIndex(J=>!qLog(k.id,J.id));
+    return `<button class="secB ${on?'on':''}" ${on&&nx>=0?`data-journey="${l[nx].id}"`:`data-qsec="${key}"`} aria-pressed="${on}" style="--c1:${S0.c[0]};--c2:${S0.c[1]}"><span class="secIc">${I(S0.ic)}</span><span class="secTx"><b>${esc(tr(S0.t))}</b><span class="secDots">${l.map(J=>`<i class="${qLog(k.id,J.id)?'f':''}"></i>`).join('')}</span>${on?`<small>${nx<0?L('secAll'):L('secNext',nx+1)}</small>`:''}</span><span class="secGo">${on?I('play'):I(lang==='ar'?'chevL':'chevR')}</span></button>`}).join('');
   return `<div class="secRow" role="group" aria-label="${L('secPick')}">${tabs}</div><section class="wSea" style="--w1:${w.w[0]};--w2:${w.w[1]};--acc:${w.acc}">
    <div class="wHead"><span class="chip" style="background:linear-gradient(135deg,${SECS[qSec].c[0]},${SECS[qSec].c[1]})">${I(SECS[qSec].ic)}</span><div><h3>${L('advOf',tr(SECS[qSec].t))}</h3><small>${L('advP')} · ${L('jDone',done,n)}</small></div></div>
    <div class="wWaves"></div>${[[18,52,0],[46,70,-25],[78,60,-48]].map(([t,dur,del],i)=>`<span class="wShip s${i}" style="top:${t}%;animation-duration:${dur}s;animation-delay:${del}s">${SHIP(i===1?w.acc:'#E8352B')}</span>`).join('')}

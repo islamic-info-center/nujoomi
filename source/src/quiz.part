@@ -46,12 +46,12 @@ const QZ=[
   {q:{ar:'ما أعظم ذنب يجب أن نبتعد عنه؟',en:'What is the greatest sin to stay away from?'},a:[{ar:'الشرك بالله',en:'Associating partners with Allah'},{ar:'النوم مبكرًا',en:'Sleeping early'},{ar:'شرب الماء',en:'Drinking water'}]}]}
 ];
 QZ.forEach((J,i)=>{J.id??=String(i);J.s??='aq'});
-Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advOf:n=>`مغامرة ${n}`,secPick:'اختر القسم',advP:'أكمل الرحلات واجمع النجوم',
+Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advOf:n=>`مغامرة ${n}`,secPick:'اختر القسم',secNext:n=>`تابع: الرحلة ${n}`,secAll:'أنهيت كل الرحلات!',advP:'أكمل الرحلات واجمع النجوم',
   journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:f=>f?'لا بأس، حاولي مرة أخرى!':'لا بأس، حاول مرة أخرى!',qGo:f=>f?'اختاري الإجابة الصحيحة!':'اختر الإجابة الصحيحة!',qNext:'السؤال التالي، هيّا!',jLocked:'أكمل الرحلة التي قبلها أولاً',
   jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم أُضيفت لرصيدك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
   nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل رحلات هذا القسم! جرّب قسمًا آخر',onWay:'في الطريق',
   praise:['أحسنت! بارك الله فيك','ممتاز! ما شاء الله','أحسنت يا بطل!','بارك الله فيك!','إجابة صحيحة، أحسنت!','ما شاء الله عليك!'],praiseF:['أحسنتِ! بارك الله فيكِ','ممتازة! ما شاء الله','أحسنتِ يا بطلة!','بارك الله فيكِ!','إجابة صحيحة، أحسنتِ!','ما شاء الله عليكِ!']});
-Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advOf:n=>`${n} adventure`,secPick:'Pick a section',advP:'Finish journeys and collect stars',
+Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advOf:n=>`${n} adventure`,secPick:'Pick a section',secNext:n=>`Continue: journey ${n}`,secAll:'All journeys done!',advP:'Finish journeys and collect stars',
   journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:"That's okay, try again!",qGo:()=>'Pick the right answer!',qNext:'Next question, let\'s go!',jLocked:'Finish the journey before it first',
   jWin:'Journey complete!',jStars:n=>`+${n} stars added to your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
   nextJ:'Next journey',toMap:'Map',allDone:'You finished this section! Try another one',onWay:'On the way',

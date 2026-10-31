@@ -346,3 +346,22 @@ body{padding-top:env(safe-area-inset-top,0px)}
 .stMid .stName{flex-basis:100%}
 .stMid .missedTag{margin-top:0}
 .stat{padding:10px 14px}
+/* adventure sections as stacked rows (overrides the earlier box grid) */
+.secRow{display:flex;flex-direction:column;gap:8px}
+@media (min-width:760px){.secRow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+.secB{flex-direction:row;align-items:center;gap:12px;padding:8px 12px 8px 10px;border-radius:18px;border:1.5px solid var(--edge);background:var(--glass2);text-align:start;box-shadow:0 3px 0 var(--depth)}
+.secB .secIc{width:44px;height:44px;flex:none}
+.secTx{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.secTx b{font-family:var(--display);font-size:17px;line-height:1.1;text-align:start}
+.secTx small{font-size:12.5px;font-weight:700}
+.secDots{display:flex;gap:5px}
+.secDots i{width:12px;height:12px;border-radius:50%;background:color-mix(in srgb,var(--ink) 18%,transparent)}
+.secDots i.f{background:#FFC531;box-shadow:0 0 6px rgba(255,197,49,.8)}
+.secGo{flex:none;display:grid;place-items:center;color:var(--muted)}
+.secGo svg{width:22px;height:22px}
+.secB.on{background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;border-color:#fff;padding-block:12px;transform:none;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 5px 0 color-mix(in srgb,var(--c2) 55%,#000)}
+.secB.on .secIc{width:52px;height:52px;background:rgba(255,255,255,.25);box-shadow:none}
+.secB.on .secTx b{font-size:20px}
+.secB.on .secDots i{background:rgba(255,255,255,.35)}.secB.on .secDots i.f{background:#fff;box-shadow:none}
+.secB.on .secGo{width:40px;height:40px;border-radius:50%;background:#fff;color:var(--c2)}
+.secB.on .secGo svg{fill:currentColor;width:18px;height:18px}
