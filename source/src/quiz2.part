@@ -1,0 +1,232 @@
+/* ---------- play: more adventure sections ----------
+   Each section has journeys of six questions; a play asks five of them in a random order.
+   Rows are [question ar, question en, [right ar, right en], [wrong ar, wrong en], [wrong ar, wrong en]].
+   Journey ids must stay the same once published, since progress is stored under them. */
+const SECS={
+  aq:{t:{ar:'العقيدة',en:'Faith'},ic:'star',c:['#FFC94A','#FF8A3D']},
+  fq:{t:{ar:'الفقه',en:'Fiqh'},ic:'book',c:['#7CC6FF','#2F6BFF']},
+  sl:{t:{ar:'آداب الصلاة',en:'Prayer manners'},ic:'mosque',c:['#B49BFF','#7A4DFF']},
+  th:{t:{ar:'الطهارة',en:'Purity'},ic:'drop',c:['#6EE7F9','#0EA5C6']},
+  ak:{t:{ar:'الأخلاق',en:'Good manners'},ic:'heart',c:['#FF9AC2','#F0457A']},
+  qr:{t:{ar:'علوم القرآن',en:'The Quran'},ic:'sparkle',c:['#7BE495','#21B26B']}
+};
+const QX={
+fq:[
+ [['أركان الإسلام','Pillars of Islam'],'star',[
+  ['كم عدد أركان الإسلام؟','How many pillars does Islam have?',['خمسة','Five'],['ثلاثة','Three'],['سبعة','Seven']],
+  ['ما الركن الأول من أركان الإسلام؟','What is the first pillar of Islam?',['الشهادتان','The two testimonies'],['الصيام','Fasting'],['الحج','Hajj']],
+  ['كم صلاة فرضها الله علينا في اليوم والليلة؟','How many prayers did Allah make due each day and night?',['خمس صلوات','Five prayers'],['صلاتان','Two prayers'],['عشر صلوات','Ten prayers']],
+  ['في أي شهر يصوم المسلمون؟','In which month do Muslims fast?',['رمضان','Ramadan'],['شعبان','Shaban'],['شوال','Shawwal']],
+  ['في أي مدينة يحج المسلمون؟','In which city do Muslims perform Hajj?',['مكة المكرمة','Makkah'],['القاهرة','Cairo'],['دمشق','Damascus']],
+  ['ما الركن الذي نعطي فيه جزءًا من المال للفقراء؟','Which pillar means giving part of our money to the poor?',['الزكاة','Zakah'],['الصيام','Fasting'],['الحج','Hajj']]]],
+ [['الصيام','Fasting'],'moon',[
+  ['متى يبدأ الصائم الإمساك عن الطعام؟','When does a fasting person stop eating?',['عند طلوع الفجر','At dawn (Fajr)'],['عند الظهر','At noon'],['عند العصر','At Asr']],
+  ['متى يفطر الصائم؟','When does a fasting person break the fast?',['عند غروب الشمس','At sunset'],['عند العصر','At Asr'],['عند منتصف الليل','At midnight']],
+  ['ما اسم الوجبة التي نأكلها قبل الفجر في رمضان؟','What is the meal before dawn in Ramadan called?',['السحور','Suhoor'],['الغداء','Lunch'],['العشاء','Dinner']],
+  ['ماذا يفعل الصائم إذا أكل وهو ناسٍ؟','What does a fasting person do if they ate by forgetting?',['يكمل صومه','Carries on fasting'],['يفطر بقية اليوم','Stops fasting for the day'],['يصوم يومين','Fasts two days']],
+  ['ما العيد الذي يأتي بعد رمضان؟','Which Eid comes after Ramadan?',['عيد الفطر','Eid al-Fitr'],['عيد الأضحى','Eid al-Adha'],['لا يوجد عيد','There is no Eid']],
+  ['بماذا يُستحب أن يفطر الصائم؟','What is it sunnah to break the fast with?',['التمر','Dates'],['الحلوى','Sweets'],['المشروبات الغازية','Fizzy drinks']]]],
+ [['الزكاة والصدقة','Zakah and charity'],'gift',[
+  ['ما الزكاة التي نخرجها قبل صلاة عيد الفطر؟','Which zakah do we give before the Eid al-Fitr prayer?',['زكاة الفطر','Zakat al-Fitr'],['زكاة الذهب','Zakah on gold'],['زكاة الزرع','Zakah on crops']],
+  ['لمن نعطي الصدقة؟','Who do we give charity to?',['للفقراء والمحتاجين','The poor and needy'],['للأغنياء فقط','Only the rich'],['لا نعطي أحدًا','Nobody']],
+  ['هل الابتسامة في وجه أخيك صدقة؟','Is smiling at your brother a charity?',['نعم','Yes'],['لا','No'],['فقط في رمضان','Only in Ramadan']],
+  ['ماذا تفعل الصدقة بمال المسلم؟','What does charity do to a Muslim\'s money?',['يبارك الله فيه','Allah blesses it'],['يضيع كله','It is all lost'],['لا شيء','Nothing']],
+  ['إزالة الأذى عن الطريق، ما هي؟','Removing something harmful from the road is…',['صدقة','A charity'],['لعب','Just play'],['لا أجر فيها','Without reward']],
+  ['أي اليدين خير؟','Which hand is better?',['اليد العليا التي تعطي','The upper hand that gives'],['اليد السفلى التي تأخذ','The lower hand that takes'],['لا فرق','No difference']]]],
+ [['الحج والعمرة','Hajj and Umrah'],'mosque',[
+  ['ما اسم البيت الذي يطوف حوله الحجاج؟','What is the house that pilgrims walk around?',['الكعبة','The Kaaba'],['المسجد الأقصى','Al-Aqsa Mosque'],['قصر كبير','A big palace']],
+  ['كم شوطًا يطوف المسلم حول الكعبة؟','How many rounds around the Kaaba?',['سبعة أشواط','Seven'],['ثلاثة أشواط','Three'],['عشرة أشواط','Ten']],
+  ['أين يقف الحجاج في اليوم التاسع من ذي الحجة؟','Where do pilgrims stand on the 9th of Dhul-Hijjah?',['عرفة','Arafah'],['جبل أحد','Mount Uhud'],['جبل الطور','Mount Sinai']],
+  ['ما العيد الذي يكون في أيام الحج؟','Which Eid is during the days of Hajj?',['عيد الأضحى','Eid al-Adha'],['عيد الفطر','Eid al-Fitr'],['لا يوجد عيد','There is no Eid']],
+  ['ماذا يلبس الرجل في الحج؟','What does a man wear for Hajj?',['ملابس الإحرام البيضاء','White ihram clothes'],['ملابس ملونة','Colourful clothes'],['بدلة رسمية','A suit']],
+  ['بين أي جبلين يسعى الحاج؟','Between which two hills does the pilgrim walk?',['الصفا والمروة','Safa and Marwah'],['أحد وثور','Uhud and Thawr'],['عرفة ومنى','Arafah and Mina']]]],
+ [['آداب الطعام','Table manners'],'plate',[
+  ['ماذا نقول قبل أن نأكل؟','What do we say before eating?',['بسم الله','Bismillah'],['لا شيء','Nothing'],['صباح الخير','Good morning']],
+  ['بأي يد نأكل؟','Which hand do we eat with?',['باليمين','The right hand'],['بالشمال','The left hand'],['لا فرق','It does not matter']],
+  ['ماذا نقول بعد أن ننتهي من الطعام؟','What do we say after eating?',['الحمد لله','Alhamdulillah'],['وداعًا','Goodbye'],['لا شيء','Nothing']],
+  ['أي لحم حرّمه الله علينا؟','Which meat did Allah forbid?',['لحم الخنزير','Pork'],['لحم الغنم','Lamb'],['لحم الدجاج','Chicken']],
+  ['ماذا نفعل إذا لم يعجبنا الطعام؟','What do we do if we do not like the food?',['نتركه ولا نعيبه','Leave it without criticising'],['نقول إنه سيئ','Say it is bad'],['نرميه على الأرض','Throw it on the floor']],
+  ['هل نرمي الطعام الزائد ونسرف فيه؟','Should we waste extra food?',['لا، الله لا يحب المسرفين','No, Allah does not love wasters'],['نعم','Yes'],['إذا كان كثيرًا','If there is a lot']]]],
+ [['الجمعة والأعياد','Friday and Eid'],'sun',[
+  ['ما أفضل يوم في الأسبوع؟','What is the best day of the week?',['يوم الجمعة','Friday'],['يوم السبت','Saturday'],['يوم الاثنين','Monday']],
+  ['ما الصلاة الخاصة بيوم الجمعة؟','Which prayer is special to Friday?',['صلاة الجمعة','Jumuah prayer'],['صلاة العيد','Eid prayer'],['صلاة الكسوف','Eclipse prayer']],
+  ['ما السورة التي يُستحب قراءتها يوم الجمعة؟','Which surah is it sunnah to read on Friday?',['سورة الكهف','Surat al-Kahf'],['سورة النبأ','Surat an-Naba'],['سورة الملك','Surat al-Mulk']],
+  ['كم عيدًا للمسلمين في السنة؟','How many Eids do Muslims have a year?',['عيدان','Two'],['ثلاثة','Three'],['عيد واحد','One']],
+  ['ماذا يقول المسلم لأخيه في العيد؟','What does a Muslim say to another on Eid?',['تقبّل الله منا ومنكم','May Allah accept from us and you'],['تصبح على خير','Good night'],['لا شيء','Nothing']],
+  ['ماذا نفعل قبل صلاة الجمعة؟','What do we do before the Friday prayer?',['نغتسل ونلبس أحسن الثياب','Bathe and wear our best clothes'],['ننام حتى العصر','Sleep until Asr'],['نلعب في الشارع','Play in the street']]]]],
+sl:[
+ [['الأذان','The call to prayer'],'speaker',[
+  ['ماذا نفعل عندما نسمع الأذان؟','What do we do when we hear the adhan?',['نردد مثل المؤذن','Repeat after the caller'],['نتكلم بصوت عالٍ','Talk loudly'],['نرفع صوت التلفاز','Turn up the TV']],
+  ['بماذا يبدأ الأذان؟','How does the adhan begin?',['الله أكبر','Allahu Akbar'],['السلام عليكم','Assalamu alaikum'],['صباح الخير','Good morning']],
+  ['ماذا نقول عندما يقول المؤذن «حيّ على الصلاة»؟','What do we say when the caller says "Hayya alas-salah"?',['لا حول ولا قوة إلا بالله','La hawla wa la quwwata illa billah'],['آمين','Ameen'],['شكرًا','Thank you']],
+  ['ما اسم من يرفع الأذان؟','What is the person who calls the adhan called?',['المؤذن','The muezzin'],['الحارس','The guard'],['البائع','The seller']],
+  ['ما اسم النداء الذي يكون قبل بدء الصلاة مباشرة؟','What is the call right before the prayer starts?',['الإقامة','The iqamah'],['الخطبة','The sermon'],['التسليم','The salam']],
+  ['ماذا نسمع زيادة في أذان الفجر؟','What extra words are in the Fajr adhan?',['الصلاة خير من النوم','Prayer is better than sleep'],['حان وقت الإفطار','Time for breakfast'],['استيقظوا للمدرسة','Wake up for school']]]],
+ [['الذهاب إلى المسجد','Going to the mosque'],'mosque',[
+  ['بأي رجل ندخل المسجد؟','Which foot do we enter the mosque with?',['اليمنى','The right'],['اليسرى','The left'],['نقفز بالرجلين','Jump with both']],
+  ['بأي رجل نخرج من المسجد؟','Which foot do we leave the mosque with?',['اليسرى','The left'],['اليمنى','The right'],['نقفز بالرجلين','Jump with both']],
+  ['ماذا نصلي إذا دخلنا المسجد قبل أن نجلس؟','What do we pray when we enter the mosque before sitting?',['ركعتين تحية المسجد','Two rakahs to greet the mosque'],['لا شيء','Nothing'],['عشر ركعات','Ten rakahs']],
+  ['كيف نمشي إلى الصلاة؟','How do we walk to the prayer?',['بهدوء وسكينة','Calmly'],['نركض ونتدافع','Run and push'],['نصرخ في الطريق','Shout on the way']],
+  ['ماذا لا نأكل قبل المسجد حتى لا نؤذي المصلين برائحته؟','What do we not eat before the mosque so the smell does not bother others?',['الثوم والبصل النيء','Raw garlic and onion'],['التمر','Dates'],['التفاح','Apples']],
+  ['ماذا نفعل بالجوال في المسجد؟','What do we do with a phone in the mosque?',['نطفئ صوته','Put it on silent'],['نلعب به','Play games on it'],['نرفع صوته','Turn the sound up']]]],
+ [['قبل الصلاة','Before the prayer'],'clock',[
+  ['ماذا نفعل قبل الصلاة لنكون طاهرين؟','What do we do before prayer to be pure?',['نتوضأ','Make wudu'],['نأكل','Eat'],['ننام','Sleep']],
+  ['إلى أي جهة نتجه في الصلاة؟','Which way do we face in prayer?',['القبلة نحو الكعبة','The qiblah, towards the Kaaba'],['أي جهة','Any way'],['نحو الشمس','Towards the sun']],
+  ['ماذا نلبس للصلاة؟','What do we wear for prayer?',['ثيابًا نظيفة ساترة','Clean, covering clothes'],['ثيابًا متسخة','Dirty clothes'],['ملابس السباحة','Swimwear']],
+  ['هل نمرّ من أمام من يصلي؟','Do we walk in front of someone praying?',['لا، نبتعد عن المرور أمامه','No, we keep from passing in front'],['نعم','Yes'],['نركض أمامه','Run in front']],
+  ['بماذا نبدأ الصلاة؟','How do we start the prayer?',['بقول الله أكبر','By saying Allahu Akbar'],['بقول السلام عليكم','By saying Assalamu alaikum'],['بالتصفيق','By clapping']],
+  ['كيف يصلي المريض الذي لا يستطيع القيام؟','How does a sick person who cannot stand pray?',['يصلي جالسًا','Sitting down'],['يترك الصلاة','Skips the prayer'],['يصلي غدًا','Prays tomorrow']]]],
+ [['داخل الصلاة','Inside the prayer'],'heart',[
+  ['ما السورة التي نقرؤها في كل ركعة؟','Which surah do we read in every rakah?',['الفاتحة','Al-Fatihah'],['الناس','An-Nas'],['الكوثر','Al-Kawthar']],
+  ['ماذا نقول في الركوع؟','What do we say in ruku (bowing)?',['سبحان ربي العظيم','Subhana rabbiyal-azeem'],['سبحان ربي الأعلى','Subhana rabbiyal-ala'],['آمين','Ameen']],
+  ['ماذا نقول في السجود؟','What do we say in sujood?',['سبحان ربي الأعلى','Subhana rabbiyal-ala'],['سبحان ربي العظيم','Subhana rabbiyal-azeem'],['بسم الله','Bismillah']],
+  ['أين ننظر ونحن نصلي؟','Where do we look while praying?',['إلى موضع السجود','At the place of sujood'],['يمينًا ويسارًا','Right and left'],['إلى السقف','At the ceiling']],
+  ['كيف ننهي الصلاة؟','How do we finish the prayer?',['بالتسليم يمينًا ويسارًا','With salam to the right and left'],['بالتصفيق','By clapping'],['بالركض','By running off']],
+  ['ماذا نقول بعد أن يقرأ الإمام «ولا الضالين»؟','What do we say after the imam reads "wa lad-dalleen"?',['آمين','Ameen'],['شكرًا','Thank you'],['لا شيء أبدًا','Never anything']]]],
+ [['عدد الركعات','How many rakahs'],'list',[
+  ['كم ركعة صلاة الفجر؟','How many rakahs is Fajr?',['ركعتان','Two'],['أربع','Four'],['ثلاث','Three']],
+  ['كم ركعة صلاة المغرب؟','How many rakahs is Maghrib?',['ثلاث','Three'],['ركعتان','Two'],['أربع','Four']],
+  ['كم ركعة صلاة الظهر؟','How many rakahs is Dhuhr?',['أربع','Four'],['ركعتان','Two'],['ثلاث','Three']],
+  ['كم ركعة صلاة العصر؟','How many rakahs is Asr?',['أربع','Four'],['ثلاث','Three'],['ركعتان','Two']],
+  ['كم ركعة صلاة العشاء؟','How many rakahs is Isha?',['أربع','Four'],['ركعتان','Two'],['خمس','Five']],
+  ['كم سجدة في كل ركعة؟','How many sujood in each rakah?',['سجدتان','Two'],['سجدة واحدة','One'],['ثلاث سجدات','Three']]]],
+ [['بعد الصلاة','After the prayer'],'sparkle',[
+  ['ماذا نقول ثلاث مرات بعد السلام من الصلاة؟','What do we say three times right after the salam?',['أستغفر الله','Astaghfirullah'],['صباح الخير','Good morning'],['وداعًا','Goodbye']],
+  ['كم مرة نقول «سبحان الله» بعد الصلاة؟','How many times do we say "Subhanallah" after prayer?',['ثلاثًا وثلاثين','Thirty-three'],['عشر مرات','Ten'],['مرة واحدة','Once']],
+  ['ما الآية العظيمة التي نقرؤها بعد كل صلاة؟','Which great verse do we read after every prayer?',['آية الكرسي','Ayat al-Kursi'],['آخر آية في القرآن','The last verse of the Quran'],['لا نقرأ شيئًا','We read nothing']],
+  ['ما معنى الخشوع في الصلاة؟','What is khushu in prayer?',['أن نصلي بقلب حاضر وهدوء','Praying calmly with a present heart'],['أن نصلي بسرعة','Praying fast'],['أن نتكلم أثناء الصلاة','Talking during prayer']],
+  ['هل نتكلم مع أصدقائنا ونحن نصلي؟','Do we talk to our friends while praying?',['لا','No'],['نعم','Yes'],['قليلًا فقط','Just a little']],
+  ['ما أحب الأعمال إلى الله كما أخبر النبي ﷺ؟','Which deed is most beloved to Allah, as the Prophet ﷺ said?',['الصلاة على وقتها','Prayer on time'],['اللعب طوال اليوم','Playing all day'],['النوم الطويل','Sleeping a lot']]]]],
+th:[
+ [['الوضوء','Wudu'],'drop',[
+  ['لماذا نتوضأ؟','Why do we make wudu?',['لنكون طاهرين للصلاة','To be pure for prayer'],['لنلعب بالماء','To play with water'],['لنبرد فقط','Just to cool down']],
+  ['ماذا نقول قبل الوضوء؟','What do we say before wudu?',['بسم الله','Bismillah'],['آمين','Ameen'],['وداعًا','Goodbye']],
+  ['بأي جهة نبدأ عند غسل اليدين والقدمين؟','Which side do we start with for hands and feet?',['اليمنى','The right'],['اليسرى','The left'],['لا يهم أبدًا','It never matters']],
+  ['كم مرة يُسنّ غسل الأعضاء في الوضوء؟','How many times is it sunnah to wash each part?',['ثلاث مرات','Three times'],['عشر مرات','Ten times'],['خمس مرات','Five times']],
+  ['ما أول ما نغسله في الوضوء؟','What do we wash first in wudu?',['الكفّين','The hands'],['القدمين','The feet'],['الأذنين','The ears']],
+  ['كيف نستعمل الماء في الوضوء؟','How do we use water in wudu?',['بلا إسراف','Without wasting'],['نتركه يجري','Leave the tap running'],['نرشه على الأرض','Splash it on the floor']]]],
+ [['أعضاء الوضوء','Parts of wudu'],'check',[
+  ['ماذا نغسل بعد الوجه؟','What do we wash after the face?',['اليدين إلى المرفقين','Arms up to the elbows'],['القدمين','The feet'],['الظهر','The back']],
+  ['ماذا نمسح في الوضوء؟','What do we wipe in wudu?',['الرأس','The head'],['البطن','The tummy'],['الركبتين','The knees']],
+  ['إلى أين نغسل القدمين؟','Up to where do we wash the feet?',['إلى الكعبين','To the ankles'],['إلى الركبتين','To the knees'],['الأصابع فقط','Just the toes']],
+  ['ما آخر ما نغسله في الوضوء؟','What do we wash last in wudu?',['القدمين','The feet'],['الوجه','The face'],['اليدين','The hands']],
+  ['ما اسم إدخال الماء في الأنف وإخراجه في الوضوء؟','What is putting water in the nose in wudu called?',['الاستنشاق','Istinshaq'],['المضمضة','Rinsing the mouth'],['المسح','Wiping']],
+  ['ماذا نقول بعد الوضوء؟','What do we say after wudu?',['أشهد أن لا إله إلا الله وأن محمدًا رسول الله','The testimony of faith'],['تصبح على خير','Good night'],['لا شيء','Nothing']]]],
+ [['ما ينقض الوضوء','What breaks wudu'],'x',[
+  ['هل الذهاب إلى الحمام لقضاء الحاجة ينقض الوضوء؟','Does using the toilet break wudu?',['نعم','Yes'],['لا','No'],['في الليل فقط','Only at night']],
+  ['هل النوم العميق ينقض الوضوء؟','Does deep sleep break wudu?',['نعم','Yes'],['لا','No'],['يوم الجمعة فقط','Only on Friday']],
+  ['هل شرب الماء ينقض الوضوء؟','Does drinking water break wudu?',['لا','No'],['نعم','Yes'],['إذا كان باردًا','If it is cold']],
+  ['هل خروج الريح ينقض الوضوء؟','Does passing wind break wudu?',['نعم','Yes'],['لا','No'],['في البيت فقط','Only at home']],
+  ['إذا انتقض وضوئي ماذا أفعل قبل الصلاة؟','If my wudu breaks, what do I do before praying?',['أتوضأ من جديد','Make wudu again'],['أصلي هكذا','Pray anyway'],['أترك الصلاة','Skip the prayer']],
+  ['هل تصح الصلاة بلا وضوء؟','Is a prayer valid without wudu?',['لا','No'],['نعم','Yes'],['إذا كنت مستعجلًا','If I am in a hurry']]]],
+ [['آداب الخلاء','Toilet manners'],'lock',[
+  ['بأي رجل ندخل الخلاء (الحمام)؟','Which foot do we enter the toilet with?',['اليسرى','The left'],['اليمنى','The right'],['نقفز','We jump']],
+  ['ماذا نقول قبل دخول الخلاء؟','What do we say before entering the toilet?',['اللهم إني أعوذ بك من الخبث والخبائث','O Allah, I seek refuge in You from evil'],['صباح الخير','Good morning'],['آمين','Ameen']],
+  ['ماذا نقول عند الخروج من الخلاء؟','What do we say when leaving the toilet?',['غفرانك','Ghufranak (Your forgiveness)'],['شكرًا','Thank you'],['لا شيء','Nothing']],
+  ['بأي يد ننظف أنفسنا في الخلاء؟','Which hand do we clean ourselves with?',['اليسرى','The left'],['اليمنى','The right'],['لا نستعمل يدًا','Neither']],
+  ['هل ندخل المصحف إلى الحمام؟','Do we take the Mushaf into the toilet?',['لا','No'],['نعم','Yes'],['إذا كان صغيرًا','If it is small']],
+  ['ماذا نفعل بعد قضاء الحاجة؟','What do we do after using the toilet?',['ننظف ونغسل أيدينا','Clean up and wash our hands'],['نخرج بلا غسل','Leave without washing'],['نمسح يدينا بالملابس','Wipe hands on clothes']]]],
+ [['النظافة','Cleanliness'],'sparkle',[
+  ['أكمل الحديث: «الطُّهور شطر …»','Complete the hadith: "Purity is half of…"',['الإيمان','Faith'],['الطعام','Food'],['اللعب','Play']],
+  ['ما العود الذي نظّف به النبي ﷺ أسنانه؟','What stick did the Prophet ﷺ clean his teeth with?',['السواك','The miswak'],['القلم','A pen'],['الملعقة','A spoon']],
+  ['متى يُستحب استعمال السواك؟','When is it sunnah to use the miswak?',['عند كل صلاة','At every prayer'],['مرة في السنة','Once a year'],['أبدًا','Never']],
+  ['ماذا نفعل بأظافرنا إذا طالت؟','What do we do when our nails grow long?',['نقصّها','Cut them'],['نتركها تطول','Let them grow'],['نعضّها','Bite them']],
+  ['ماذا نفعل قبل الأكل وبعده؟','What do we do before and after eating?',['نغسل أيدينا','Wash our hands'],['ننام','Sleep'],['نركض','Run']],
+  ['كيف تكون ملابس المسلم؟','How should a Muslim\'s clothes be?',['نظيفة ومرتبة','Clean and tidy'],['متسخة','Dirty'],['ممزقة دائمًا','Always torn']]]],
+ [['التيمم والغسل','Tayammum and ghusl'],'tree',[
+  ['إذا لم نجد ماءً للوضوء ماذا نفعل؟','If there is no water for wudu, what do we do?',['نتيمم بالتراب الطاهر','Do tayammum with clean earth'],['نترك الصلاة','Skip the prayer'],['نؤجلها أسبوعًا','Delay it a week']],
+  ['ماذا نمسح في التيمم؟','What do we wipe in tayammum?',['الوجه والكفين','The face and hands'],['القدمين','The feet'],['الظهر','The back']],
+  ['ما اسم الطهارة بغسل الجسم كله؟','What is washing the whole body for purity called?',['الغُسل','Ghusl'],['التيمم','Tayammum'],['المسح','Wiping']],
+  ['في أي يوم يُستحب الغسل كل أسبوع؟','On which day is ghusl recommended every week?',['يوم الجمعة','Friday'],['يوم الثلاثاء','Tuesday'],['يوم الأحد','Sunday']],
+  ['بأي ماء نتوضأ؟','Which water do we make wudu with?',['الماء الطاهر النظيف','Clean, pure water'],['العصير','Juice'],['الماء المتسخ','Dirty water']],
+  ['هل التيمم يكون بالتراب أم بالعطر؟','Is tayammum done with earth or perfume?',['بالتراب','With earth'],['بالعطر','With perfume'],['بالصابون','With soap']]]]],
+ak:[
+ [['الصدق','Honesty'],'check',[
+  ['ماذا يقول المسلم دائمًا؟','What does a Muslim always say?',['الصدق','The truth'],['الكذب','Lies'],['ما يريحه فقط','Whatever is easy']],
+  ['إلى أين يهدي الصدق؟','Where does truthfulness lead?',['إلى البر والجنة','To goodness and Paradise'],['إلى المشاكل','To trouble'],['إلى لا شيء','Nowhere']],
+  ['بماذا كان يُلقَّب النبي ﷺ قبل البعثة؟','What was the Prophet ﷺ called before prophethood?',['الصادق الأمين','The truthful, the trustworthy'],['الفارس','The knight'],['التاجر الغني','The rich trader']],
+  ['إذا كسرت شيئًا بالخطأ ماذا أفعل؟','If I break something by mistake, what do I do?',['أقول الحقيقة وأعتذر','Tell the truth and say sorry'],['أكذب','Lie'],['ألوم أخي','Blame my brother']],
+  ['هل يجوز الكذب لنُضحك الناس؟','Is it okay to lie to make people laugh?',['لا','No'],['نعم','Yes'],['إذا كانت النكتة جميلة','If the joke is good']],
+  ['إذا وعدت صديقي بشيء ماذا أفعل؟','If I promise my friend something, what do I do?',['أفي بوعدي','Keep my promise'],['أنساه','Forget it'],['أخلفه','Break it']]]],
+ [['بر الوالدين','Kindness to parents'],'heart',[
+  ['كيف نكلم والدينا؟','How do we speak to our parents?',['بأدب ولطف','Politely and gently'],['بصوت مرتفع','Loudly'],['لا نكلمهم','We do not talk to them']],
+  ['هل نقول لوالدينا «أُفّ»؟','Do we say "uff" to our parents?',['لا','No'],['نعم','Yes'],['إذا تعبنا','When we are tired']],
+  ['ما الدعاء الذي علّمنا الله أن ندعو به لوالدينا؟','Which dua did Allah teach us for our parents?',['ربِّ ارحمهما كما ربياني صغيرًا','My Lord, have mercy on them as they raised me'],['لا ندعو لهم','We do not pray for them'],['تصبحون على خير','Good night']],
+  ['من أحق الناس بحسن صحبتي كما قال النبي ﷺ؟','Who deserves my best company most, as the Prophet ﷺ said?',['أمي','My mother'],['صديقي','My friend'],['جاري','My neighbour']],
+  ['إذا نادتني أمي وأنا ألعب؟','If my mother calls me while I am playing?',['أجيبها فورًا','Answer her straight away'],['أتجاهلها','Ignore her'],['أكمل اللعب','Keep playing']],
+  ['كيف أساعد والديّ؟','How do I help my parents?',['أساعدهم في أعمال البيت','Help with housework'],['أترك البيت فوضى','Make a mess'],['لا أساعد','Never help']]]],
+ [['الرحمة والرفق','Mercy and gentleness'],'drop',[
+  ['كيف نعامل الحيوانات؟','How do we treat animals?',['برحمة ونطعمها','With mercy, and feed them'],['نؤذيها','Hurt them'],['نرميها بالحجارة','Throw stones at them']],
+  ['كيف نعامل من هو أصغر منا؟','How do we treat those younger than us?',['نرحمه ونلطف به','With mercy and kindness'],['نخيفه','Scare them'],['نأخذ ألعابه','Take their toys']],
+  ['كيف نعامل كبار السن؟','How do we treat elderly people?',['نحترمهم ونوقرهم','Respect and honour them'],['نسخر منهم','Make fun of them'],['نتجاهلهم','Ignore them']],
+  ['إذا رأيت زميلي حزينًا؟','If I see my classmate sad?',['أواسيه وأساعده','Comfort and help them'],['أضحك عليه','Laugh at them'],['أتركه وحده','Leave them alone']],
+  ['أكمل الحديث: «إن الرفق لا يكون في شيء إلا …»','Complete: "Gentleness is not in anything except that it…"',['زانه','Beautifies it'],['أفسده','Spoils it'],['أخّره','Delays it']],
+  ['من الذي لا يرحمه الله كما قال النبي ﷺ؟','Whom does Allah not show mercy to, as the Prophet ﷺ said?',['من لا يرحم الناس','Whoever is not merciful to people'],['من ينام مبكرًا','Whoever sleeps early'],['من يحب الحلوى','Whoever likes sweets']]]],
+ [['السلام والكلام','Greetings and speech'],'bell',[
+  ['ماذا نقول عندما نلقى مسلمًا؟','What do we say when we meet a Muslim?',['السلام عليكم','Assalamu alaikum'],['لا شيء','Nothing'],['ابتعد','Go away']],
+  ['كيف نرد السلام؟','How do we answer the salam?',['وعليكم السلام ورحمة الله','Wa alaikum assalam wa rahmatullah'],['شكرًا','Thank you'],['نسكت','Stay silent']],
+  ['ماذا نقول لمن عطس وقال «الحمد لله»؟','What do we say to someone who sneezed and said Alhamdulillah?',['يرحمك الله','Yarhamukallah'],['صحة','Bless you only'],['لا شيء','Nothing']],
+  ['ماذا نقول لمن أعطانا شيئًا أو ساعدنا؟','What do we say to someone who helped us?',['جزاك الله خيرًا','Jazakallahu khayran'],['لا شيء','Nothing'],['أعطني المزيد','Give me more']],
+  ['أكمل: «الكلمة الطيبة …»','Complete: "A good word is…"',['صدقة','A charity'],['ضعف','Weakness'],['لا فائدة منها','Useless']],
+  ['هل نقاطع من يتكلم؟','Do we interrupt someone who is talking?',['لا، ننتظر حتى ينتهي','No, we wait until they finish'],['نعم','Yes'],['نرفع صوتنا عليه','We talk over them']]]],
+ [['الأمانة والتعاون','Trust and teamwork'],'users',[
+  ['إذا وجدت شيئًا ليس لي؟','If I find something that is not mine?',['أعطيه لصاحبه أو لكبير','Give it to its owner or an adult'],['آخذه','Keep it'],['أرميه','Throw it away']],
+  ['إذا استعرت قلم صديقي؟','If I borrow my friend\'s pen?',['أرجعه سليمًا','Give it back unbroken'],['أخفيه','Hide it'],['أكسره','Break it']],
+  ['على ماذا أمرنا الله أن نتعاون؟','What did Allah tell us to cooperate in?',['على البر والتقوى','Goodness and piety'],['على الأذى','Harm'],['على الكسل','Laziness']],
+  ['إذا رأيت أحدًا يحتاج مساعدة؟','If I see someone who needs help?',['أساعده','Help them'],['أتجاهله','Ignore them'],['أضحك عليه','Laugh at them']],
+  ['هل آخذ أغراض إخوتي دون إذن؟','Do I take my siblings\' things without asking?',['لا، أستأذن أولًا','No, I ask first'],['نعم','Yes'],['إذا كانوا نائمين','If they are asleep']],
+  ['من هو المسلم كما قال النبي ﷺ؟','Who is a Muslim, as the Prophet ﷺ said?',['من سلم الناس من لسانه ويده','Whose tongue and hand do not harm people'],['من يملك مالًا كثيرًا','Whoever has much money'],['من يغلب في كل لعبة','Whoever wins every game']]]],
+ [['الصبر والشكر','Patience and thanks'],'sun',[
+  ['ماذا نقول إذا أصابنا شيء يحزننا؟','What do we say when something sad happens?',['إنا لله وإنا إليه راجعون','To Allah we belong and to Him we return'],['هذا ظلم','This is unfair'],['لا شيء','Nothing']],
+  ['ماذا نقول عندما تأتينا نعمة؟','What do we say when we get a blessing?',['الحمد لله','Alhamdulillah'],['أنا الأفضل','I am the best'],['لا شيء','Nothing']],
+  ['ماذا نفعل إذا غضبنا؟','What do we do when we are angry?',['نسكت ونستعيذ بالله من الشيطان','Stay quiet and seek refuge in Allah'],['نضرب','Hit'],['نصرخ','Shout']],
+  ['ما معنى التواضع؟','What is humility?',['ألا أتكبر على الناس','Not acting above others'],['أن أتفاخر','Showing off'],['أن أسخر من الآخرين','Mocking others']],
+  ['إذا فاز صديقي في مسابقة؟','If my friend wins a competition?',['أفرح له وأهنئه','Be happy and congratulate them'],['أحسده','Envy them'],['أغضب','Get angry']],
+  ['من الذين يحبهم الله؟','Whom does Allah love?',['الصابرون','The patient'],['المتكبرون','The arrogant'],['الكاذبون','The liars']]]]],
+qr:[
+ [['القرآن الكريم','The noble Quran'],'book',[
+  ['ما الكتاب الذي أنزله الله على محمد ﷺ؟','Which book did Allah reveal to Muhammad ﷺ?',['القرآن الكريم','The Quran'],['التوراة','The Torah'],['الزبور','The Psalms']],
+  ['من الملَك الذي نزل بالقرآن على النبي ﷺ؟','Which angel brought the Quran to the Prophet ﷺ?',['جبريل عليه السلام','Jibreel'],['ميكائيل','Mikaeel'],['مالك','Malik']],
+  ['في أي شهر نزل القرآن؟','In which month was the Quran revealed?',['رمضان','Ramadan'],['رجب','Rajab'],['محرم','Muharram']],
+  ['في أي ليلة نزل القرآن؟','On which night was the Quran revealed?',['ليلة القدر','Laylat al-Qadr'],['ليلة العيد','The night of Eid'],['ليلة الجمعة','Friday night']],
+  ['في أي غار نزل أول القرآن؟','In which cave did the first revelation come?',['غار حراء','The cave of Hira'],['غار ثور','The cave of Thawr'],['كهف في الشام','A cave in Syria']],
+  ['ما أول كلمة نزلت من القرآن؟','What was the first word revealed?',['اقرأ','Iqra (Read)'],['قل','Qul (Say)'],['الحمد','Al-hamd (Praise)']]]],
+ [['سور القرآن','Surahs of the Quran'],'list',[
+  ['كم عدد سور القرآن الكريم؟','How many surahs are in the Quran?',['مئة وأربع عشرة','114'],['مئة','100'],['ثلاثون','30']],
+  ['ما أول سورة في المصحف؟','What is the first surah in the Mushaf?',['الفاتحة','Al-Fatihah'],['البقرة','Al-Baqarah'],['الناس','An-Nas']],
+  ['ما آخر سورة في المصحف؟','What is the last surah in the Mushaf?',['الناس','An-Nas'],['الفلق','Al-Falaq'],['الفاتحة','Al-Fatihah']],
+  ['ما أطول سورة في القرآن؟','What is the longest surah?',['البقرة','Al-Baqarah'],['الكوثر','Al-Kawthar'],['الإخلاص','Al-Ikhlas']],
+  ['ما أقصر سورة في القرآن؟','What is the shortest surah?',['الكوثر','Al-Kawthar'],['البقرة','Al-Baqarah'],['يس','Ya-Sin']],
+  ['كم جزءًا في القرآن الكريم؟','How many juz are in the Quran?',['ثلاثون','Thirty'],['ستون','Sixty'],['عشرة','Ten']]]],
+ [['أسماء السور','Names of surahs'],'tag',[
+  ['سورة باسم حشرة تصنع العسل، ما هي؟','A surah named after an insect that makes honey?',['النحل','An-Nahl (The Bee)'],['النمل','An-Naml (The Ant)'],['العنكبوت','Al-Ankabut (The Spider)']],
+  ['سورة باسم حشرة صغيرة حذّرت قومها من جيش سليمان؟','A surah named after a small insect that warned its people of Sulayman\'s army?',['النمل','An-Naml (The Ant)'],['النحل','An-Nahl (The Bee)'],['الفيل','Al-Fil (The Elephant)']],
+  ['سورة فيها قصة الفتية الذين ناموا في الكهف؟','Which surah tells of the youths who slept in the cave?',['الكهف','Al-Kahf'],['يوسف','Yusuf'],['مريم','Maryam']],
+  ['سورة باسم أم عيسى عليه السلام؟','Which surah is named after the mother of Isa?',['مريم','Maryam'],['النساء','An-Nisa'],['الحجرات','Al-Hujurat']],
+  ['أي سورة تعدل ثلث القرآن؟','Which surah equals a third of the Quran?',['الإخلاص','Al-Ikhlas'],['الكوثر','Al-Kawthar'],['العصر','Al-Asr']],
+  ['سورة باسم نبي التقمه الحوت؟','A surah named after the prophet swallowed by the whale?',['يونس','Yunus'],['هود','Hud'],['إبراهيم','Ibrahim']]]],
+ [['آداب التلاوة','Reading manners'],'heart',[
+  ['ماذا نقول قبل أن نقرأ القرآن؟','What do we say before reading the Quran?',['أعوذ بالله من الشيطان الرجيم','I seek refuge in Allah from Shaytan'],['صباح الخير','Good morning'],['لا شيء','Nothing']],
+  ['كيف نقرأ القرآن؟','How do we read the Quran?',['بتمهّل وترتيل','Slowly and beautifully'],['بسرعة كبيرة','Very fast'],['ونحن نلعب','While playing']],
+  ['أين نضع المصحف؟','Where do we put the Mushaf?',['في مكان نظيف مرتفع','In a clean, high place'],['على الأرض','On the floor'],['تحت الوسادة','Under the pillow']],
+  ['كم حسنة لنا في كل حرف نقرؤه من القرآن؟','How many good deeds for each letter of the Quran we read?',['عشر حسنات','Ten'],['حسنة واحدة','One'],['لا شيء','None']],
+  ['ماذا نفعل عندما يُقرأ القرآن؟','What do we do when the Quran is being recited?',['نستمع وننصت','Listen quietly'],['نتكلم','Talk'],['نشغّل الأغاني','Play songs']],
+  ['أكمل الحديث: «خيركم من تعلّم القرآن و…»','Complete: "The best of you are those who learn the Quran and…"',['علّمه','Teach it'],['نسيه','Forget it'],['تركه','Leave it']]]],
+ [['قصص الأنبياء في القرآن','Prophets in the Quran'],'tree',[
+  ['أي نبي بنى السفينة العظيمة؟','Which prophet built the great ark?',['نوح عليه السلام','Nuh'],['موسى عليه السلام','Musa'],['يوسف عليه السلام','Yusuf']],
+  ['أي نبي أُلقي في النار فكانت بردًا وسلامًا؟','Which prophet was thrown into the fire that became cool and safe?',['إبراهيم عليه السلام','Ibrahim'],['نوح عليه السلام','Nuh'],['عيسى عليه السلام','Isa']],
+  ['أي نبي شقّ الله له البحر بعصاه؟','For which prophet did Allah split the sea with his staff?',['موسى عليه السلام','Musa'],['سليمان عليه السلام','Sulayman'],['هود عليه السلام','Hud']],
+  ['أي نبي فهّمه الله كلام الطير والنمل؟','Which prophet understood the speech of birds and ants?',['سليمان عليه السلام','Sulayman'],['يونس عليه السلام','Yunus'],['نوح عليه السلام','Nuh']],
+  ['أي نبي التقمه الحوت؟','Which prophet was swallowed by the whale?',['يونس عليه السلام','Yunus'],['إبراهيم عليه السلام','Ibrahim'],['يوسف عليه السلام','Yusuf']],
+  ['أي نبي ألقاه إخوته في البئر؟','Which prophet was thrown into a well by his brothers?',['يوسف عليه السلام','Yusuf'],['موسى عليه السلام','Musa'],['صالح عليه السلام','Salih']]]],
+ [['قصار السور','Short surahs'],'star',[
+  ['أكمل: «قل هو الله …»','Complete: "Qul huwa Allahu…"',['أحد','Ahad'],['أكبر','Akbar'],['رحيم','Raheem']],
+  ['أكمل: «إنا أعطيناك …»','Complete: "Inna aatainaka…"',['الكوثر','Al-Kawthar'],['الجنة','Al-Jannah'],['النجوم','An-Nujum']],
+  ['أكمل: «إذا جاء نصر الله و…»','Complete: "Idha jaa nasrullahi wa…"',['الفتح','Al-Fath'],['النور','An-Nur'],['المطر','The rain']],
+  ['كم آية في سورة الفاتحة؟','How many verses are in Al-Fatihah?',['سبع آيات','Seven'],['خمس آيات','Five'],['عشر آيات','Ten']],
+  ['أكمل: «الحمد لله …»','Complete: "Alhamdu lillahi…"',['رب العالمين','Rabbil-alameen'],['الكريم','Al-Kareem'],['وحده','Wahdah']],
+  ['عن ماذا تتحدث سورة الإخلاص؟','What is Surat al-Ikhlas about?',['توحيد الله','The oneness of Allah'],['قصة نوح','The story of Nuh'],['الصيام','Fasting']]]]]
+};
+const SECC={fq:['#7CC6FF','#2F6BFF'],sl:['#B49BFF','#7A4DFF'],th:['#6EE7F9','#0EA5C6'],ak:['#FF9AC2','#F0457A'],qr:['#7BE495','#21B26B']};
+for(const [s,js] of Object.entries(QX))js.forEach(([t,ic,rows],i)=>QZ.push({id:`${s}${i+1}`,s,t:{ar:t[0],en:t[1]},ic,c:SECC[s],
+  q:rows.map(([qa,qe,...as])=>({q:{ar:qa,en:qe},a:as.map(([ar,en])=>({ar,en}))}))}));

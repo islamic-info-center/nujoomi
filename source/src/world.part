@@ -79,26 +79,30 @@ function bridge(a,b,done,w){const [x1,y1]=a,[x2,y2]=b,mx=(x1+x2)/2,my=(y1+y2)/2+
    <path d="${d}" stroke="${done?w.acc:'#7A5531'}" stroke-width="2.6" fill="none" transform="translate(0 -9)"/><path d="${d}" stroke="${done?w.acc:'#7A5531'}" stroke-width="2.6" fill="none" transform="translate(0 9)"/>`}
 const SHIP=c=>`<svg viewBox="0 0 80 60"><path d="M8 40h64l-9 14H17z" fill="#8A4B22"/><path d="M8 40h64l-2 4H10z" fill="#B0652F"/><path d="M38 6v34" stroke="#5E3B1E" stroke-width="3"/><path d="M40 8q22 14 0 30z" fill="#fff"/><path d="M36 12q-18 12 0 26z" fill="#F4F1E8"/><path d="M38 6h12l-4 4 4 4H38z" fill="${c}"/><path d="M4 56q8-4 16 0t16 0 16 0 16 0 8 0" stroke="rgba(255,255,255,.7)" stroke-width="2.5" fill="none"/></svg>`;
 
+let qSec='aq';try{qSec=localStorage.getItem('najmati-sec')||'aq'}catch(e){}
 function playView(k){
-  const w=WW[pal]||WW.royal,n=QZ.length,gap=185,W0=360,H=n*gap+260,P=QZ.map((_,j)=>[j%2?238:122,H-120-j*gap]),T=[180,115];
-  const done=QZ.filter((_,j)=>qLog(k.id,j)).length,cur=QZ.findIndex((_,j)=>!qLog(k.id,j));
-  const st=j=>qLog(k.id,j)?'done':qOpen(k.id,j)?'open':'locked';
+  if(!SECS[qSec])qSec='aq';
+  const JS=secJ(qSec),w=WW[pal]||WW.royal,n=JS.length,gap=185,W0=360,H=n*gap+260,P=JS.map((_,j)=>[j%2?238:122,H-120-j*gap]),T=[180,115];
+  const done=JS.filter(J=>qLog(k.id,J.id)).length,cur=JS.findIndex(J=>!qLog(k.id,J.id));
+  const st=J=>qLog(k.id,J.id)?'done':qOpen(k.id,J.id)?'open':'locked';
   const pos=([x,y])=>`left:${x/W0*100}%;top:${y/H*100}%`;
   const all=[...P,T];
-  return `<section class="wSea" style="--w1:${w.w[0]};--w2:${w.w[1]};--acc:${w.acc}">
-   <div class="wHead"><span class="chip">${I('game')}</span><div><h3>${L('advTitle')}</h3><small>${L('advP')} · ${L('jDone',done,n)}</small></div></div>
+  const tabs=Object.entries(SECS).map(([key,S0])=>{const l=secJ(key),d=l.filter(J=>qLog(k.id,J.id)).length;
+    return `<button class="secB" data-qsec="${key}" aria-pressed="${key===qSec}" style="--c1:${S0.c[0]};--c2:${S0.c[1]}"><span class="secIc">${I(S0.ic)}</span><b>${esc(tr(S0.t))}</b><small><bdi dir="ltr">${d}/${l.length}</bdi></small></button>`}).join('');
+  return `<div class="secRow" role="group" aria-label="${L('secPick')}">${tabs}</div><section class="wSea" style="--w1:${w.w[0]};--w2:${w.w[1]};--acc:${w.acc}">
+   <div class="wHead"><span class="chip" style="background:linear-gradient(135deg,${SECS[qSec].c[0]},${SECS[qSec].c[1]})">${I(SECS[qSec].ic)}</span><div><h3>${L('advOf',tr(SECS[qSec].t))}</h3><small>${L('advP')} · ${L('jDone',done,n)}</small></div></div>
    <div class="wWaves"></div>${[[18,52,0],[46,70,-25],[78,60,-48]].map(([t,dur,del],i)=>`<span class="wShip s${i}" style="top:${t}%;animation-duration:${dur}s;animation-delay:${del}s">${SHIP(i===1?w.acc:'#E8352B')}</span>`).join('')}
    <div class="wMap" style="aspect-ratio:${W0}/${H}"><svg viewBox="0 0 ${W0} ${H}" aria-hidden="true"><defs>
      <radialGradient id="wReef"><stop offset=".55" stop-color="#7FF0E6" stop-opacity=".75"/><stop offset="1" stop-color="#7FF0E6" stop-opacity="0"/></radialGradient>
      <linearGradient id="wSand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBE9B4"/><stop offset="1" stop-color="#E8C887"/></linearGradient>
      <radialGradient id="wFog"><stop offset="0" stop-color="#E9F1F7" stop-opacity=".55"/><stop offset="1" stop-color="#E9F1F7" stop-opacity=".2"/></radialGradient></defs>
      ${all.slice(0,-1).map((p,j)=>bridge(p,all[j+1],j<done&&j+1<=done,w)).join('')}
-     ${P.map((p,j)=>island(p[0],p[1],j,st(j),w)).join('')}${island(T[0],T[1],n,done===n?'done':'locked',w)}</svg>
-   ${P.map((p,j)=>{const s=st(j),lg=qLog(k.id,j),m=lg?.miss,best=Math.max(1,qBest(k.id,j),m==null?0:m===0?3:m<=2?2:1),here=j===cur;
+     ${P.map((p,j)=>island(p[0],p[1],j,st(JS[j]),w)).join('')}${island(T[0],T[1],n,done===n?'done':'locked',w)}</svg>
+   ${P.map((p,j)=>{const J=JS[j],s=st(J),lg=qLog(k.id,J.id),m=lg?.miss,best=Math.max(1,qBest(k.id,J.id),m==null?0:m===0?3:m<=2?2:1),here=j===cur;
      return `<div class="wStop ${s} ${here?'here':''}" style="${pos(p)}">
        ${s==='done'?`<div class="wStars">${[1,2,3].map(x=>`<svg viewBox="0 0 24 24" class="${x<=best?'on':''}"><path d="${WSTAR}"/></svg>`).join('')}</div>`:''}
        ${here?`<span class="wMe">${av(k)}</span>`:''}
-       <button class="wNode" data-journey="${j}" aria-label="${esc(L('journey',j+1)+': '+tr(QZ[j].t))}">${s==='done'?I('check'):s==='locked'?I('lock'):`<b>${j+1}</b>`}</button>
-       <span class="wSign"><b>${L('journey',j+1)}</b>${esc(tr(QZ[j].t))}</span></div>`}).join('')}
+       <button class="wNode" data-journey="${J.id}" aria-label="${esc(L('journey',j+1)+': '+tr(J.t))}">${s==='done'?I('check'):s==='locked'?I('lock'):`<b>${j+1}</b>`}</button>
+       <span class="wSign"><b>${L('journey',j+1)}</b>${esc(tr(J.t))}</span></div>`}).join('')}
    <div class="wStop chest ${done===n?'open':''}" style="${pos(T)}"><span class="wChest">${I('trophy')}</span></div></div></section>`;
 }

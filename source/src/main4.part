@@ -61,7 +61,8 @@ document.addEventListener('click',e=>{
       DEV.filter(x=>x.kid===id).forEach(x=>deleteDoc(doc(db,'members',x.id)).catch(()=>{}))}}
   else if(d.kid){V.kid=d.kid;render()}
   else if(d.tab){V.tab=d.tab;render();if(d.tab==='play')setTimeout(()=>document.querySelector('.wStop.here,.wStop.chest')?.scrollIntoView({block:'center',behavior:'smooth'}),80)}
-  else if(d.journey){startJourney(+d.journey)}
+  else if(d.qsec){qSec=d.qsec;try{localStorage.setItem('najmati-sec',qSec)}catch(e){}render()}
+  else if(d.journey){startJourney(d.journey)}
   else if(d.qa){answerQ(b,e)}
   else if(d.qclose){closeQuiz()}
   else if(d.ptab){V.ptab=d.ptab;render()}

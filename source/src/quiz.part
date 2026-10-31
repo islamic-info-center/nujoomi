@@ -2,8 +2,11 @@
 /* ---------- play: an adventure map of short quiz journeys ----------
    To add questions: add a journey to QZ (or a question to a journey). In each question the
    first answer is the correct one; answers are shuffled on screen. */
-/* one star per question; a journey pays out once, the first time it is finished */
-const jPts=j=>QZ[j]?.q.length||5;
+/* journeys belong to a section (s) and are keyed by id; the first faith journeys keep ids '0'..'5' so old progress stays */
+const QN=5;
+/* one star per question asked; a journey pays out once, the first time it is finished */
+const QJ=id=>QZ.find(J=>J.id===String(id)),secJ=s=>QZ.filter(J=>J.s===s),qNum=id=>{const J=QJ(id);return J?secJ(J.s).indexOf(J)+1:1};
+const jPts=id=>Math.min(QN,QJ(id)?.q.length||QN);
 const QZ=[
  {t:{ar:'ربّي الله',en:'My Lord is Allah'},ic:'star',c:['#FFC94A','#FF8A3D'],q:[
   {q:{ar:'من ربّك؟',en:'Who is your Lord?'},a:[{ar:'الله',en:'Allah'},{ar:'الشمس',en:'The sun'},{ar:'القمر',en:'The moon'}]},
@@ -42,21 +45,22 @@ const QZ=[
   {q:{ar:'من يعلم ما في قلوبنا؟',en:'Who knows what is in our hearts?'},a:[{ar:'الله',en:'Allah'},{ar:'لا أحد',en:'Nobody'},{ar:'صديقي',en:'My friend'}]},
   {q:{ar:'ما أعظم ذنب يجب أن نبتعد عنه؟',en:'What is the greatest sin to stay away from?'},a:[{ar:'الشرك بالله',en:'Associating partners with Allah'},{ar:'النوم مبكرًا',en:'Sleeping early'},{ar:'شرب الماء',en:'Drinking water'}]}]}
 ];
-Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advP:'أكمل الرحلات واجمع النجوم',
+QZ.forEach((J,i)=>{J.id??=String(i);J.s??='aq'});
+Object.assign(T.ar,{play:'العب',jDone:(n,t)=>`${n} من ${t} رحلات`,advTitle:'مغامرة العقيدة',advOf:n=>`مغامرة ${n}`,secPick:'اختر القسم',advP:'أكمل الرحلات واجمع النجوم',
   journey:n=>`الرحلة ${n}`,qOf:(i,n)=>`السؤال ${i} من ${n}`,tryAgain:f=>f?'لا بأس، حاولي مرة أخرى!':'لا بأس، حاول مرة أخرى!',qGo:f=>f?'اختاري الإجابة الصحيحة!':'اختر الإجابة الصحيحة!',qNext:'السؤال التالي، هيّا!',jLocked:'أكمل الرحلة التي قبلها أولاً',
   jWin:'أنهيت الرحلة!',jStars:n=>`+${n} نجوم أُضيفت لرصيدك`,jWait:'النجوم في الطريق، تصل عندما يفتح ولي الأمر التطبيق',jReplay:'لعبتها من قبل، أحسنت على المراجعة!',
-  nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل الرحلات! رحلات جديدة قريبًا',onWay:'في الطريق',
+  nextJ:'الرحلة التالية',toMap:'الخريطة',allDone:'أنهيت كل رحلات هذا القسم! جرّب قسمًا آخر',onWay:'في الطريق',
   praise:['أحسنت! بارك الله فيك','ممتاز! ما شاء الله','أحسنت يا بطل!','بارك الله فيك!','إجابة صحيحة، أحسنت!','ما شاء الله عليك!'],praiseF:['أحسنتِ! بارك الله فيكِ','ممتازة! ما شاء الله','أحسنتِ يا بطلة!','بارك الله فيكِ!','إجابة صحيحة، أحسنتِ!','ما شاء الله عليكِ!']});
-Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advP:'Finish journeys and collect stars',
+Object.assign(T.en,{play:'Play',jDone:(n,t)=>`${n} of ${t} journeys`,advTitle:'Faith adventure',advOf:n=>`${n} adventure`,secPick:'Pick a section',advP:'Finish journeys and collect stars',
   journey:n=>`Journey ${n}`,qOf:(i,n)=>`Question ${i} of ${n}`,tryAgain:"That's okay, try again!",qGo:()=>'Pick the right answer!',qNext:'Next question, let\'s go!',jLocked:'Finish the journey before it first',
   jWin:'Journey complete!',jStars:n=>`+${n} stars added to your jar`,jWait:'Your stars are on the way; they arrive when a parent opens the app',jReplay:'You played this before. Great review!',
-  nextJ:'Next journey',toMap:'Map',allDone:'You finished every journey! New ones are coming soon',onWay:'On the way',
+  nextJ:'Next journey',toMap:'Map',allDone:'You finished this section! Try another one',onWay:'On the way',
   praise:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!'],praiseF:['Well done!','Excellent!','Super star!','Amazing!','Correct!','You rock!']});
 
 let LQ=[],qAuto=new Set();
 const qLog=(kidId,j)=>LQ.find(l=>l.id===`quiz_${kidId}_${j}`&&l.kid===kidId);
 const qBest=(kidId,j)=>{try{return +localStorage.getItem(`najmati-q-${kidId}-${j}`)||0}catch(e){return 0}};
-const qOpen=(kidId,j)=>j===0||!!qLog(kidId,j-1);
+const qOpen=(kidId,id)=>{const J=QJ(id);if(!J)return false;const l=secJ(J.s),i=l.indexOf(J);return i===0||!!qLog(kidId,l[i-1].id)};
 
 /* sounds: short synthesized cheers, no files to load */
 function qTone(seq,type='triangle',vol=.18){try{const c=actx(),t0=c.currentTime;seq.forEach(([f,at,len])=>{const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;
@@ -72,31 +76,31 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const r=Math.floor(M
 
 let QS=null;
 function startJourney(j){
-  const k=kid(V.kid);if(!k)return;
+  const k=kid(V.kid),J=QJ(j);if(!k||!J)return;j=J.id;
   if(!qOpen(k.id,j)){sndNo();toast(L('jLocked'));return}
-  QS={j,i:0,miss:0,k:k.id,lock:false};preloadCheers(k.id);
+  QS={j,i:0,miss:0,k:k.id,lock:false,ord:shuffle(J.q.map((_,x)=>x)).slice(0,QN)};preloadCheers(k.id);
   document.querySelector('.quizScr')?.remove();
   const el=document.createElement('div');el.className='quizScr';el.dir=lang==='ar'?'rtl':'ltr';document.body.appendChild(el);
   drawQ();
 }
 function drawQ(){
   const el=document.querySelector('.quizScr');if(!el||!QS)return;
-  const J=QZ[QS.j],Q=J.q[QS.i],k=kid(QS.k);
+  const J=QJ(QS.j),Q=J.q[QS.ord[QS.i]],k=kid(QS.k),n=QS.ord.length;
   const ans=shuffle(Q.a.map((a,x)=>({a,x})));
   const w=WW[pal]||WW.royal;el.className='quizScr w-'+pal;el.style.setProperty('--s1',w.sky[0]);el.style.setProperty('--s2',w.sky[1]);el.style.setProperty('--acc',w.acc);
   const qb=QB[pal]||QB.royal;el.classList.add('qB');
   el.innerHTML=`${QSCENE}<div class="qTop"><button class="ico qClose" data-qclose="1" aria-label="${L('toMap')}">${I('x')}</button>
-    <div class="qDots">${J.q.map((_,x)=>`<i class="${x<QS.i?'on':x===QS.i?'cur':''}"></i>`).join('')}</div><span class="qStarN" id="qStarN">${I('star')}<bdi dir="ltr">${QS.i}/${J.q.length}</bdi></span><span class="qMe">${k?av(k):''}</span></div>
+    <div class="qDots">${QS.ord.map((_,x)=>`<i class="${x<QS.i?'on':x===QS.i?'cur':''}"></i>`).join('')}</div><span class="qStarN" id="qStarN">${I('star')}<bdi dir="ltr">${QS.i}/${n}</bdi></span><span class="qMe">${k?av(k):''}</span></div>
     <div class="qStage"><span class="wBd idle">${wBuddy('idle')}</span><div class="qPraise" aria-live="polite">${QS.i?L('qNext'):L('qGo',k?.g==='f')}</div></div>
-    <div class="qBoard" style="--r1:${qb.r[0]};--r2:${qb.r[1]}"><span class="qRib">${L('journey',QS.j+1)} · ${L('qOf',QS.i+1,J.q.length)}</span><div><h2>${esc(tr(Q.q))}</h2></div></div>
+    <div class="qBoard" style="--r1:${qb.r[0]};--r2:${qb.r[1]}"><span class="qRib">${esc(tr(SECS[J.s].t))} · ${L('journey',qNum(J.id))} · ${L('qOf',QS.i+1,n)}</span><div><h2>${esc(tr(Q.q))}</h2></div></div>
     <div class="qAns">${ans.map((o,n)=>`<button class="qA" data-qa="${o.x}" style="--g1:${qb.g[n][0]};--g2:${qb.g[n][1]};--g3:${qb.g[n][2]}"><span class="qL">${(lang==='ar'?'أبج':'ABC')[n]}</span><span>${esc(tr(o.a))}</span></button>`).join('')}</div>`;
 }
 function answerQ(btn,e){
-  if(!QS||QS.lock)return;const k=kid(QS.k),J=QZ[QS.j],pr=document.querySelector('.qPraise');
+  if(!QS||QS.lock)return;const k=kid(QS.k),pr=document.querySelector('.qPraise');
   if(btn.dataset.qa==='0'){
     QS.lock=true;btn.classList.add('right');btn.parentElement.classList.add('solved');sndOk();const r=btn.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2);flyStar(r);
     const ps=L(k?.g==='f'?'praiseF':'praise'),p=ps[Math.floor(Math.random()*ps.length)];pr.textContent=p;pr.className='qPraise show';setMood('happy');cheer('ok',p);
-    setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<J.q.length)drawQ();else finishJ()},1300);
+    setTimeout(()=>{if(!QS)return;QS.lock=false;QS.i++;if(QS.i<QS.ord.length)drawQ();else finishJ()},1300);
   }else{
     QS.miss++;btn.classList.add('wrong');btn.disabled=true;sndNo();pr.textContent=L('tryAgain',k?.g==='f');pr.className='qPraise show no';setMood('sad');cheer('no',L('tryAgain',k?.g==='f'));
     if(navigator.vibrate)navigator.vibrate(120);
@@ -104,7 +108,7 @@ function answerQ(btn,e){
 }
 function finishJ(){
   const el=document.querySelector('.quizScr');if(!el||!QS)return;
-  const {j,k:kidId,miss}=QS,k=kid(kidId),J=QZ[j],stars=miss===0?3:miss<=2?2:1;
+  const {j,k:kidId,miss}=QS,k=kid(kidId),J=QJ(j),stars=miss===0?3:miss<=2?2:1;
   try{if(stars>qBest(kidId,j))localStorage.setItem(`najmati-q-${kidId}-${j}`,stars)}catch(e){}
   const first=!qLog(kidId,j),id=`quiz_${kidId}_${j}`,rec={quiz:j,kid:kidId,date:'quiz',day:today(),at:now(),miss,ts:serverTimestamp()};
   if(first){
@@ -114,11 +118,11 @@ function finishJ(){
     /* older family rules only let a child send a request; then the parent's app pays the stars */
     b.commit().catch(e=>{if(M.role==='kid'&&e.code==='permission-denied'){setDoc(doc(logsCol(),id),{...rec,status:'pending'}).catch(fail);const w=document.querySelector('.qWait');if(w)w.hidden=false}else fail(e)});
   }
-  const more=j+1<QZ.length;
+  const sl=secJ(J.s),more=sl[sl.indexOf(J)+1];
   el.className='quizScr w-'+pal;el.innerHTML=`<div class="qWin"><div class="qWinStars">${[1,2,3].map(s=>`<i class="${s<=stars?'on':''}" style="--d:${s*.18}s">${I('star')}</i>`).join('')}</div>
     <span class="wBd happy big">${wBuddy('happy')}</span><h2>${L('jWin')}</h2><p class="qJ">${esc(tr(J.t))}</p>
     ${first?`<p class="qGain">${I('star')} ${L('jStars',jPts(j))}</p><small class="qWait" hidden>${L('jWait')}</small>`:`<p>${L('jReplay')}</p>`}
-    <div class="row">${more?`<button class="btn go" data-journey="${j+1}">${L('nextJ')}</button>`:`<p>${L('allDone')}</p>`}<button class="btn" data-qclose="1">${L('toMap')}</button></div></div>`;
+    <div class="row">${more?`<button class="btn go" data-journey="${more?.id}">${L('nextJ')}</button>`:`<p>${L('allDone')}</p>`}<button class="btn" data-qclose="1">${L('toMap')}</button></div></div>`;
   sndWin();cheer('win',L('jWin'),600);
   for(let n=0;n<4;n++)setTimeout(()=>burst(innerWidth*(.2+.6*Math.random()),innerHeight*(.25+.3*Math.random())),n*250);
   QS=null;if(F){rebuild();softRender()}
@@ -135,4 +139,4 @@ function autoQuiz(){
 function flyStar(r){const t=document.getElementById('qStarN');if(!t)return;const e=document.createElement('span');e.className='flyStar';e.innerHTML=I('star');
   const tr=t.getBoundingClientRect();e.style.left=(r.left+r.width/2-22)+'px';e.style.top=(r.top+r.height/2-22)+'px';document.body.appendChild(e);
   requestAnimationFrame(()=>{e.style.transform=`translate(${tr.left+tr.width/2-(r.left+r.width/2)}px,${tr.top+tr.height/2-(r.top+r.height/2)}px) scale(.5)`;e.style.opacity='.9'});
-  setTimeout(()=>{e.remove();if(QS){t.querySelector('bdi').textContent=`${QS.i+1}/${QZ[QS.j].q.length}`;t.classList.remove('bump');void t.offsetWidth;t.classList.add('bump')}},650)}
+  setTimeout(()=>{e.remove();if(QS){t.querySelector('bdi').textContent=`${QS.i+1}/${QS.ord.length}`;t.classList.remove('bump');void t.offsetWidth;t.classList.add('bump')}},650)}
