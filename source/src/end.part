@@ -2,7 +2,7 @@ addEventListener('resize',build);
 mq.addEventListener?.('change',applyTheme);
 new MutationObserver(()=>{$('#mode').innerHTML=isDark()?I('sun'):I('moon');if(reduce)frame(0)}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
-$('#logo').innerHTML=I('star');
+$('#logo').innerHTML='<img src="icons/apple-touch-icon.png?v=2" alt="">';
 applyLang();build();
 if(CFG){gate.screen='loading';render();onAuthStateChanged(auth,u=>onUser(u))}else render();
 setInterval(tick,60000);setInterval(adhanCheck,15000);setTimeout(adhanCheck,3000);requestAnimationFrame(frame);

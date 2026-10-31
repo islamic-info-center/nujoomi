@@ -332,7 +332,7 @@ function gateView(){
   const g=gate.screen;
   if(!CFG)return `<section class="gate panel glass"><span class="logoBig">${I('star')}</span><h2>${L('setupTitle')}</h2><p>${L('setupP')}</p></section>`;
   if(g==='loading')return `<section class="gate panel glass"><span class="logoBig spin">${I('star')}</span><p>${L('loading')}</p></section>`;
-  if(g==='welcome')return `<section class="gate panel glass"><span class="logoBig">${I('star')}</span><h2>${L('welcome')}</h2><p>${L('welcomeP')}</p>
+  if(g==='welcome')return `<section class="gate panel glass"><span class="logoBig appIc"><img src="icons/apple-touch-icon.png?v=2" alt=""></span><h2>${L('welcome')}</h2><p>${L('welcomeP')}</p>
     <div class="choose"><button class="choice glass" id="goParent"><span class="chip prayer">${I('users')}</span><b>${L('iAmParent')}</b><small>${L('iAmParentP')}</small></button>
     <button class="choice glass" id="goKid"><span class="chip study">${I('tablet')}</span><b>${L('iAmKid')}</b><small>${L('iAmKidP')}</small></button></div></section>`;
   if(g==='login'||g==='signup')return `<section class="gate panel glass"><button class="btn no sm backBtn" id="gateBack">${I('back')}${L('back')}</button>
@@ -1199,7 +1199,7 @@ addEventListener('resize',build);
 mq.addEventListener?.('change',applyTheme);
 new MutationObserver(()=>{$('#mode').innerHTML=isDark()?I('sun'):I('moon');if(reduce)frame(0)}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
-$('#logo').innerHTML=I('star');
+$('#logo').innerHTML='<img src="icons/apple-touch-icon.png?v=2" alt="">';
 applyLang();build();
 if(CFG){gate.screen='loading';render();onAuthStateChanged(auth,u=>onUser(u))}else render();
 setInterval(tick,60000);setInterval(adhanCheck,15000);setTimeout(adhanCheck,3000);requestAnimationFrame(frame);
