@@ -42,6 +42,8 @@ let pal='royal';try{pal=localStorage.getItem('najmati-pal')||'royal'}catch(e){}
 if(!['royal','web','sea','speed','blocks'].includes(pal))pal='royal';
 function applyPal(){document.documentElement.dataset.palette=pal;let cur;document.querySelectorAll('#palMenu button').forEach(b=>{const on=b.dataset.pal===pal;b.setAttribute('aria-selected',on);if(on)cur=b});
   if(cur){$('#palName').textContent=L('p_'+pal);$('#palSw').style.cssText=cur.getAttribute('style')}}
+function setOpen(o){$('#setPanel').hidden=!o;$('#setBtn').setAttribute('aria-expanded',o);if(!o)palOpen(false)}
+document.addEventListener('click',e=>{if(!e.target.closest('#setPanel,#setBtn'))setOpen(false)},true);
 function palOpen(o){$('#palMenu').hidden=!o;$('#palBtn').setAttribute('aria-expanded',o)}
 document.addEventListener('click',e=>{if(!e.target.closest('#pal'))palOpen(false)},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')palOpen(false)});
@@ -49,6 +51,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')palOpen(false)});
 function applyLang(){
   const app=$('#app');app.dir=lang==='ar'?'rtl':'ltr';app.lang=lang;document.documentElement.lang=lang;document.title=L('brand');
   document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=L(el.dataset.i18n));
+  $('#setBtn').title=L('settings');$('#setBtn').setAttribute('aria-label',L('settings'));
   $('#lang').innerHTML=`${I('globe')}<span>${L('langBtn')}</span>`;$('#lang').title=L('langTitle');$('#lang').setAttribute('aria-label',L('langTitle'));
   $('#palBtn').setAttribute('aria-label',L('colors'));
   applyPal();applyTheme();
