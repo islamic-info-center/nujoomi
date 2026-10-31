@@ -279,3 +279,12 @@ body{padding-top:env(safe-area-inset-top,0px)}
 .qB .qA.wrong{background:linear-gradient(180deg,#C9CED6,#9AA3AF);box-shadow:0 7px 0 #6B7480;color:#fff;opacity:.85;animation:qShake .4s}
 .qB .qA.wrong .qL{color:#6B7480}
 @media (prefers-reduced-motion:reduce){.qB .qClouds i{animation:none}}
+/* bonus stars share the penalty panel */
+.penSeg{display:flex;gap:6px;background:var(--glass2);border:1px solid var(--edge);border-radius:999px;padding:5px;align-self:flex-start;max-width:100%}
+.penSeg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:0;background:none;border-radius:999px;padding:9px 16px;font-weight:800;white-space:nowrap;color:var(--ink)}
+.penSeg button[aria-pressed="true"]{color:#fff;background:linear-gradient(180deg,#FF7B6B,#E5383B);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #9E2224}
+.penSeg button[data-penmode="bonus"][aria-pressed="true"]{background:linear-gradient(180deg,#5FD68A,#21B26B);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #127A47}
+.bonBtn{background:linear-gradient(180deg,#5FD68A,#21B26B);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 5px 0 #127A47}
+.penPts.plus{color:#15A35E}.penPts.plus svg{fill:#FFC531;stroke:#E0A000}
+.penItem.bonus{background:linear-gradient(160deg,color-mix(in srgb,#21B26B 14%,var(--glass2)),var(--glass));border-color:color-mix(in srgb,#21B26B 45%,transparent)}
+.penItem.bonus .chip{background:linear-gradient(135deg,#7BE495,#21B26B)}

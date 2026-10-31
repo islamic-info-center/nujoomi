@@ -92,8 +92,9 @@ document.addEventListener('click',e=>{
   else if(d.rewunphoto){famUpdate({rewards:F.rewards.map(r=>{if(r.id!==d.rewunphoto)return r;const {img,...x}=r;return x})})}
   else if(d.delrew){famUpdate({rewards:(F.rewards||[]).filter(r=>r.id!==d.delrew)}).then(()=>toast(L('rewDeleted')))}
   else if(d.penk){penKids=penKids.includes(d.penk)?penKids.filter(x=>x!==d.penk):[...penKids,d.penk];b.setAttribute('aria-pressed',penKids.includes(d.penk))}
+  else if(d.penmode){penMode=d.penmode;render()}
   else if(d.penpre){const r=$('#penReason');if(r)r.value=d.penpre}
-  else if(d.unpen){const l=LPen.find(x=>x.id===d.unpen);if(!l)return;const b2=writeBatch(db);b2.delete(doc(logsCol(),l.id));b2.update(famRef(),{['points.'+l.kid]:increment(l.pts)});b2.commit().then(()=>toast(L('penUndone'))).catch(fail)}
+  else if(d.unpen){const l=LPen.find(x=>x.id===d.unpen);if(!l)return;const b2=writeBatch(db);b2.delete(doc(logsCol(),l.id));b2.update(famRef(),{['points.'+l.kid]:increment(l.bonus?-l.pts:l.pts)});b2.commit().then(()=>toast(L(l.bonus?'bonUndone':'penUndone'))).catch(fail)}
   else if(d.snd){if(d.snd==='custom'&&!S.adhan.sndVer){pickSound();return}famUpdate({'adhan.snd':d.snd})}
   else if(b.id==='adUp'){pickSound()}
   else if(d.icpick){newIc=d.icpick;document.querySelectorAll('[data-icpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
@@ -140,8 +141,8 @@ document.addEventListener('submit',async e=>{
   if(f.id==='penForm'){e.preventDefault();const reason=$('#penReason').value.trim(),pts=Math.max(1,Math.round(+$('#penPts').value||1));
     if(!penKids.length){toast(L('penPick'));return}if(!reason)return;
     const b=writeBatch(db),names=[];
-    for(const kidId of penKids){b.set(doc(logsCol()),{pen:true,kid:kidId,reason,pts,date:today(),at:now(),status:'approved',ts:serverTimestamp(),by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(-pts)});names.push(tr(kid(kidId).name))}
-    b.commit().catch(fail);penKids=[];toast(L('penDone',names.join(L('sep'))));document.activeElement?.blur();render();return}
+    for(const kidId of penKids){const bon=penMode==='bonus';b.set(doc(logsCol()),{pen:true,...(bon?{bonus:true}:{}),kid:kidId,reason,pts,date:today(),at:now(),status:'approved',ts:serverTimestamp(),by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(bon?pts:-pts)});names.push(tr(kid(kidId).name))}
+    b.commit().catch(fail);penKids=[];toast(L(penMode==='bonus'?'bonDone':'penDone',names.join(L('sep'))));document.activeElement?.blur();render();return}
   if(f.id==='catForm'){e.preventDefault();const nm=$('#fcName').value.trim();if(!nm)return;famUpdate({cats:[...S.cats,{id:'c'+Date.now(),name:nm,ic:newIc,col:newCol}]});document.activeElement?.blur();toast(L('typeAdded'));return}
   if(f.id!=='addForm')return;
   e.preventDefault();

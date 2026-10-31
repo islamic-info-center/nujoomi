@@ -134,7 +134,7 @@ Object.assign(T.ar,{brand:'نجومي',note:'',
   installIos:'لتثبيت التطبيق: اضغط زر المشاركة في سفاري ثم «إضافة إلى الشاشة الرئيسية».',installBtn:'تثبيت التطبيق',
   offline:'لا يوجد اتصال، سيتم حفظ التغييرات وإرسالها عند عودة الإنترنت',
   gender:'الجنس',boyLbl:'ولد',girlLbl:'بنت',doneShort:(d,n)=>`أنجزت ${d} من ${n}`,canCount:n=>n?`تقدر تطلب ${n}`:'اجمع النجوم',
-  penalties:'العقوبات',penNew:'خصم نجوم (عقوبة)',penP:'اختر الطفل، واكتب السبب، وحدد عدد النجوم. يظهر الخصم وسببه للطفل في يومه.',penWho:'على من؟',penReason:'سبب العقوبة',penPh:'مثال: الشجار مع الإخوة',penQuick:'أسباب شائعة (اضغط للاختيار)',penPts:'عدد النجوم المخصومة',penBtn:'خصم النجوم',penHist:'سجل العقوبات',penNone:'لا توجد عقوبات. ما شاء الله!',penUndo:'تراجع وإرجاع النجوم',penDone:n=>`خُصمت النجوم من ${n}`,penUndone:'أُلغيت العقوبة وأُرجعت النجوم',penPick:'اختر طفلاً واحداً على الأقل',penKid:n=>`خُصم منك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'}`,
+  penalties:'مكافأة وعقوبة',penTab:'خصم نجوم',bonTab:'نجوم إضافية',bonNew:'نجوم إضافية (مكافأة)',bonP:'كافئ الطفل على عمل استثنائي خارج المهام، مثل درجات ممتازة أو تصرف جميل. تُضاف النجوم لرصيده ويرى سببها في يومه.',bonReason:'سبب المكافأة',bonPh:'مثال: حصل على درجة ممتازة',bonPts:'عدد النجوم المضافة',bonBtn:'إضافة النجوم',bonDone:n=>`أُضيفت النجوم إلى ${n}`,bonUndone:'أُلغيت المكافأة وسُحبت النجوم',bonKid:n=>`أُضيف لك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'} مكافأة`,penNew:'خصم نجوم (عقوبة)',penP:'اختر الطفل، واكتب السبب، وحدد عدد النجوم. يظهر الخصم وسببه للطفل في يومه.',penWho:'على من؟',penReason:'سبب العقوبة',penPh:'مثال: الشجار مع الإخوة',penQuick:'أسباب شائعة (اضغط للاختيار)',penPts:'عدد النجوم المخصومة',penBtn:'خصم النجوم',penHist:'السجل',penNone:'السجل فارغ حتى الآن.',penUndo:'تراجع وإرجاع النجوم',penDone:n=>`خُصمت النجوم من ${n}`,penUndone:'أُلغيت العقوبة وأُرجعت النجوم',penPick:'اختر طفلاً واحداً على الأقل',penKid:n=>`خُصم منك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'}`,
   rewardsMgr:'إدارة المكافآت',rewardsP:'ضع المكافآت التي تناسبكم وسعر كل واحدة بالنجوم. تظهر للأبناء كما وضعتها بالضبط.',rewName:'اسم المكافأة',rewPh:'مثال: ساعة ألعاب إلكترونية',rewCost:'السعر بالنجوم',addReward:'إضافة المكافأة',rewAdded:'أُضيفت المكافأة',rewPhoto:'صورة المكافأة',rewUseIcon:'استخدام الأيقونة بدل الصورة',rewPhotoOpt:'صورة المكافأة (اختياري)',rewAddPhoto:'إضافة صورة',rewPhotoHint:'صوّر المنتج أو المكان الذي يحبه الأبناء، وستظهر الصورة بدل الأيقونة.',rewDeleted:'حُذفت المكافأة',noRewardsP:'لا توجد مكافآت بعد. أضف أول مكافأة من الأسفل.',noRewards:'لم يضع الوالدان مكافآت بعد.',
   sndBig:'الملف كبير، اختر مقطعاً أقصر (أقل من 700 كيلوبايت تقريباً، أي نصف دقيقة)',sndSaving:'جارٍ رفع الصوت إلى أجهزة الأبناء…',sndSaved:'حُفظ الصوت وسيصل لأجهزة الأبناء',
   adhanNote:'يؤذن على كل جهاز فتح فيه التطبيق (الأبناء وولي الأمر) بالصوت الذي اخترته. إذا فُتح التطبيق خلال 15 دقيقة من دخول الوقت يؤذن فوراً. لا يعمل والجهاز مقفل أو التطبيق مغلق تماماً.',playAdhan:'تشغيل الأذان'
@@ -158,7 +158,7 @@ Object.assign(T.en,{brand:'Nujoomi',note:'',
   installIos:'To install: tap the Share button in Safari, then “Add to Home Screen”.',installBtn:'Install app',
   offline:'No connection. Changes are saved and sent when the internet is back',
   gender:'Gender',boyLbl:'Boy',girlLbl:'Girl',doneShort:(d,n)=>`${d} of ${n} done`,canCount:n=>n?`${n} you can get`:'Collect stars',
-  penalties:'Penalties',penNew:'Deduct stars (penalty)',penP:'Pick the child, write the reason and the number of stars. The child sees the deduction and the reason on their day.',penWho:'For whom?',penReason:'Reason',penPh:'e.g. Fighting with siblings',penQuick:'Common reasons (tap to pick)',penPts:'Stars to deduct',penBtn:'Deduct stars',penHist:'Penalty history',penNone:'No penalties. Well done!',penUndo:'Undo and return stars',penDone:n=>`Stars deducted from ${n}`,penUndone:'Penalty undone, stars returned',penPick:'Pick at least one child',penKid:n=>`${n} star${n>1?'s':''} deducted`,
+  penalties:'Bonus & penalty',penTab:'Deduct stars',bonTab:'Bonus stars',bonNew:'Bonus stars (reward)',bonP:'Reward the child for something special outside the tasks, like great marks or lovely behaviour. The stars go to their jar and they see the reason on their day.',bonReason:'Reason for the bonus',bonPh:'e.g. Great test marks',bonPts:'Stars to add',bonBtn:'Add stars',bonDone:n=>`Stars added for ${n}`,bonUndone:'Bonus undone, stars taken back',bonKid:n=>`${n} bonus star${n>1?'s':''} for you`,penNew:'Deduct stars (penalty)',penP:'Pick the child, write the reason and the number of stars. The child sees the deduction and the reason on their day.',penWho:'For whom?',penReason:'Reason',penPh:'e.g. Fighting with siblings',penQuick:'Common reasons (tap to pick)',penPts:'Stars to deduct',penBtn:'Deduct stars',penHist:'History',penNone:'Nothing here yet.',penUndo:'Undo and return stars',penDone:n=>`Stars deducted from ${n}`,penUndone:'Penalty undone, stars returned',penPick:'Pick at least one child',penKid:n=>`${n} star${n>1?'s':''} deducted`,
   rewardsMgr:'Manage rewards',rewardsP:'Add the rewards that suit your family and a star price for each. Children see exactly what you add.',rewName:'Reward name',rewPh:'e.g. One hour of video games',rewCost:'Price in stars',addReward:'Add reward',rewAdded:'Reward added',rewPhoto:'Reward photo',rewUseIcon:'Use the icon instead',rewPhotoOpt:'Photo (optional)',rewAddPhoto:'Add a photo',rewPhotoHint:'Take a photo of the treat or place the kids love; it shows instead of the icon.',rewDeleted:'Reward deleted',noRewardsP:'No rewards yet. Add the first one below.',noRewards:'No rewards yet.',
   sndBig:'The file is too large; pick a shorter clip (under about 700 KB, around 30 seconds)',sndSaving:'Uploading the sound to the children\'s devices…',sndSaved:'Sound saved; it will reach the children\'s devices',
   adhanNote:'The adhan plays on every device with the app open (children and parents) using the sound you chose. Opened within 15 minutes of the prayer time, it plays right away. It cannot play on a locked device or a fully closed app.',playAdhan:'Play adhan'
@@ -392,7 +392,7 @@ function kidView(){
   </section>
   <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button><button class="tPlay" data-tab="play" aria-pressed="${tab==='play'}"><span class="bigIc">${I('game')}</span><span>${L('play')}<small>${L('jDone',QZ.filter((_,j)=>qLog(k.id,j)).length,QZ.length)}</small></span></button></div>
   ${buddyOff&&tab==='today'?`<button class="buddyOn" data-buddyon="1">${I('sparkle')} ${L('bShow')}</button>`:''}
-  ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem"><span class="chip">${I('warn')}</span><div><b>${esc(l.reason)}</b><small>${L('penKid',l.pts)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
+  ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem ${l.bonus?'bonus':''}"><span class="chip">${I(l.bonus?'gift':'warn')}</span><div><b>${esc(l.reason)}</b><small>${L(l.bonus?'bonKid':'penKid',l.pts)}</small></div><span class="penPts ${l.bonus?'plus':''}"><bdi dir="ltr">${l.bonus?'+':'−'}${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
   ${body}`;
 }
 
@@ -428,20 +428,23 @@ function rewardsView(){
   </form></section>`;
 }
 const PEN_PRESETS={ar:['الشجار مع الإخوة','عدم احترام الكبار','الكذب','ألفاظ غير لائقة','إهمال الواجبات','عدم ترتيب الغرفة'],en:['Fighting with siblings','Disrespect to elders','Lying','Bad language','Skipping homework','Messy room']};
-let penKids=[];
+const BON_PRESETS={ar:['درجات ممتازة في الاختبار','مساعدة إخوته','برّ الوالدين','حفظ سورة جديدة','سلوك رائع أمام الضيوف','مبادرة بعمل خير'],en:['Great test marks','Helped siblings','Kind to parents','Memorised a new surah','Lovely manners with guests','Did a good deed']};
+let penKids=[],penMode='bonus';
+/* bonus stars and penalties share one form and one history; a bonus is a pen log with bonus:true and adds stars */
 function penView(){
-  const hist=LPen.slice().sort((a,b)=>(b.date+b.at).localeCompare(a.date+a.at)).slice(0,40);
-  return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,var(--coral2),#E5383B)">${I('warn')}</span>${L('penNew')}</h3>
-  <p style="margin:0;color:var(--muted)">${L('penP')}</p>
+  const hist=LPen.slice().sort((a,b)=>(b.date+b.at).localeCompare(a.date+a.at)).slice(0,40),bon=penMode==='bonus',x=k=>L((bon?'bon':'pen')+k);
+  return `<section class="panel glass penPanel ${bon?'isBonus':'isPen'}"><div class="penSeg" role="group"><button type="button" data-penmode="bonus" aria-pressed="${bon}">${I('plus')}${L('bonTab')}</button><button type="button" data-penmode="pen" aria-pressed="${!bon}">${I('minus')}${L('penTab')}</button></div>
+  <h3><span class="chip" style="background:${bon?'linear-gradient(135deg,#7BE495,#21B26B)':'linear-gradient(135deg,var(--coral2),#E5383B)'}">${I(bon?'gift':'warn')}</span>${x('New')}</h3>
+  <p style="margin:0;color:var(--muted)">${x('P')}</p>
   <form id="penForm" class="penForm">
     <div class="full lbl">${L('penWho')}<div class="days kidsPick" id="penKids">${S.kids.map(k=>`<button type="button" data-penk="${k.id}" aria-pressed="${penKids.includes(k.id)}">${av(k)}${kn(k)}</button>`).join('')}</div></div>
-    <label class="full" for="penReason">${L('penReason')}<input id="penReason" required placeholder="${L('penPh')}"></label>
-    <div class="full lbl">${L('penQuick')}<div class="days">${PEN_PRESETS[lang].map(x=>`<button type="button" class="preset" data-penpre="${esc(x)}" style="--cc:#E5383B">${esc(x)}</button>`).join('')}</div></div>
-    <label for="penPts">${L('penPts')}<input id="penPts" type="number" min="1" max="100" value="2" required></label>
-    <div><button class="btn penBtn" type="submit">${I('minus')}${L('penBtn')}</button></div>
+    <label class="full" for="penReason">${x('Reason')}<input id="penReason" required placeholder="${x('Ph')}"></label>
+    <div class="full lbl">${L('penQuick')}<div class="days">${(bon?BON_PRESETS:PEN_PRESETS)[lang].map(t=>`<button type="button" class="preset" data-penpre="${esc(t)}" style="--cc:${bon?'#21B26B':'#E5383B'}">${esc(t)}</button>`).join('')}</div></div>
+    <label for="penPts">${x('Pts')}<input id="penPts" type="number" min="1" max="100" value="2" required></label>
+    <div><button class="btn penBtn ${bon?'bonBtn':''}" type="submit">${I(bon?'plus':'minus')}${x('Btn')}</button></div>
   </form></section>
   <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('list')}</span>${L('penHist')}</h3>
-  ${hist.length?`<div class="penHist">${hist.map(l=>{const k=kid(l.kid);return `<div class="req2"><span class="av">${k?av(k):''}</span><div class="who"><b>${esc(l.reason)}</b><small>${k?kn(k):''} · ${esc(l.date)} · ${fmt(l.at)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span><div class="acts"><button class="ico" data-unpen="${l.id}" title="${L('penUndo')}" aria-label="${L('penUndo')}">${I('retry')}</button></div></div>`}).join('')}</div>`:`<p class="empty">${L('penNone')}</p>`}</section>`;
+  ${hist.length?`<div class="penHist">${hist.map(l=>{const k=kid(l.kid);return `<div class="req2"><span class="av">${k?av(k):''}</span><div class="who"><b>${esc(l.reason)}</b><small>${k?kn(k):''} · ${esc(l.date)} · ${fmt(l.at)}</small></div><span class="penPts ${l.bonus?'plus':''}"><bdi dir="ltr">${l.bonus?'+':'−'}${l.pts}</bdi> ${I('star')}</span><div class="acts"><button class="ico" data-unpen="${l.id}" title="${L('penUndo')}" aria-label="${L('penUndo')}">${I('retry')}</button></div></div>`}).join('')}</div>`:`<p class="empty">${L('penNone')}</p>`}</section>`;
 }
 
 function parentView(){
@@ -505,7 +508,7 @@ function parentView(){
     ${S.tasks.filter(t=>!t.fixed).sort((a,b)=>tm(a).localeCompare(tm(b))).map(t=>`<tr><td><span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span>${esc(tr(t.title))}</td><td>${fmt(tm(t))}</td><td>${t.days.length===7?L('daily'):t.days.map(d=>DAYS[d]).join(L('sep'))}</td><td>${t.kids.map(k=>kid(k)).filter(Boolean).map(kn).join(L('sep'))}</td><td>${t.points}</td><td><button class="btn no sm" data-del="${t.id}" aria-label="${L('del')}">${I('trash')}</button></td></tr>`).join('')}
     </tbody></table></div></section>`;
   }
-  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="rewards" aria-pressed="${pt==='rewards'}">${I('trophy')}${L('rewards')}</button><button class="glass" data-ptab="pen" aria-pressed="${pt==='pen'}">${I('warn')}${L('penalties')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
+  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="rewards" aria-pressed="${pt==='rewards'}">${I('trophy')}${L('rewards')}</button><button class="glass" data-ptab="pen" aria-pressed="${pt==='pen'}">${I('star')}${L('penalties')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
 }
 /* ---------- writes ---------- */
 function approve(ls){
@@ -601,8 +604,9 @@ document.addEventListener('click',e=>{
   else if(d.rewunphoto){famUpdate({rewards:F.rewards.map(r=>{if(r.id!==d.rewunphoto)return r;const {img,...x}=r;return x})})}
   else if(d.delrew){famUpdate({rewards:(F.rewards||[]).filter(r=>r.id!==d.delrew)}).then(()=>toast(L('rewDeleted')))}
   else if(d.penk){penKids=penKids.includes(d.penk)?penKids.filter(x=>x!==d.penk):[...penKids,d.penk];b.setAttribute('aria-pressed',penKids.includes(d.penk))}
+  else if(d.penmode){penMode=d.penmode;render()}
   else if(d.penpre){const r=$('#penReason');if(r)r.value=d.penpre}
-  else if(d.unpen){const l=LPen.find(x=>x.id===d.unpen);if(!l)return;const b2=writeBatch(db);b2.delete(doc(logsCol(),l.id));b2.update(famRef(),{['points.'+l.kid]:increment(l.pts)});b2.commit().then(()=>toast(L('penUndone'))).catch(fail)}
+  else if(d.unpen){const l=LPen.find(x=>x.id===d.unpen);if(!l)return;const b2=writeBatch(db);b2.delete(doc(logsCol(),l.id));b2.update(famRef(),{['points.'+l.kid]:increment(l.bonus?-l.pts:l.pts)});b2.commit().then(()=>toast(L(l.bonus?'bonUndone':'penUndone'))).catch(fail)}
   else if(d.snd){if(d.snd==='custom'&&!S.adhan.sndVer){pickSound();return}famUpdate({'adhan.snd':d.snd})}
   else if(b.id==='adUp'){pickSound()}
   else if(d.icpick){newIc=d.icpick;document.querySelectorAll('[data-icpick]').forEach(x=>x.setAttribute('aria-pressed',x===b))}
@@ -649,8 +653,8 @@ document.addEventListener('submit',async e=>{
   if(f.id==='penForm'){e.preventDefault();const reason=$('#penReason').value.trim(),pts=Math.max(1,Math.round(+$('#penPts').value||1));
     if(!penKids.length){toast(L('penPick'));return}if(!reason)return;
     const b=writeBatch(db),names=[];
-    for(const kidId of penKids){b.set(doc(logsCol()),{pen:true,kid:kidId,reason,pts,date:today(),at:now(),status:'approved',ts:serverTimestamp(),by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(-pts)});names.push(tr(kid(kidId).name))}
-    b.commit().catch(fail);penKids=[];toast(L('penDone',names.join(L('sep'))));document.activeElement?.blur();render();return}
+    for(const kidId of penKids){const bon=penMode==='bonus';b.set(doc(logsCol()),{pen:true,...(bon?{bonus:true}:{}),kid:kidId,reason,pts,date:today(),at:now(),status:'approved',ts:serverTimestamp(),by:me.uid});b.update(famRef(),{['points.'+kidId]:increment(bon?pts:-pts)});names.push(tr(kid(kidId).name))}
+    b.commit().catch(fail);penKids=[];toast(L(penMode==='bonus'?'bonDone':'penDone',names.join(L('sep'))));document.activeElement?.blur();render();return}
   if(f.id==='catForm'){e.preventDefault();const nm=$('#fcName').value.trim();if(!nm)return;famUpdate({cats:[...S.cats,{id:'c'+Date.now(),name:nm,ic:newIc,col:newCol}]});document.activeElement?.blur();toast(L('typeAdded'));return}
   if(f.id!=='addForm')return;
   e.preventDefault();

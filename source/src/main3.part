@@ -138,7 +138,7 @@ function kidView(){
   </section>
   <div class="kidTabs"><button class="tToday" data-tab="today" aria-pressed="${tab==='today'}"><span class="bigIc">${I('clipboard')}</span><span>${L('todayTasks')}<small>${L('doneShort',done,list.length)}</small></span></button><button class="tRew" data-tab="rewards" aria-pressed="${tab==='rewards'}"><span class="bigIc">${I('trophy')}</span><span>${L('rewards')}<small>${L('canCount',S.rewards.filter(r=>k.points>=r.cost).length)}</small></span></button><button class="tPlay" data-tab="play" aria-pressed="${tab==='play'}"><span class="bigIc">${I('game')}</span><span>${L('play')}<small>${L('jDone',QZ.filter((_,j)=>qLog(k.id,j)).length,QZ.length)}</small></span></button></div>
   ${buddyOff&&tab==='today'?`<button class="buddyOn" data-buddyon="1">${I('sparkle')} ${L('bShow')}</button>`:''}
-  ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem"><span class="chip">${I('warn')}</span><div><b>${esc(l.reason)}</b><small>${L('penKid',l.pts)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
+  ${pens.length?`<section class="penBox">${pens.map(l=>`<div class="penItem ${l.bonus?'bonus':''}"><span class="chip">${I(l.bonus?'gift':'warn')}</span><div><b>${esc(l.reason)}</b><small>${L(l.bonus?'bonKid':'penKid',l.pts)}</small></div><span class="penPts ${l.bonus?'plus':''}"><bdi dir="ltr">${l.bonus?'+':'−'}${l.pts}</bdi> ${I('star')}</span></div>`).join('')}</section>`:''}
   ${body}`;
 }
 
@@ -174,20 +174,23 @@ function rewardsView(){
   </form></section>`;
 }
 const PEN_PRESETS={ar:['الشجار مع الإخوة','عدم احترام الكبار','الكذب','ألفاظ غير لائقة','إهمال الواجبات','عدم ترتيب الغرفة'],en:['Fighting with siblings','Disrespect to elders','Lying','Bad language','Skipping homework','Messy room']};
-let penKids=[];
+const BON_PRESETS={ar:['درجات ممتازة في الاختبار','مساعدة إخوته','برّ الوالدين','حفظ سورة جديدة','سلوك رائع أمام الضيوف','مبادرة بعمل خير'],en:['Great test marks','Helped siblings','Kind to parents','Memorised a new surah','Lovely manners with guests','Did a good deed']};
+let penKids=[],penMode='bonus';
+/* bonus stars and penalties share one form and one history; a bonus is a pen log with bonus:true and adds stars */
 function penView(){
-  const hist=LPen.slice().sort((a,b)=>(b.date+b.at).localeCompare(a.date+a.at)).slice(0,40);
-  return `<section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,var(--coral2),#E5383B)">${I('warn')}</span>${L('penNew')}</h3>
-  <p style="margin:0;color:var(--muted)">${L('penP')}</p>
+  const hist=LPen.slice().sort((a,b)=>(b.date+b.at).localeCompare(a.date+a.at)).slice(0,40),bon=penMode==='bonus',x=k=>L((bon?'bon':'pen')+k);
+  return `<section class="panel glass penPanel ${bon?'isBonus':'isPen'}"><div class="penSeg" role="group"><button type="button" data-penmode="bonus" aria-pressed="${bon}">${I('plus')}${L('bonTab')}</button><button type="button" data-penmode="pen" aria-pressed="${!bon}">${I('minus')}${L('penTab')}</button></div>
+  <h3><span class="chip" style="background:${bon?'linear-gradient(135deg,#7BE495,#21B26B)':'linear-gradient(135deg,var(--coral2),#E5383B)'}">${I(bon?'gift':'warn')}</span>${x('New')}</h3>
+  <p style="margin:0;color:var(--muted)">${x('P')}</p>
   <form id="penForm" class="penForm">
     <div class="full lbl">${L('penWho')}<div class="days kidsPick" id="penKids">${S.kids.map(k=>`<button type="button" data-penk="${k.id}" aria-pressed="${penKids.includes(k.id)}">${av(k)}${kn(k)}</button>`).join('')}</div></div>
-    <label class="full" for="penReason">${L('penReason')}<input id="penReason" required placeholder="${L('penPh')}"></label>
-    <div class="full lbl">${L('penQuick')}<div class="days">${PEN_PRESETS[lang].map(x=>`<button type="button" class="preset" data-penpre="${esc(x)}" style="--cc:#E5383B">${esc(x)}</button>`).join('')}</div></div>
-    <label for="penPts">${L('penPts')}<input id="penPts" type="number" min="1" max="100" value="2" required></label>
-    <div><button class="btn penBtn" type="submit">${I('minus')}${L('penBtn')}</button></div>
+    <label class="full" for="penReason">${x('Reason')}<input id="penReason" required placeholder="${x('Ph')}"></label>
+    <div class="full lbl">${L('penQuick')}<div class="days">${(bon?BON_PRESETS:PEN_PRESETS)[lang].map(t=>`<button type="button" class="preset" data-penpre="${esc(t)}" style="--cc:${bon?'#21B26B':'#E5383B'}">${esc(t)}</button>`).join('')}</div></div>
+    <label for="penPts">${x('Pts')}<input id="penPts" type="number" min="1" max="100" value="2" required></label>
+    <div><button class="btn penBtn ${bon?'bonBtn':''}" type="submit">${I(bon?'plus':'minus')}${x('Btn')}</button></div>
   </form></section>
   <section class="panel glass"><h3><span class="chip" style="background:linear-gradient(135deg,#B49BFF,#8A63FF)">${I('list')}</span>${L('penHist')}</h3>
-  ${hist.length?`<div class="penHist">${hist.map(l=>{const k=kid(l.kid);return `<div class="req2"><span class="av">${k?av(k):''}</span><div class="who"><b>${esc(l.reason)}</b><small>${k?kn(k):''} · ${esc(l.date)} · ${fmt(l.at)}</small></div><span class="penPts"><bdi dir="ltr">−${l.pts}</bdi> ${I('star')}</span><div class="acts"><button class="ico" data-unpen="${l.id}" title="${L('penUndo')}" aria-label="${L('penUndo')}">${I('retry')}</button></div></div>`}).join('')}</div>`:`<p class="empty">${L('penNone')}</p>`}</section>`;
+  ${hist.length?`<div class="penHist">${hist.map(l=>{const k=kid(l.kid);return `<div class="req2"><span class="av">${k?av(k):''}</span><div class="who"><b>${esc(l.reason)}</b><small>${k?kn(k):''} · ${esc(l.date)} · ${fmt(l.at)}</small></div><span class="penPts ${l.bonus?'plus':''}"><bdi dir="ltr">${l.bonus?'+':'−'}${l.pts}</bdi> ${I('star')}</span><div class="acts"><button class="ico" data-unpen="${l.id}" title="${L('penUndo')}" aria-label="${L('penUndo')}">${I('retry')}</button></div></div>`}).join('')}</div>`:`<p class="empty">${L('penNone')}</p>`}</section>`;
 }
 
 function parentView(){
@@ -251,5 +254,5 @@ function parentView(){
     ${S.tasks.filter(t=>!t.fixed).sort((a,b)=>tm(a).localeCompare(tm(b))).map(t=>`<tr><td><span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span>${esc(tr(t.title))}</td><td>${fmt(tm(t))}</td><td>${t.days.length===7?L('daily'):t.days.map(d=>DAYS[d]).join(L('sep'))}</td><td>${t.kids.map(k=>kid(k)).filter(Boolean).map(kn).join(L('sep'))}</td><td>${t.points}</td><td><button class="btn no sm" data-del="${t.id}" aria-label="${L('del')}">${I('trash')}</button></td></tr>`).join('')}
     </tbody></table></div></section>`;
   }
-  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="rewards" aria-pressed="${pt==='rewards'}">${I('trophy')}${L('rewards')}</button><button class="glass" data-ptab="pen" aria-pressed="${pt==='pen'}">${I('warn')}${L('penalties')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
+  return `<div class="tabs"><button class="glass" data-ptab="requests" aria-pressed="${pt==='requests'}">${I('bell')}${L('requests')} ${pend.length?`(${pend.length})`:''}</button><button class="glass" data-ptab="tasks" aria-pressed="${pt==='tasks'}">${I('clock')}${L('tasksTab')}</button><button class="glass" data-ptab="rewards" aria-pressed="${pt==='rewards'}">${I('trophy')}${L('rewards')}</button><button class="glass" data-ptab="pen" aria-pressed="${pt==='pen'}">${I('star')}${L('penalties')}</button><button class="glass" data-ptab="family" aria-pressed="${pt==='family'}">${I('users')}${L('family')}</button></div>${body}`;
 }
