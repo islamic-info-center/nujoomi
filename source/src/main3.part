@@ -26,6 +26,8 @@ const WIN={fajr:'sunrise',dhuhr:'asr',asr:'maghrib',maghrib:'isha',isha:'midnigh
 const hhmm=n=>`${String(Math.floor(n/60)%24).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`;
 const tm=t=>t.pr?hhmm(prayerTimes()[t.pr]):t.time;
 function nowMin(){const q=tzParts(place().country.z,new Date());return q.h*60+q.mi}
+/* a missed prayer must be made up (qada, no star) before a later prayer can be logged */
+function owedPrayer(kidId){for(const k2 of PRAYERS){const t=todays(kidId).find(x=>x.pr===k2);if(!t)continue;const l=log(t.id,kidId);if((!l||l.status==='rejected')&&prayerState(t).s==='missed')return t}return null}
 function prayerState(t){const p=prayerTimes(),n=nowMin(),st=p[t.pr],en=p[WIN[t.pr]];return n<st?{s:'locked',left:st-n}:n<en?{s:'now',left:en-n,end:en}:{s:'missed',end:en}}
 const dur=m=>{const h=Math.floor(m/60),mm=m%60;return lang==='ar'?(h?`${h} س `:'')+`${mm} د`:(h?`${h}h `:'')+`${mm}m`};
 
@@ -112,16 +114,20 @@ function kidView(){
   const pens=S.logs.filter(l=>l.pen&&l.kid===k.id&&l.date===today());
   let body='';
   if(tab==='today'){
+    const owed=owedPrayer(k.id);
     body=allCats().map(cc=>{const c=cc.id;
       const ts=list.filter(t=>t.cat===c); if(!ts.length)return '';
       return `<section class="group ${catCls(c)}" style="${catSty(c)}"><h3><span class="chip">${I(cc.ic)}</span>${esc(tr(cc.name))}${c==='prayer'?`<small class="loc">${I('pin')} ${esc(tr(place()))}</small>`:''}<small>${ts.filter(t=>log(t.id,k.id)?.status==='approved').length}/${ts.length}</small></h3><div class="grid">${ts.map(t=>{
         let st=log(t.id,k.id)?.status, extra='';
-        if(t.pr&&(!st||st==='rejected')){const ps=prayerState(t);if(ps.s!=='now'||!st){st=ps.s;extra=ps.s==='locked'?L('startsIn',dur(ps.left)):ps.s==='now'?L('leftNow',dur(ps.left)):''}}
-        const label={pending:I('hourglass')+L('pending'),approved:I('check')+L('approved'),rejected:I('retry')+L('rejected'),locked:I('lock')+L('locked'),now:I('bell')+L('nowLbl'),missed:I('x')+L('missed')}[st]||'';
-        return `<button class="task glass ${catCls(c)} ${st?'s-'+st:''}" style="${catSty(c)}" data-task="${t.id}">
-          ${st==='approved'?`<span class="seal">${I('check')}</span>`:label?`<span class="state">${label}</span>`:''}
-          <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
-          ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">+${t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
+        const lg=log(t.id,k.id),qd=lg?.qada&&lg.status!=='rejected';
+        if(t.pr&&(!st||st==='rejected')){const ps=prayerState(t);if(ps.s!=='now'||!st){st=ps.s;extra=ps.s==='locked'?L('startsIn',dur(ps.left)):ps.s==='now'?L('leftNow',dur(ps.left)):ps.s==='missed'?L('qadaHint',k.g==='f'):''}
+          const ow=owed;if(ow&&ow.id!==t.id&&ps.s==='now'&&PRAYERS.indexOf(ow.pr)<PRAYERS.indexOf(t.pr)){st='owed';extra=L('qadaFirst',L('pn_'+ow.pr),k.g==='f')}}
+        const label={pending:I('hourglass')+L('pending'),approved:I('check')+L('approved'),rejected:I('retry')+L('rejected'),locked:I('lock')+L('locked'),now:I('bell')+L('nowLbl'),missed:I('retry')+L('qadaNow'),owed:I('lock')+L('qadaLock')}[st]||'';
+        const lb=qd?(st==='approved'?I('check')+L('qadaDone'):I('hourglass')+L('qadaPend')):label;
+        return `<button class="task glass ${catCls(c)} ${st?'s-'+st:''} ${qd?'s-qada':''}" style="${catSty(c)}" data-task="${t.id}">
+          ${st==='approved'&&!qd?`<span class="seal">${I('check')}</span>`:lb?`<span class="state">${lb}</span>`:''}
+          <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'&&!qd?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
+          ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">${qd||st==='missed'?'0':'+'+t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
   }else if(tab==='play'){body=playView(k)
   }else{
     body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
@@ -207,7 +213,7 @@ function parentView(){
     ${pend.length?`<div class="reqCols">${S.kids.map(k=>{const mine=pend.filter(l=>l.kid===k.id);
       return `<div class="reqKid ${mine.length?'':'clear'}"><div class="reqHead">${av(k)}<b>${kn(k)}</b><span class="cnt">${mine.length}</span>${mine.length>1?`<button class="btn go sm" data-okall="${k.id}">${I('check')}${L('approveAll')}</button>`:''}</div>
       ${mine.length?mine.map(l=>{const isR=l.reward;const t=isR?S.rewards.find(r=>r.id===l.reward):task(l.task);if(!t)return '';
-        return `<div class="req2"><span class="chip ${isR?'':catCls(t.cat)}" ${isR?'style="background:linear-gradient(135deg,var(--coral2),var(--coral))"':`style="${catSty(t.cat)}"`}>${I(t.ic)}</span><div class="who"><b>${esc(tr(t.title))}</b><small>${isR?L('rewardReq',t.cost):L('saysDone',fmt(l.at),t.points,k.g==='f')}</small></div>
+        return `<div class="req2"><span class="chip ${isR?'':catCls(t.cat)}" ${isR?'style="background:linear-gradient(135deg,var(--coral2),var(--coral))"':`style="${catSty(t.cat)}"`}>${I(t.ic)}</span><div class="who"><b>${esc(tr(t.title))}</b><small>${isR?L('rewardReq',t.cost):l.qada?L('qadaReq',fmt(l.at),k.g==='f'):L('saysDone',fmt(l.at),t.points,k.g==='f')}</small></div>
         <div class="acts"><button class="ico ok" data-ok="${l.id}" title="${L('approve')}" aria-label="${L('approve')}">${I('check')}</button><button class="ico del" data-rej="${l.id}" title="${L('reject')}" aria-label="${L('reject')}">${I('x')}</button></div></div>`}).join('')
         :`<p class="empty sm">${I('check')} ${L('noReqKid')}</p>`}</div>`}).join('')}</div>`
       :`<p class="empty">${L('noReq')}</p>`}</section>`;

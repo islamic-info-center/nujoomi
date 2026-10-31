@@ -2,7 +2,7 @@
 function approve(ls){
   const b=writeBatch(db);
   for(const l of ls){
-    const pts=('quiz' in l)?jPts(l.quiz):l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
+    const pts=('quiz' in l)?jPts(l.quiz):l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):l.qada?0:(task(l.task)?.points||0);
     b.update(famRef(),{['points.'+l.kid]:increment(pts)});
     b.update(doc(logsCol(),l.id),{status:'approved',by:me.uid});
   }
@@ -68,7 +68,12 @@ document.addEventListener('click',e=>{
   else if(d.ptab){V.ptab=d.ptab;render()}
   else if(d.task){
     const t=task(d.task),k=kid(V.kid),l=log(t.id,k.id);
-    if(t.pr&&(!l||l.status==='rejected')){const ps=prayerState(t);if(ps.s==='locked'){toast(L('notYetTime',dur(ps.left)));return}if(ps.s==='missed'){toast(L('missedT'));return}}
+    if(t.pr&&(!l||l.status==='rejected')){const ps=prayerState(t),f=k.g==='f';if(ps.s==='locked'){toast(L('notYetTime',dur(ps.left)));return}
+      const ow=owedPrayer(k.id);if(ow&&ow.id!==t.id&&ps.s!=='missed'&&PRAYERS.indexOf(ow.pr)<PRAYERS.indexOf(t.pr)){toast(L('qadaFirst',L('pn_'+ow.pr),f));return}
+      if(ps.s==='missed'){const sh=sheet(`<span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span><h2>${L('qadaAsk',L('pn_'+t.pr),f)}</h2><p style="margin:0;color:var(--muted)">${L('qadaP',f)}</p>
+        <div class="row"><button class="btn go" id="yes">${I('check')}${L('qadaYes',f)}</button><button class="btn no" id="notyet">${L('notYet')}</button></div>`);
+        sh.querySelector('#notyet').onclick=()=>sh.remove();
+        sh.querySelector('#yes').onclick=()=>{sh.remove();setDoc(doc(logsCol(),`${today()}_${k.id}_${t.id}`),{task:t.id,kid:k.id,date:today(),status:'pending',qada:true,at:now(),ts:serverTimestamp()}).catch(fail);toast(L('qadaSent'))};return}}
     if(l&&l.status!=='rejected'){toast(l.status==='pending'?L('withParent'):L('alreadyOk'));return}
     const sh=sheet(`<span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span><h2>${L('ask',esc(tr(t.title)))}</h2><p style="margin:0;color:var(--muted)">${L('askP',t.points)}</p>
       <div class="row"><button class="btn go" id="yes">${I('check')}${L('yes')}</button><button class="btn no" id="notyet">${L('notYet')}</button></div>`);

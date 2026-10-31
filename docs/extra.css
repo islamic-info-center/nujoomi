@@ -299,3 +299,11 @@ body{padding-top:env(safe-area-inset-top,0px)}
 .secB[aria-pressed="true"]{background:linear-gradient(160deg,var(--c1),var(--c2));color:#fff;border-color:#fff;transform:translateY(-2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 6px 0 color-mix(in srgb,var(--c2) 55%,#000)}
 .secB[aria-pressed="true"] small{color:rgba(255,255,255,.9)}
 .secB[aria-pressed="true"] .secIc{background:rgba(255,255,255,.25)}
+/* prayer make-up (qada) */
+.task.s-owed{filter:grayscale(.55);opacity:.75}
+.s-owed .state{background:var(--muted)}
+.s-missed .state{animation:qadaPulse 1.6s ease-in-out infinite}
+@keyframes qadaPulse{50%{transform:scale(1.06)}}
+.task.s-qada .state{background:#7A8BA6}
+.task.s-qada.s-approved .state{background:#3F9B6E}
+@media (prefers-reduced-motion:reduce){.s-missed .state{animation:none}}

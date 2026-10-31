@@ -134,6 +134,7 @@ Object.assign(T.ar,{brand:'نجومي',note:'',
   installIos:'لتثبيت التطبيق: اضغط زر المشاركة في سفاري ثم «إضافة إلى الشاشة الرئيسية».',installBtn:'تثبيت التطبيق',
   offline:'لا يوجد اتصال، سيتم حفظ التغييرات وإرسالها عند عودة الإنترنت',
   gender:'الجنس',boyLbl:'ولد',girlLbl:'بنت',doneShort:(d,n)=>`أنجزت ${d} من ${n}`,canCount:n=>n?`تقدر تطلب ${n}`:'اجمع النجوم',
+  qadaNow:'اقضِها الآن',qadaLock:'مقفلة حتى القضاء',qadaHint:f=>f?'فاتتكِ، صلّيها قضاءً ثم اضغطي':'فاتتك، صلّها قضاءً ثم اضغط',qadaFirst:(p,f)=>`اقضِ${f?'ي':''} صلاة ${p} أولًا`,qadaAsk:(p,f)=>`هل قضيت${f?'ِ':''} صلاة ${p}؟`,qadaP:f=>f?'فاتكِ وقتها، فصلّيها الآن قضاءً. القضاء بلا نجمة، لكن يفتح لكِ الصلاة التالية.':'فاتك وقتها، فصلّها الآن قضاءً. القضاء بلا نجمة، لكن يفتح لك الصلاة التالية.',qadaYes:f=>f?'نعم، قضيتُ الصلاة':'نعم، قضيتُ الصلاة',qadaSent:'سُجّل القضاء، وفُتحت الصلاة التالية',qadaPend:'قضاء، بانتظار الموافقة',qadaDone:'قُضيت',qadaReq:(t,f)=>`${f?'تقول إنها قضت':'يقول إنه قضى'} الصلاة · ${t} · بلا نجمة`,
   penalties:'مكافأة وعقوبة',penTab:'خصم نجوم',bonTab:'نجوم إضافية',bonNew:'نجوم إضافية (مكافأة)',bonP:'كافئ الطفل على عمل استثنائي خارج المهام، مثل درجات ممتازة أو تصرف جميل. تُضاف النجوم لرصيده ويرى سببها في يومه.',bonReason:'سبب المكافأة',bonPh:'مثال: حصل على درجة ممتازة',bonPts:'عدد النجوم المضافة',bonBtn:'إضافة النجوم',bonDone:n=>`أُضيفت النجوم إلى ${n}`,bonUndone:'أُلغيت المكافأة وسُحبت النجوم',bonKid:n=>`أُضيف لك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'} مكافأة`,penNew:'خصم نجوم (عقوبة)',penP:'اختر الطفل، واكتب السبب، وحدد عدد النجوم. يظهر الخصم وسببه للطفل في يومه.',penWho:'على من؟',penReason:'سبب العقوبة',penPh:'مثال: الشجار مع الإخوة',penQuick:'أسباب شائعة (اضغط للاختيار)',penPts:'عدد النجوم المخصومة',penBtn:'خصم النجوم',penHist:'السجل',penNone:'السجل فارغ حتى الآن.',penUndo:'تراجع وإرجاع النجوم',penDone:n=>`خُصمت النجوم من ${n}`,penUndone:'أُلغيت العقوبة وأُرجعت النجوم',penPick:'اختر طفلاً واحداً على الأقل',penKid:n=>`خُصم منك ${n} ${n===1?'نجمة':n===2?'نجمتان':n<=10?'نجوم':'نجمة'}`,
   rewardsMgr:'إدارة المكافآت',rewardsP:'ضع المكافآت التي تناسبكم وسعر كل واحدة بالنجوم. تظهر للأبناء كما وضعتها بالضبط.',rewName:'اسم المكافأة',rewPh:'مثال: ساعة ألعاب إلكترونية',rewCost:'السعر بالنجوم',addReward:'إضافة المكافأة',rewAdded:'أُضيفت المكافأة',rewPhoto:'صورة المكافأة',rewUseIcon:'استخدام الأيقونة بدل الصورة',rewPhotoOpt:'صورة المكافأة (اختياري)',rewAddPhoto:'إضافة صورة',rewPhotoHint:'صوّر المنتج أو المكان الذي يحبه الأبناء، وستظهر الصورة بدل الأيقونة.',rewDeleted:'حُذفت المكافأة',noRewardsP:'لا توجد مكافآت بعد. أضف أول مكافأة من الأسفل.',noRewards:'لم يضع الوالدان مكافآت بعد.',
   sndBig:'الملف كبير، اختر مقطعاً أقصر (أقل من 700 كيلوبايت تقريباً، أي نصف دقيقة)',sndSaving:'جارٍ رفع الصوت إلى أجهزة الأبناء…',sndSaved:'حُفظ الصوت وسيصل لأجهزة الأبناء',
@@ -158,6 +159,7 @@ Object.assign(T.en,{brand:'Nujoomi',note:'',
   installIos:'To install: tap the Share button in Safari, then “Add to Home Screen”.',installBtn:'Install app',
   offline:'No connection. Changes are saved and sent when the internet is back',
   gender:'Gender',boyLbl:'Boy',girlLbl:'Girl',doneShort:(d,n)=>`${d} of ${n} done`,canCount:n=>n?`${n} you can get`:'Collect stars',
+  qadaNow:'Make it up now',qadaLock:'Locked until make-up',qadaHint:()=>'Missed: pray it now as qada, then tap',qadaFirst:p=>`Make up ${p} first`,qadaAsk:p=>`Did you make up ${p}?`,qadaP:()=>'Its time has passed, so pray it now as a make-up (qada). A make-up earns no star, but it opens the next prayer.',qadaYes:()=>'Yes, I made it up',qadaSent:'Make-up logged; the next prayer is open',qadaPend:'Make-up, waiting for approval',qadaDone:'Made up',qadaReq:t=>`Says they made up the prayer · ${t} · no star`,
   penalties:'Bonus & penalty',penTab:'Deduct stars',bonTab:'Bonus stars',bonNew:'Bonus stars (reward)',bonP:'Reward the child for something special outside the tasks, like great marks or lovely behaviour. The stars go to their jar and they see the reason on their day.',bonReason:'Reason for the bonus',bonPh:'e.g. Great test marks',bonPts:'Stars to add',bonBtn:'Add stars',bonDone:n=>`Stars added for ${n}`,bonUndone:'Bonus undone, stars taken back',bonKid:n=>`${n} bonus star${n>1?'s':''} for you`,penNew:'Deduct stars (penalty)',penP:'Pick the child, write the reason and the number of stars. The child sees the deduction and the reason on their day.',penWho:'For whom?',penReason:'Reason',penPh:'e.g. Fighting with siblings',penQuick:'Common reasons (tap to pick)',penPts:'Stars to deduct',penBtn:'Deduct stars',penHist:'History',penNone:'Nothing here yet.',penUndo:'Undo and return stars',penDone:n=>`Stars deducted from ${n}`,penUndone:'Penalty undone, stars returned',penPick:'Pick at least one child',penKid:n=>`${n} star${n>1?'s':''} deducted`,
   rewardsMgr:'Manage rewards',rewardsP:'Add the rewards that suit your family and a star price for each. Children see exactly what you add.',rewName:'Reward name',rewPh:'e.g. One hour of video games',rewCost:'Price in stars',addReward:'Add reward',rewAdded:'Reward added',rewPhoto:'Reward photo',rewUseIcon:'Use the icon instead',rewPhotoOpt:'Photo (optional)',rewAddPhoto:'Add a photo',rewPhotoHint:'Take a photo of the treat or place the kids love; it shows instead of the icon.',rewDeleted:'Reward deleted',noRewardsP:'No rewards yet. Add the first one below.',noRewards:'No rewards yet.',
   sndBig:'The file is too large; pick a shorter clip (under about 700 KB, around 30 seconds)',sndSaving:'Uploading the sound to the children\'s devices…',sndSaved:'Sound saved; it will reach the children\'s devices',
@@ -280,6 +282,8 @@ const WIN={fajr:'sunrise',dhuhr:'asr',asr:'maghrib',maghrib:'isha',isha:'midnigh
 const hhmm=n=>`${String(Math.floor(n/60)%24).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`;
 const tm=t=>t.pr?hhmm(prayerTimes()[t.pr]):t.time;
 function nowMin(){const q=tzParts(place().country.z,new Date());return q.h*60+q.mi}
+/* a missed prayer must be made up (qada, no star) before a later prayer can be logged */
+function owedPrayer(kidId){for(const k2 of PRAYERS){const t=todays(kidId).find(x=>x.pr===k2);if(!t)continue;const l=log(t.id,kidId);if((!l||l.status==='rejected')&&prayerState(t).s==='missed')return t}return null}
 function prayerState(t){const p=prayerTimes(),n=nowMin(),st=p[t.pr],en=p[WIN[t.pr]];return n<st?{s:'locked',left:st-n}:n<en?{s:'now',left:en-n,end:en}:{s:'missed',end:en}}
 const dur=m=>{const h=Math.floor(m/60),mm=m%60;return lang==='ar'?(h?`${h} س `:'')+`${mm} د`:(h?`${h}h `:'')+`${mm}m`};
 
@@ -366,16 +370,20 @@ function kidView(){
   const pens=S.logs.filter(l=>l.pen&&l.kid===k.id&&l.date===today());
   let body='';
   if(tab==='today'){
+    const owed=owedPrayer(k.id);
     body=allCats().map(cc=>{const c=cc.id;
       const ts=list.filter(t=>t.cat===c); if(!ts.length)return '';
       return `<section class="group ${catCls(c)}" style="${catSty(c)}"><h3><span class="chip">${I(cc.ic)}</span>${esc(tr(cc.name))}${c==='prayer'?`<small class="loc">${I('pin')} ${esc(tr(place()))}</small>`:''}<small>${ts.filter(t=>log(t.id,k.id)?.status==='approved').length}/${ts.length}</small></h3><div class="grid">${ts.map(t=>{
         let st=log(t.id,k.id)?.status, extra='';
-        if(t.pr&&(!st||st==='rejected')){const ps=prayerState(t);if(ps.s!=='now'||!st){st=ps.s;extra=ps.s==='locked'?L('startsIn',dur(ps.left)):ps.s==='now'?L('leftNow',dur(ps.left)):''}}
-        const label={pending:I('hourglass')+L('pending'),approved:I('check')+L('approved'),rejected:I('retry')+L('rejected'),locked:I('lock')+L('locked'),now:I('bell')+L('nowLbl'),missed:I('x')+L('missed')}[st]||'';
-        return `<button class="task glass ${catCls(c)} ${st?'s-'+st:''}" style="${catSty(c)}" data-task="${t.id}">
-          ${st==='approved'?`<span class="seal">${I('check')}</span>`:label?`<span class="state">${label}</span>`:''}
-          <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
-          ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">+${t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
+        const lg=log(t.id,k.id),qd=lg?.qada&&lg.status!=='rejected';
+        if(t.pr&&(!st||st==='rejected')){const ps=prayerState(t);if(ps.s!=='now'||!st){st=ps.s;extra=ps.s==='locked'?L('startsIn',dur(ps.left)):ps.s==='now'?L('leftNow',dur(ps.left)):ps.s==='missed'?L('qadaHint',k.g==='f'):''}
+          const ow=owed;if(ow&&ow.id!==t.id&&ps.s==='now'&&PRAYERS.indexOf(ow.pr)<PRAYERS.indexOf(t.pr)){st='owed';extra=L('qadaFirst',L('pn_'+ow.pr),k.g==='f')}}
+        const label={pending:I('hourglass')+L('pending'),approved:I('check')+L('approved'),rejected:I('retry')+L('rejected'),locked:I('lock')+L('locked'),now:I('bell')+L('nowLbl'),missed:I('retry')+L('qadaNow'),owed:I('lock')+L('qadaLock')}[st]||'';
+        const lb=qd?(st==='approved'?I('check')+L('qadaDone'):I('hourglass')+L('qadaPend')):label;
+        return `<button class="task glass ${catCls(c)} ${st?'s-'+st:''} ${qd?'s-qada':''}" style="${catSty(c)}" data-task="${t.id}">
+          ${st==='approved'&&!qd?`<span class="seal">${I('check')}</span>`:lb?`<span class="state">${lb}</span>`:''}
+          <span class="chip">${I(t.ic)}</span><span class="t">${esc(tr(t.title))}</span>${st==='approved'&&!qd?`<span class="wow">${I('star')} ${L('wow')}</span>`:''}
+          ${extra?`<span class="hint">${extra}</span>`:''}<span class="meta"><span>${I('clock')} ${fmt(tm(t))}${t.pr?` – ${fmt(hhmm(prayerTimes()[WIN[t.pr]]))}`:''}</span><span class="pts">${I('star')} <bdi dir="ltr">${qd||st==='missed'?'0':'+'+t.points}</bdi></span></span></button>`}).join('')}</div></section>`}).join('');
   }else if(tab==='play'){body=playView(k)
   }else{
     body=`<section class="group reward"><h3><span class="chip">${I('trophy')}</span>${L('swap')}</h3>${S.rewards.length?'':`<p class="empty">${L('noRewards')}</p>`}<div class="grid">${S.rewards.map(r=>{
@@ -461,7 +469,7 @@ function parentView(){
     ${pend.length?`<div class="reqCols">${S.kids.map(k=>{const mine=pend.filter(l=>l.kid===k.id);
       return `<div class="reqKid ${mine.length?'':'clear'}"><div class="reqHead">${av(k)}<b>${kn(k)}</b><span class="cnt">${mine.length}</span>${mine.length>1?`<button class="btn go sm" data-okall="${k.id}">${I('check')}${L('approveAll')}</button>`:''}</div>
       ${mine.length?mine.map(l=>{const isR=l.reward;const t=isR?S.rewards.find(r=>r.id===l.reward):task(l.task);if(!t)return '';
-        return `<div class="req2"><span class="chip ${isR?'':catCls(t.cat)}" ${isR?'style="background:linear-gradient(135deg,var(--coral2),var(--coral))"':`style="${catSty(t.cat)}"`}>${I(t.ic)}</span><div class="who"><b>${esc(tr(t.title))}</b><small>${isR?L('rewardReq',t.cost):L('saysDone',fmt(l.at),t.points,k.g==='f')}</small></div>
+        return `<div class="req2"><span class="chip ${isR?'':catCls(t.cat)}" ${isR?'style="background:linear-gradient(135deg,var(--coral2),var(--coral))"':`style="${catSty(t.cat)}"`}>${I(t.ic)}</span><div class="who"><b>${esc(tr(t.title))}</b><small>${isR?L('rewardReq',t.cost):l.qada?L('qadaReq',fmt(l.at),k.g==='f'):L('saysDone',fmt(l.at),t.points,k.g==='f')}</small></div>
         <div class="acts"><button class="ico ok" data-ok="${l.id}" title="${L('approve')}" aria-label="${L('approve')}">${I('check')}</button><button class="ico del" data-rej="${l.id}" title="${L('reject')}" aria-label="${L('reject')}">${I('x')}</button></div></div>`}).join('')
         :`<p class="empty sm">${I('check')} ${L('noReqKid')}</p>`}</div>`}).join('')}</div>`
       :`<p class="empty">${L('noReq')}</p>`}</section>`;
@@ -514,7 +522,7 @@ function parentView(){
 function approve(ls){
   const b=writeBatch(db);
   for(const l of ls){
-    const pts=('quiz' in l)?jPts(l.quiz):l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):(task(l.task)?.points||0);
+    const pts=('quiz' in l)?jPts(l.quiz):l.reward?-(S.rewards.find(r=>r.id===l.reward)?.cost||0):l.qada?0:(task(l.task)?.points||0);
     b.update(famRef(),{['points.'+l.kid]:increment(pts)});
     b.update(doc(logsCol(),l.id),{status:'approved',by:me.uid});
   }
@@ -580,7 +588,12 @@ document.addEventListener('click',e=>{
   else if(d.ptab){V.ptab=d.ptab;render()}
   else if(d.task){
     const t=task(d.task),k=kid(V.kid),l=log(t.id,k.id);
-    if(t.pr&&(!l||l.status==='rejected')){const ps=prayerState(t);if(ps.s==='locked'){toast(L('notYetTime',dur(ps.left)));return}if(ps.s==='missed'){toast(L('missedT'));return}}
+    if(t.pr&&(!l||l.status==='rejected')){const ps=prayerState(t),f=k.g==='f';if(ps.s==='locked'){toast(L('notYetTime',dur(ps.left)));return}
+      const ow=owedPrayer(k.id);if(ow&&ow.id!==t.id&&ps.s!=='missed'&&PRAYERS.indexOf(ow.pr)<PRAYERS.indexOf(t.pr)){toast(L('qadaFirst',L('pn_'+ow.pr),f));return}
+      if(ps.s==='missed'){const sh=sheet(`<span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span><h2>${L('qadaAsk',L('pn_'+t.pr),f)}</h2><p style="margin:0;color:var(--muted)">${L('qadaP',f)}</p>
+        <div class="row"><button class="btn go" id="yes">${I('check')}${L('qadaYes',f)}</button><button class="btn no" id="notyet">${L('notYet')}</button></div>`);
+        sh.querySelector('#notyet').onclick=()=>sh.remove();
+        sh.querySelector('#yes').onclick=()=>{sh.remove();setDoc(doc(logsCol(),`${today()}_${k.id}_${t.id}`),{task:t.id,kid:k.id,date:today(),status:'pending',qada:true,at:now(),ts:serverTimestamp()}).catch(fail);toast(L('qadaSent'))};return}}
     if(l&&l.status!=='rejected'){toast(l.status==='pending'?L('withParent'):L('alreadyOk'));return}
     const sh=sheet(`<span class="chip ${catCls(t.cat)}" style="${catSty(t.cat)}">${I(t.ic)}</span><h2>${L('ask',esc(tr(t.title)))}</h2><p style="margin:0;color:var(--muted)">${L('askP',t.points)}</p>
       <div class="row"><button class="btn go" id="yes">${I('check')}${L('yes')}</button><button class="btn no" id="notyet">${L('notYet')}</button></div>`);
